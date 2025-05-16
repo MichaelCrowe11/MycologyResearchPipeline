@@ -27,8 +27,8 @@
         <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
             <div class="container-fluid">
                 <a class="navbar-brand d-flex align-items-center" href="{{ url_for('web.index') }}">
-                    <img src="{{ url_for('static', filename='images/mycology-logo-small.svg') }}" width="40" height="40" alt="Mycology Research Logo" class="me-2">
-                    <span class="fw-bold">Mycology Research Pipeline</span>
+                    <img src="{{ url_for('static', filename='images/official-logo.png') }}" width="45" alt="Mycology Research Logo" class="me-2">
+                    <span class="fw-bold" style="color: #000000;">Mycology Research Pipeline</span>
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -105,36 +105,36 @@
         {% block content %}{% endblock %}
     </main>
     
-    <footer class="bg-light py-4 mt-5 border-top">
+    <footer class="py-4 mt-5 border-top" style="background-color: white;">
         <div class="container">
             <div class="row">
                 <div class="col-md-6">
                     <div class="d-flex align-items-center mb-3">
-                        <img src="{{ url_for('static', filename='images/mycology-logo.svg') }}" width="120" alt="Mycology Research Logo" class="me-3">
+                        <img src="{{ url_for('static', filename='images/official-logo.png') }}" width="120" alt="Mycology Research Logo" class="me-3">
                     </div>
-                    <p class="text-muted">A platform for analyzing medicinal compound bioactivity patterns in mycology research.</p>
+                    <p style="color: #333;">A platform for analyzing medicinal compound bioactivity patterns in mycology research.</p>
                 </div>
                 <div class="col-md-3">
-                    <h5 class="text-secondary">Links</h5>
+                    <h5 style="color: #333;">Links</h5>
                     <ul class="list-unstyled">
-                        <li><a href="{{ url_for('web.index') }}" class="text-decoration-none">Home</a></li>
-                        <li><a href="{{ url_for('web.dashboard') }}" class="text-decoration-none">Dashboard</a></li>
-                        <li><a href="{{ url_for('web.documentation') }}" class="text-decoration-none">Documentation</a></li>
-                        <li><a href="{{ url_for('web.about') }}" class="text-decoration-none">About</a></li>
+                        <li><a href="{{ url_for('web.index') }}" class="text-decoration-none" style="color: #34836e;">Home</a></li>
+                        <li><a href="{{ url_for('web.dashboard') }}" class="text-decoration-none" style="color: #34836e;">Dashboard</a></li>
+                        <li><a href="{{ url_for('web.documentation') }}" class="text-decoration-none" style="color: #34836e;">Documentation</a></li>
+                        <li><a href="{{ url_for('web.about') }}" class="text-decoration-none" style="color: #34836e;">About</a></li>
                     </ul>
                 </div>
                 <div class="col-md-3">
-                    <h5 class="text-secondary">API</h5>
+                    <h5 style="color: #333;">API</h5>
                     <ul class="list-unstyled">
-                        <li><a href="/docs" class="text-decoration-none">API Documentation</a></li>
-                        <li><a href="/api/health" class="text-decoration-none">Health Check</a></li>
+                        <li><a href="/docs" class="text-decoration-none" style="color: #34836e;">API Documentation</a></li>
+                        <li><a href="/api/health" class="text-decoration-none" style="color: #34836e;">Health Check</a></li>
                     </ul>
                 </div>
             </div>
             <hr>
             <div class="row">
                 <div class="col-12 text-center">
-                    <p class="mb-0 text-muted">&copy; 2025 Mycology Research Pipeline. Version 0.1.0</p>
+                    <p class="mb-0" style="color: #666;">&copy; 2025 Mycology Research Pipeline. Version 0.1.0</p>
                 </div>
             </div>
         </div>

@@ -33,6 +33,27 @@ body {
   color: var(--primary-color) !important;
 }
 
+/* Ensure text readability on dark backgrounds */
+.bg-dark {
+  color: #ffffff !important;
+}
+
+.bg-dark a, .bg-dark h1, .bg-dark h2, .bg-dark h3, .bg-dark h4, .bg-dark h5, .bg-dark h6, .bg-dark p, .bg-dark span {
+  color: #ffffff !important;
+}
+
+.bg-primary, .bg-secondary, .bg-success, .bg-danger, .bg-warning, .bg-info {
+  color: #ffffff !important;
+}
+
+.text-on-dark-bg {
+  color: #ffffff !important;
+}
+
+.card-header {
+  color: var(--text-primary) !important;
+}
+
 .sidebar {
   position: fixed;
   top: 0;
