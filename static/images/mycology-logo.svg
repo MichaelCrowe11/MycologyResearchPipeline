@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300">
+  <!-- Circle Container -->
+  <circle cx="150" cy="120" r="85" fill="white" stroke="black" stroke-width="4"/>
+  
+  <!-- Mushroom Cap -->
+  <path d="M150 55 C115 55 100 85 110 110 C120 130 180 130 190 110 C200 85 185 55 150 55" fill="black"/>
+  
+  <!-- Mushroom Stem -->
+  <rect x="142" y="110" width="16" height="35" fill="black"/>
+  
+  <!-- Roots -->
+  <path d="M100 155 L110 170 L120 185 L130 170 L140 180 L150 165 L160 180 L170 170 L180 185 L190 170 L200 155" fill="black" stroke="black" stroke-width="2"/>
+  
+  <!-- Lower Half Circle (black) -->
+  <path d="M65,120 a85,85 0 0,0 170,0" fill="black"/>
+  
+  <!-- Roots (white on black background) -->
+  <path d="M100 155 L110 170 L120 185 L130 170 L140 180 L150 165 L160 180 L170 170 L180 185 L190 170 L200 155" fill="none" stroke="white" stroke-width="2"/>
+  
+  <!-- Molecular Structure -->
+  <circle cx="210" cy="80" r="5" fill="white" stroke="black" stroke-width="1.5"/>
+  <circle cx="190" cy="95" r="5" fill="white" stroke="black" stroke-width="1.5"/>
+  <line x1="210" y1="80" x2="190" y2="95" stroke="black" stroke-width="2"/>
+  <circle cx="170" cy="80" r="5" fill="white" stroke="black" stroke-width="1.5"/>
+  <line x1="190" y1="95" x2="170" y2="80" stroke="black" stroke-width="2"/>
+  
+  <!-- Text -->
+  <text x="150" y="235" font-family="Arial, sans-serif" font-weight="bold" font-size="32" text-anchor="middle">MYCOLOGY</text>
+  <text x="150" y="265" font-family="Arial, sans-serif" font-size="18" text-anchor="middle">RESEARCH PIPELINE</text>
+</svg>

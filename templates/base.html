@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="light">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -27,7 +27,7 @@
         <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
             <div class="container-fluid">
                 <a class="navbar-brand d-flex align-items-center" href="{{ url_for('web.index') }}">
-                    <img src="{{ url_for('static', filename='images/logo-small.svg') }}" width="36" height="36" alt="Mycology Research Logo" class="me-2">
+                    <img src="{{ url_for('static', filename='images/mycology-logo-small.svg') }}" width="40" height="40" alt="Mycology Research Logo" class="me-2">
                     <span class="fw-bold">Mycology Research Pipeline</span>
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
@@ -110,8 +110,7 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="d-flex align-items-center mb-3">
-                        <img src="{{ url_for('static', filename='images/logo.svg') }}" width="50" height="50" alt="Mycology Research Logo" class="me-3">
-                        <h5 class="text-primary m-0">Mycology Research Pipeline</h5>
+                        <img src="{{ url_for('static', filename='images/mycology-logo.svg') }}" width="120" alt="Mycology Research Logo" class="me-3">
                     </div>
                     <p class="text-muted">A platform for analyzing medicinal compound bioactivity patterns in mycology research.</p>
                 </div>
