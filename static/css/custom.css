@@ -2,14 +2,18 @@
 
 /* Override Bootstrap variables */
 :root {
-  --primary-color: #4a8f6e;
-  --secondary-color: #6c757d;
-  --success-color: #28a745;
-  --info-color: #17a2b8;
-  --warning-color: #ffc107;
-  --danger-color: #dc3545;
-  --light-color: #f8f9fa;
-  --dark-color: #343a40;
+  --primary-color: #34836e;        /* Darker teal for better contrast */
+  --secondary-color: #546e7a;      /* Blue-gray secondary */
+  --success-color: #2e7d32;        /* Darker green for better contrast */
+  --info-color: #0277bd;           /* Brighter blue for better visibility */
+  --warning-color: #ef6c00;        /* Darker orange for better contrast */
+  --danger-color: #c62828;         /* Darker red for better contrast */
+  --light-color: #f5f5f5;          /* Slightly warmer light background */
+  --dark-color: #263238;           /* Slightly lighter dark for better readability */
+  --text-primary: #212121;         /* Nearly black for primary text */
+  --text-secondary: #424242;       /* Dark gray for secondary text */
+  --accent-color: #81c784;         /* Light green accent */
+  --highlight-color: #b2dfdb;      /* Pale teal for highlighting */
   --font-family-sans-serif: 'Roboto', -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
   --font-family-monospace: 'Roboto Mono', SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
@@ -18,7 +22,7 @@
 body {
   font-family: var(--font-family-sans-serif);
   background-color: #f9f9f9;
-  color: #333;
+  color: var(--text-primary);
   line-height: 1.6;
 }
 
