@@ -1,0 +1,717 @@
+{% extends "base.html" %}
+
+{% block title %}Analysis Results - Mycology Research Pipeline{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Analysis Results</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{{ url_for('web.view_sample', sample_id=analysis.sample_id) }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-flask me-1"></i> View Sample
+            </a>
+            <a href="{{ url_for('web.new_analysis') }}" class="btn btn-sm btn-outline-primary">
+                <i class="fas fa-vial me-1"></i> New Analysis
+            </a>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="exportResultsBtn">
+                <i class="fas fa-file-export me-1"></i> Export Results
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0">Analysis Information</h5>
+            </div>
+            <div class="card-body">
+                <h4 class="card-title mb-3">{{ analysis.analysis_type|replace('_', ' ')|title }}</h4>
+                <div class="mb-3">
+                    <h6 class="text-muted mb-2">Status</h6>
+                    <p>
+                        <span class="badge {% if analysis.status == 'completed' %}bg-success{% elif analysis.status == 'processing' %}bg-warning{% elif analysis.status == 'failed' %}bg-danger{% else %}bg-secondary{% endif %} fs-6">
+                            {{ analysis.status }}
+                        </span>
+                    </p>
+                </div>
+                <div class="mb-3">
+                    <h6 class="text-muted mb-2">Sample</h6>
+                    <p>
+                        <a href="{{ url_for('web.view_sample', sample_id=analysis.sample_id) }}">
+                            {{ analysis.sample.name }}
+                        </a>
+                        {% if analysis.sample.species %}
+                        <small class="text-muted d-block">{{ analysis.sample.species }}</small>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="mb-3">
+                    <h6 class="text-muted mb-2">Created</h6>
+                    <p>{{ analysis.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                </div>
+                {% if analysis.start_time %}
+                <div class="mb-3">
+                    <h6 class="text-muted mb-2">Started</h6>
+                    <p>{{ analysis.start_time.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                </div>
+                {% endif %}
+                {% if analysis.end_time %}
+                <div class="mb-3">
+                    <h6 class="text-muted mb-2">Completed</h6>
+                    <p>{{ analysis.end_time.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                </div>
+                {% endif %}
+                {% if analysis.start_time and analysis.end_time %}
+                <div class="mb-3">
+                    <h6 class="text-muted mb-2">Duration</h6>
+                    <p>{{ (analysis.end_time - analysis.start_time).total_seconds()|round(2) }} seconds</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        {% if analysis.parameters %}
+        <div class="card shadow-sm mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">Parameters</h5>
+            </div>
+            <div class="card-body">
+                <pre class="bg-dark text-light p-3 rounded"><code>{{ analysis.parameters|tojson(indent=2) }}</code></pre>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="col-md-8">
+        {% if analysis.status == 'completed' and analysis.results %}
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0">Results</h5>
+            </div>
+            <div class="card-body">
+                {% if analysis.analysis_type == 'bioactivity_analysis' %}
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle me-2"></i>
+                    Bioactivity analysis completed successfully.
+                </div>
+                
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h6 class="card-subtitle mb-2 text-muted">Average Bioactivity Score</h6>
+                                <div class="display-4 text-success mb-2">
+                                    {{ (analysis.results.bioactivity_scores|sum / analysis.results.bioactivity_scores|length)|round(3) }}
+                                </div>
+                                <small class="text-muted">Scale: 0 (inactive) to 1 (highly active)</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h6 class="card-subtitle mb-2 text-muted">Confidence Interval</h6>
+                                <div class="display-6 mb-2">
+                                    {% set avg_low = 0 %}
+                                    {% set avg_high = 0 %}
+                                    {% for ci in analysis.results.confidence_intervals %}
+                                        {% set avg_low = avg_low + ci[0] %}
+                                        {% set avg_high = avg_high + ci[1] %}
+                                    {% endfor %}
+                                    {% set avg_low = (avg_low / analysis.results.confidence_intervals|length)|round(3) %}
+                                    {% set avg_high = (avg_high / analysis.results.confidence_intervals|length)|round(3) %}
+                                    {{ avg_low }} - {{ avg_high }}
+                                </div>
+                                <small class="text-muted">95% confidence interval</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <h5 class="mb-3">Bioactivity Results</h5>
+                <div class="chart-container mb-4">
+                    <canvas id="bioactivityResultsChart" data-results="{{ analysis.results|tojson }}" height="300"></canvas>
+                </div>
+                
+                <h5 class="mb-3">Feature Importance</h5>
+                <div class="chart-container">
+                    <canvas id="featureImportanceChart" height="300"></canvas>
+                </div>
+                
+                {% elif analysis.analysis_type == 'compound_identification' %}
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle me-2"></i>
+                    Compound identification completed successfully.
+                </div>
+                
+                <h5 class="mb-3">Identified Compounds</h5>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Compound</th>
+                                <th>Formula</th>
+                                <th>Confidence</th>
+                                <th>Match Score</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for compound in analysis.results.compounds %}
+                            <tr>
+                                <td>{{ compound.name }}</td>
+                                <td><span class="font-monospace">{{ compound.formula }}</span></td>
+                                <td>
+                                    <div class="progress">
+                                        <div class="progress-bar bg-success" role="progressbar" 
+                                            style="width: {{ compound.confidence * 100 }}%;" 
+                                            aria-valuenow="{{ compound.confidence * 100 }}" 
+                                            aria-valuemin="0" 
+                                            aria-valuemax="100">
+                                            {{ (compound.confidence * 100)|round|int }}%
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ compound.match_score }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                {% elif analysis.analysis_type == 'potency_prediction' %}
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle me-2"></i>
+                    Potency prediction completed successfully.
+                </div>
+                
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h6 class="card-subtitle mb-2 text-muted">Predicted Potency</h6>
+                                <div class="display-4 text-success mb-2">
+                                    {{ analysis.results.potency_score|round(2) }}
+                                </div>
+                                <small class="text-muted">Scale: 0 (low) to 10 (high)</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h6 class="card-subtitle mb-2 text-muted">Reliability Score</h6>
+                                <div class="display-4 mb-2">
+                                    {{ (analysis.results.reliability * 100)|round|int }}%
+                                </div>
+                                <small class="text-muted">Model confidence in prediction</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <h5 class="mb-3">Potency Factors</h5>
+                <div class="chart-container">
+                    <canvas id="potencyFactorsChart" height="300"></canvas>
+                </div>
+                
+                {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Results for {{ analysis.analysis_type|replace('_', ' ')|title }}
+                </div>
+                <pre class="bg-dark text-light p-3 rounded"><code>{{ analysis.results|tojson(indent=2) }}</code></pre>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="card shadow-sm mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">Advanced Visualization</h5>
+            </div>
+            <div class="card-body">
+                <ul class="nav nav-tabs" id="visualizationTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="scatter-tab" data-bs-toggle="tab" data-bs-target="#scatter-view" type="button" role="tab" aria-controls="scatter-view" aria-selected="true">
+                            Scatter Plot
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="heatmap-tab" data-bs-toggle="tab" data-bs-target="#heatmap-view" type="button" role="tab" aria-controls="heatmap-view" aria-selected="false">
+                            Heatmap
+                        </button>
+                    </li>
+                </ul>
+                <div class="tab-content p-3 border border-top-0 rounded-bottom" id="visualizationTabsContent">
+                    <div class="tab-pane fade show active" id="scatter-view" role="tabpanel" aria-labelledby="scatter-tab">
+                        <div class="chart-container">
+                            <canvas id="scatterVisChart" height="300"></canvas>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="heatmap-view" role="tabpanel" aria-labelledby="heatmap-tab">
+                        <div id="bioactivityHeatmap" style="height: 400px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% elif analysis.status == 'processing' %}
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0">Processing</h5>
+            </div>
+            <div class="card-body text-center py-5">
+                <div class="spinner-border text-primary mb-3" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <h5>Analysis in progress...</h5>
+                <p>The analysis is currently being processed. Please check back later for results.</p>
+                <div class="mt-3">
+                    <button class="btn btn-outline-primary" id="refreshStatusBtn">
+                        <i class="fas fa-sync-alt me-1"></i> Refresh Status
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% elif analysis.status == 'failed' %}
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0">Analysis Failed</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    The analysis failed to complete.
+                </div>
+                <p>There was an error processing this analysis. Please try running it again or contact support if the problem persists.</p>
+                <div class="mt-3">
+                    <a href="{{ url_for('web.new_analysis') }}?sample_id={{ analysis.sample_id }}" class="btn btn-outline-primary">
+                        <i class="fas fa-redo me-1"></i> Try Again
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0">No Results Available</h5>
+            </div>
+            <div class="card-body">
+                <p>No results are available for this analysis yet.</p>
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Status: {{ analysis.status }}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0">Related Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-3 mb-md-0">
+                        <a href="{{ url_for('web.new_analysis') }}?sample_id={{ analysis.sample_id }}" class="btn btn-outline-primary w-100">
+                            <i class="fas fa-vial me-2"></i>New Analysis
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3 mb-md-0">
+                        <a href="{{ url_for('web.view_sample', sample_id=analysis.sample_id) }}" class="btn btn-outline-info w-100">
+                            <i class="fas fa-flask me-2"></i>View Sample
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3 mb-md-0">
+                        <a href="{{ url_for('web.new_research_log') }}?analysis_id={{ analysis.id }}" class="btn btn-outline-secondary w-100">
+                            <i class="fas fa-clipboard-list me-2"></i>Create Research Log
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-outline-success w-100" id="shareResultsBtn">
+                            <i class="fas fa-share-alt me-2"></i>Share Results
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Export Modal -->
+<div class="modal fade" id="exportModal" tabindex="-1" aria-labelledby="exportModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exportModalLabel">Export Results</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Select the format for exporting the analysis results:</p>
+                <div class="list-group">
+                    <button type="button" class="list-group-item list-group-item-action" id="exportJson">
+                        <i class="fas fa-file-code me-2"></i> JSON
+                    </button>
+                    <button type="button" class="list-group-item list-group-item-action" id="exportCsv">
+                        <i class="fas fa-file-csv me-2"></i> CSV
+                    </button>
+                    <button type="button" class="list-group-item list-group-item-action" id="exportPdf">
+                        <i class="fas fa-file-pdf me-2"></i> PDF Report
+                    </button>
+                    <button type="button" class="list-group-item list-group-item-action" id="exportPng">
+                        <i class="fas fa-file-image me-2"></i> PNG (Charts Only)
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Share Modal -->
+<div class="modal fade" id="shareModal" tabindex="-1" aria-labelledby="shareModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="shareModalLabel">Share Results</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Share this analysis with others:</p>
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" id="shareUrl" value="{{ request.url }}" readonly>
+                    <button class="btn btn-outline-primary" type="button" id="copyLinkBtn">Copy</button>
+                </div>
+                <div class="d-grid gap-2 mt-3">
+                    <button type="button" class="btn btn-outline-primary">
+                        <i class="fas fa-envelope me-2"></i> Send by Email
+                    </button>
+                    <button type="button" class="btn btn-outline-primary">
+                        <i class="fas fa-file-export me-2"></i> Export and Share
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Refresh status button
+        const refreshStatusBtn = document.getElementById('refreshStatusBtn');
+        if (refreshStatusBtn) {
+            refreshStatusBtn.addEventListener('click', function() {
+                window.location.reload();
+            });
+        }
+        
+        // Export results button
+        const exportResultsBtn = document.getElementById('exportResultsBtn');
+        if (exportResultsBtn) {
+            const exportModal = new bootstrap.Modal(document.getElementById('exportModal'));
+            exportResultsBtn.addEventListener('click', function() {
+                exportModal.show();
+            });
+            
+            // Export format buttons
+            const exportFormats = ['Json', 'Csv', 'Pdf', 'Png'];
+            exportFormats.forEach(format => {
+                const btn = document.getElementById(`export${format}`);
+                if (btn) {
+                    btn.addEventListener('click', function() {
+                        // In a real app, this would trigger an export in the specified format
+                        alert(`Exporting in ${format} format (simulated)`);
+                        exportModal.hide();
+                    });
+                }
+            });
+        }
+        
+        // Share results button
+        const shareResultsBtn = document.getElementById('shareResultsBtn');
+        if (shareResultsBtn) {
+            const shareModal = new bootstrap.Modal(document.getElementById('shareModal'));
+            shareResultsBtn.addEventListener('click', function() {
+                shareModal.show();
+            });
+            
+            // Copy link button
+            const copyLinkBtn = document.getElementById('copyLinkBtn');
+            const shareUrl = document.getElementById('shareUrl');
+            if (copyLinkBtn && shareUrl) {
+                copyLinkBtn.addEventListener('click', function() {
+                    shareUrl.select();
+                    document.execCommand('copy');
+                    copyLinkBtn.textContent = 'Copied!';
+                    setTimeout(() => {
+                        copyLinkBtn.textContent = 'Copy';
+                    }, 2000);
+                });
+            }
+        }
+        
+        // Initialize charts if we have completed results
+        {% if analysis.status == 'completed' and analysis.results %}
+            {% if analysis.analysis_type == 'bioactivity_analysis' %}
+            // Bioactivity Results Chart
+            const bioactivityCtx = document.getElementById('bioactivityResultsChart');
+            if (bioactivityCtx) {
+                const bioactivityData = JSON.parse(bioactivityCtx.dataset.results);
+                const bioactivityScores = bioactivityData.bioactivity_scores;
+                
+                new Chart(bioactivityCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: bioactivityScores.map((_, i) => `Sample ${i+1}`),
+                        datasets: [{
+                            label: 'Bioactivity Score',
+                            data: bioactivityScores,
+                            backgroundColor: 'rgba(74, 143, 110, 0.8)',
+                            borderColor: 'rgba(74, 143, 110, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 1
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Feature Importance Chart
+            const featureCtx = document.getElementById('featureImportanceChart');
+            if (featureCtx) {
+                const bioactivityData = JSON.parse(document.getElementById('bioactivityResultsChart').dataset.results);
+                const features = Object.keys(bioactivityData.feature_importance);
+                const importance = Object.values(bioactivityData.feature_importance);
+                
+                // Sort features by importance
+                const sortedIndices = importance.map((_, i) => i)
+                    .sort((a, b) => importance[b] - importance[a]);
+                
+                const sortedFeatures = sortedIndices.map(i => features[i]);
+                const sortedImportance = sortedIndices.map(i => importance[i]);
+                
+                new Chart(featureCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: sortedFeatures,
+                        datasets: [{
+                            label: 'Importance',
+                            data: sortedImportance,
+                            backgroundColor: 'rgba(23, 162, 184, 0.7)',
+                            borderColor: 'rgba(23, 162, 184, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        scales: {
+                            x: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+            {% elif analysis.analysis_type == 'potency_prediction' %}
+            // Potency Factors Chart
+            const potencyCtx = document.getElementById('potencyFactorsChart');
+            if (potencyCtx) {
+                const factors = [
+                    'Compound Purity',
+                    'Molecular Stability',
+                    'Bioavailability',
+                    'Target Affinity',
+                    'Half-life'
+                ];
+                
+                const factorScores = [0.85, 0.72, 0.93, 0.65, 0.78];
+                
+                new Chart(potencyCtx, {
+                    type: 'radar',
+                    data: {
+                        labels: factors,
+                        datasets: [{
+                            label: 'Potency Factors',
+                            data: factorScores,
+                            backgroundColor: 'rgba(74, 143, 110, 0.2)',
+                            borderColor: 'rgba(74, 143, 110, 1)',
+                            pointBackgroundColor: 'rgba(74, 143, 110, 1)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgba(74, 143, 110, 1)'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            r: {
+                                min: 0,
+                                max: 1,
+                                ticks: {
+                                    stepSize: 0.2
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            {% endif %}
+            
+            // Scatter Visualization Chart
+            const scatterCtx = document.getElementById('scatterVisChart');
+            if (scatterCtx) {
+                const data = [];
+                for (let i = 0; i < 20; i++) {
+                    data.push({
+                        x: Math.random() * 100 + 50,
+                        y: Math.random() * 0.8 + 0.1,
+                        r: Math.random() * 10 + 5
+                    });
+                }
+                
+                new Chart(scatterCtx, {
+                    type: 'bubble',
+                    data: {
+                        datasets: [{
+                            label: 'Compounds',
+                            data: data,
+                            backgroundColor: data.map(d => {
+                                const g = Math.round(d.y * 255);
+                                return `rgba(74, ${g}, 110, 0.7)`;
+                            })
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Molecular Weight'
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'Bioactivity'
+                                },
+                                min: 0,
+                                max: 1
+                            }
+                        },
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return [
+                                            `Compound ${context.dataIndex + 1}`,
+                                            `Molecular Weight: ${context.raw.x.toFixed(2)}`,
+                                            `Bioactivity: ${context.raw.y.toFixed(3)}`,
+                                            `Concentration: ${(context.raw.r / 15).toFixed(2)}`
+                                        ];
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Initialize heatmap visualization
+            const heatmapContainer = document.getElementById('bioactivityHeatmap');
+            if (heatmapContainer) {
+                // Create a simple heatmap visualization
+                const heatmapSvg = d3.select(heatmapContainer)
+                    .append('svg')
+                    .attr('width', '100%')
+                    .attr('height', '100%')
+                    .attr('viewBox', '0 0 600 400');
+                
+                // Generate sample data for the heatmap
+                const targets = ['Target 1', 'Target 2', 'Target 3', 'Target 4', 'Target 5'];
+                const compounds = ['Compound A', 'Compound B', 'Compound C', 'Compound D'];
+                const data = [];
+                
+                compounds.forEach(compound => {
+                    targets.forEach(target => {
+                        data.push({
+                            compound: compound,
+                            target: target,
+                            value: Math.random()
+                        });
+                    });
+                });
+                
+                // Set up scales
+                const xScale = d3.scaleBand()
+                    .domain(targets)
+                    .range([50, 550])
+                    .padding(0.05);
+                
+                const yScale = d3.scaleBand()
+                    .domain(compounds)
+                    .range([50, 350])
+                    .padding(0.05);
+                
+                // Color scale
+                const colorScale = d3.scaleSequential()
+                    .interpolator(d3.interpolateViridis)
+                    .domain([0, 1]);
+                
+                // Create the heatmap cells
+                heatmapSvg.selectAll('rect')
+                    .data(data)
+                    .enter()
+                    .append('rect')
+                    .attr('x', d => xScale(d.target))
+                    .attr('y', d => yScale(d.compound))
+                    .attr('width', xScale.bandwidth())
+                    .attr('height', yScale.bandwidth())
+                    .attr('fill', d => colorScale(d.value))
+                    .attr('stroke', '#fff')
+                    .attr('stroke-width', 0.5);
+                
+                // Add X axis
+                heatmapSvg.append('g')
+                    .attr('transform', `translate(0, 350)`)
+                    .call(d3.axisBottom(xScale))
+                    .selectAll('text')
+                    .attr('transform', 'translate(-10, 0)rotate(-45)')
+                    .style('text-anchor', 'end');
+                
+                // Add Y axis
+                heatmapSvg.append('g')
+                    .attr('transform', `translate(50, 0)`)
+                    .call(d3.axisLeft(yScale));
+                
+                // Add title
+                heatmapSvg.append('text')
+                    .attr('x', 300)
+                    .attr('y', 30)
+                    .attr('text-anchor', 'middle')
+                    .style('font-size', '16px')
+                    .text('Bioactivity Heatmap');
+            }
+        {% endif %}
+    });
+</script>
+{% endblock %}

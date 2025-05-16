@@ -1,0 +1,375 @@
+{% extends "base.html" %}
+
+{% block title %}Sample Details - Mycology Research Pipeline{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Sample Details</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{{ url_for('web.list_samples') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-list me-1"></i> All Samples
+            </a>
+            <a href="{{ url_for('web.new_analysis') }}?sample_id={{ sample.id }}" class="btn btn-sm btn-outline-primary">
+                <i class="fas fa-vial me-1"></i> New Analysis
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0">Sample Information</h5>
+            </div>
+            <div class="card-body">
+                <h4 class="card-title mb-3">{{ sample.name }}</h4>
+                <div class="mb-3">
+                    <h6 class="text-muted mb-2">Species</h6>
+                    <p class="card-text">{{ sample.species or 'Not specified' }}</p>
+                </div>
+                <div class="mb-3">
+                    <h6 class="text-muted mb-2">Collection Date</h6>
+                    <p class="card-text">{{ sample.collection_date.strftime('%Y-%m-%d') if sample.collection_date else 'Not specified' }}</p>
+                </div>
+                <div class="mb-3">
+                    <h6 class="text-muted mb-2">Location</h6>
+                    <p class="card-text">{{ sample.location or 'Not specified' }}</p>
+                </div>
+                <div class="mb-3">
+                    <h6 class="text-muted mb-2">Description</h6>
+                    <p class="card-text">{{ sample.description or 'No description available.' }}</p>
+                </div>
+                <div class="mb-3">
+                    <h6 class="text-muted mb-2">Created</h6>
+                    <p class="card-text">{{ sample.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                </div>
+                <div class="mb-3">
+                    <h6 class="text-muted mb-2">Last Updated</h6>
+                    <p class="card-text">{{ sample.updated_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                </div>
+            </div>
+        </div>
+        
+        {% if sample.metadata %}
+        <div class="card shadow-sm mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">Metadata</h5>
+            </div>
+            <div class="card-body">
+                <pre class="bg-dark text-light p-3 rounded"><code>{{ sample.metadata|tojson(indent=2) }}</code></pre>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0">Compounds ({{ sample.compounds|length }})</h5>
+            </div>
+            <div class="card-body">
+                {% if sample.compounds %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Formula</th>
+                                <th>Molecular Weight</th>
+                                <th>Concentration</th>
+                                <th>Bioactivity Index</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for compound in sample.compounds %}
+                            <tr>
+                                <td>{{ compound.name }}</td>
+                                <td><span class="font-monospace">{{ compound.formula or '-' }}</span></td>
+                                <td>{{ compound.molecular_weight or '-' }}</td>
+                                <td>{{ compound.concentration or '-' }}</td>
+                                <td>
+                                    {% if compound.bioactivity_index is not none %}
+                                    <div class="progress" style="height: 20px;">
+                                        <div class="progress-bar bg-success" role="progressbar" 
+                                             style="width: {{ compound.bioactivity_index * 100 }}%;" 
+                                             aria-valuenow="{{ compound.bioactivity_index * 100 }}" 
+                                             aria-valuemin="0" 
+                                             aria-valuemax="100">
+                                            {{ "%.2f"|format(compound.bioactivity_index) }}
+                                        </div>
+                                    </div>
+                                    {% else %}
+                                    -
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-center py-3">No compounds recorded for this sample.</p>
+                {% endif %}
+            </div>
+            <div class="card-footer">
+                <button class="btn btn-sm btn-outline-primary" id="addCompoundBtn">
+                    <i class="fas fa-plus me-1"></i> Add Compound
+                </button>
+            </div>
+        </div>
+        
+        <div class="card shadow-sm mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">Analyses ({{ sample.analyses|length }})</h5>
+            </div>
+            <div class="card-body">
+                {% if sample.analyses %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for analysis in sample.analyses %}
+                            <tr>
+                                <td>{{ analysis.id }}</td>
+                                <td>{{ analysis.analysis_type|replace('_', ' ')|title }}</td>
+                                <td>
+                                    <span class="badge {% if analysis.status == 'completed' %}bg-success{% elif analysis.status == 'processing' %}bg-warning{% elif analysis.status == 'failed' %}bg-danger{% else %}bg-secondary{% endif %}">
+                                        {{ analysis.status }}
+                                    </span>
+                                </td>
+                                <td>{{ analysis.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td>
+                                    <a href="{{ url_for('web.view_analysis', analysis_id=analysis.id) }}" class="btn btn-sm btn-outline-info">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-center py-3">No analyses have been performed on this sample.</p>
+                {% endif %}
+            </div>
+            <div class="card-footer">
+                <a href="{{ url_for('web.new_analysis') }}?sample_id={{ sample.id }}" class="btn btn-sm btn-outline-primary">
+                    <i class="fas fa-vial me-1"></i> New Analysis
+                </a>
+            </div>
+        </div>
+        
+        <div class="card shadow-sm mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">Visualizations</h5>
+            </div>
+            <div class="card-body">
+                {% if sample.compounds|length > 0 %}
+                <ul class="nav nav-tabs" id="visualizationTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="bioactivity-tab" data-bs-toggle="tab" data-bs-target="#bioactivity" type="button" role="tab" aria-controls="bioactivity" aria-selected="true">
+                            Bioactivity
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="molecular-tab" data-bs-toggle="tab" data-bs-target="#molecular" type="button" role="tab" aria-controls="molecular" aria-selected="false">
+                            Molecular Properties
+                        </button>
+                    </li>
+                </ul>
+                <div class="tab-content pt-3" id="visualizationTabsContent">
+                    <div class="tab-pane fade show active" id="bioactivity" role="tabpanel" aria-labelledby="bioactivity-tab">
+                        <div class="chart-container">
+                            <canvas id="bioactivityChart" height="300"></canvas>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="molecular" role="tabpanel" aria-labelledby="molecular-tab">
+                        <div class="chart-container">
+                            <canvas id="molecularPropertiesChart" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <p class="text-center py-3">Add compounds to view visualizations.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Compound Modal -->
+<div class="modal fade" id="addCompoundModal" tabindex="-1" aria-labelledby="addCompoundModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addCompoundModalLabel">Add Compound</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addCompoundForm">
+                    <div class="mb-3">
+                        <label for="compoundName" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="compoundName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="compoundFormula" class="form-label">Formula</label>
+                        <input type="text" class="form-control" id="compoundFormula" placeholder="e.g., C6H12O6">
+                    </div>
+                    <div class="mb-3">
+                        <label for="compoundWeight" class="form-label">Molecular Weight</label>
+                        <input type="number" class="form-control" id="compoundWeight" step="0.01" min="0">
+                    </div>
+                    <div class="mb-3">
+                        <label for="compoundConcentration" class="form-label">Concentration</label>
+                        <input type="number" class="form-control" id="compoundConcentration" step="0.01" min="0" max="1">
+                    </div>
+                    <div class="mb-3">
+                        <label for="compoundBioactivity" class="form-label">Bioactivity Index</label>
+                        <input type="number" class="form-control" id="compoundBioactivity" step="0.01" min="0" max="1">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveCompoundBtn">Save Compound</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize add compound modal
+        const addCompoundBtn = document.getElementById('addCompoundBtn');
+        const addCompoundModal = new bootstrap.Modal(document.getElementById('addCompoundModal'));
+        const saveCompoundBtn = document.getElementById('saveCompoundBtn');
+        
+        if (addCompoundBtn && saveCompoundBtn) {
+            addCompoundBtn.addEventListener('click', function() {
+                addCompoundModal.show();
+            });
+            
+            saveCompoundBtn.addEventListener('click', function() {
+                // In a real app, this would submit the form data to the server
+                // For now, we'll just show an alert and close the modal
+                alert('This feature is not implemented in the demo. In a real application, this would add a compound to the sample.');
+                addCompoundModal.hide();
+            });
+        }
+        
+        // Initialize charts if compounds exist
+        {% if sample.compounds|length > 0 %}
+        // Bioactivity chart
+        const bioactivityCtx = document.getElementById('bioactivityChart');
+        if (bioactivityCtx) {
+            const compoundNames = [
+                {% for compound in sample.compounds %}
+                    "{{ compound.name }}",
+                {% endfor %}
+            ];
+            
+            const bioactivityValues = [
+                {% for compound in sample.compounds %}
+                    {{ compound.bioactivity_index or 0 }},
+                {% endfor %}
+            ];
+            
+            new Chart(bioactivityCtx, {
+                type: 'bar',
+                data: {
+                    labels: compoundNames,
+                    datasets: [{
+                        label: 'Bioactivity Index',
+                        data: bioactivityValues,
+                        backgroundColor: 'rgba(74, 143, 110, 0.7)',
+                        borderColor: 'rgba(74, 143, 110, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 1
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Molecular properties chart
+        const molecularCtx = document.getElementById('molecularPropertiesChart');
+        if (molecularCtx) {
+            const compoundNames = [
+                {% for compound in sample.compounds %}
+                    "{{ compound.name }}",
+                {% endfor %}
+            ];
+            
+            const molecularWeights = [
+                {% for compound in sample.compounds %}
+                    {{ compound.molecular_weight or 0 }},
+                {% endfor %}
+            ];
+            
+            const concentrations = [
+                {% for compound in sample.compounds %}
+                    {{ compound.concentration or 0 }},
+                {% endfor %}
+            ];
+            
+            new Chart(molecularCtx, {
+                type: 'radar',
+                data: {
+                    labels: compoundNames,
+                    datasets: [
+                        {
+                            label: 'Molecular Weight (scaled)',
+                            data: molecularWeights.map(w => w > 0 ? w / Math.max(...molecularWeights) : 0),
+                            backgroundColor: 'rgba(23, 162, 184, 0.2)',
+                            borderColor: 'rgba(23, 162, 184, 1)',
+                            pointBackgroundColor: 'rgba(23, 162, 184, 1)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgba(23, 162, 184, 1)'
+                        },
+                        {
+                            label: 'Concentration',
+                            data: concentrations,
+                            backgroundColor: 'rgba(255, 193, 7, 0.2)',
+                            borderColor: 'rgba(255, 193, 7, 1)',
+                            pointBackgroundColor: 'rgba(255, 193, 7, 1)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgba(255, 193, 7, 1)'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        r: {
+                            min: 0,
+                            max: 1
+                        }
+                    }
+                }
+            });
+        }
+        {% endif %}
+    });
+</script>
+{% endblock %}

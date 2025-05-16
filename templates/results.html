@@ -1,0 +1,643 @@
+{% extends "base.html" %}
+
+{% block title %}Analysis Results - Mycology Research Pipeline{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Analysis Results</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{{ url_for('web.new_analysis') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-vial me-1"></i> New Analysis
+            </a>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="exportAllResults">
+                <i class="fas fa-file-export me-1"></i> Export All
+            </button>
+        </div>
+        <div class="dropdown">
+            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="filterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-filter me-1"></i> Filter
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="filterDropdown">
+                <li><a class="dropdown-item" href="#">All Results</a></li>
+                <li><a class="dropdown-item" href="#">Bioactivity Analysis</a></li>
+                <li><a class="dropdown-item" href="#">Compound Identification</a></li>
+                <li><a class="dropdown-item" href="#">Potency Prediction</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="#">Completed Only</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <ul class="nav nav-tabs card-header-tabs" id="resultsTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="list-tab" data-bs-toggle="tab" data-bs-target="#list-view" type="button" role="tab" aria-controls="list-view" aria-selected="true">
+                            <i class="fas fa-list me-1"></i> List View
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="grid-tab" data-bs-toggle="tab" data-bs-target="#grid-view" type="button" role="tab" aria-controls="grid-view" aria-selected="false">
+                            <i class="fas fa-th-large me-1"></i> Grid View
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="chart-tab" data-bs-toggle="tab" data-bs-target="#chart-view" type="button" role="tab" aria-controls="chart-view" aria-selected="false">
+                            <i class="fas fa-chart-bar me-1"></i> Chart View
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body">
+                <div class="tab-content" id="resultsTabContent">
+                    <!-- List View -->
+                    <div class="tab-pane fade show active" id="list-view" role="tabpanel" aria-labelledby="list-tab">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Sample</th>
+                                        <th>Analysis Type</th>
+                                        <th>Status</th>
+                                        <th>Created</th>
+                                        <th>Completed</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% if analyses %}
+                                        {% for analysis in analyses %}
+                                        <tr>
+                                            <td>{{ analysis.id }}</td>
+                                            <td>
+                                                <a href="{{ url_for('web.view_sample', sample_id=analysis.sample_id) }}">
+                                                    {{ analysis.sample.name }}
+                                                </a>
+                                            </td>
+                                            <td>{{ analysis.analysis_type|replace('_', ' ')|title }}</td>
+                                            <td>
+                                                <span class="badge {% if analysis.status == 'completed' %}bg-success{% elif analysis.status == 'processing' %}bg-warning{% elif analysis.status == 'failed' %}bg-danger{% else %}bg-secondary{% endif %}">
+                                                    {{ analysis.status }}
+                                                </span>
+                                            </td>
+                                            <td>{{ analysis.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                            <td>{{ analysis.end_time.strftime('%Y-%m-%d %H:%M') if analysis.end_time else '-' }}</td>
+                                            <td>
+                                                <div class="btn-group">
+                                                    <a href="{{ url_for('web.view_analysis', analysis_id=analysis.id) }}" class="btn btn-sm btn-outline-info">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="exportAnalysis({{ analysis.id }})">
+                                                        <i class="fas fa-download"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    {% else %}
+                                        <tr>
+                                            <td colspan="7" class="text-center py-4">
+                                                <p class="text-muted mb-2">No analysis results found</p>
+                                                <a href="{{ url_for('web.new_analysis') }}" class="btn btn-primary btn-sm">
+                                                    <i class="fas fa-vial me-1"></i> Create New Analysis
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Grid View -->
+                    <div class="tab-pane fade" id="grid-view" role="tabpanel" aria-labelledby="grid-tab">
+                        <div class="row row-cols-1 row-cols-md-3 g-4">
+                            {% if analyses %}
+                                {% for analysis in analyses %}
+                                <div class="col">
+                                    <div class="card h-100">
+                                        <div class="card-header">
+                                            <span class="badge {% if analysis.status == 'completed' %}bg-success{% elif analysis.status == 'processing' %}bg-warning{% elif analysis.status == 'failed' %}bg-danger{% else %}bg-secondary{% endif %} float-end">
+                                                {{ analysis.status }}
+                                            </span>
+                                            <h5 class="card-title mb-0">{{ analysis.analysis_type|replace('_', ' ')|title }}</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <h6 class="card-subtitle mb-2 text-muted">Sample: {{ analysis.sample.name }}</h6>
+                                            <p class="card-text">
+                                                <small>ID: {{ analysis.id }}</small><br>
+                                                <small>Created: {{ analysis.created_at.strftime('%Y-%m-%d %H:%M') }}</small><br>
+                                                <small>Completed: {{ analysis.end_time.strftime('%Y-%m-%d %H:%M') if analysis.end_time else 'Not completed' }}</small>
+                                            </p>
+                                            {% if analysis.results and analysis.results.bioactivity_scores %}
+                                                <div class="mt-3">
+                                                    <p class="mb-1">Bioactivity Score: {{ analysis.results.bioactivity_scores[0]|round(3) }}</p>
+                                                    <div class="progress bioactivity-progress">
+                                                        <div class="progress-bar" role="progressbar" style="width: {{ (analysis.results.bioactivity_scores[0] * 100)|round }}%" 
+                                                             aria-valuenow="{{ (analysis.results.bioactivity_scores[0] * 100)|round }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                                    </div>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="card-footer">
+                                            <div class="d-flex justify-content-between">
+                                                <a href="{{ url_for('web.view_analysis', analysis_id=analysis.id) }}" class="btn btn-sm btn-outline-primary">View Details</a>
+                                                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="exportAnalysis({{ analysis.id }})">
+                                                    <i class="fas fa-download"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="col-12 text-center py-5">
+                                    <p class="text-muted mb-3">No analysis results found</p>
+                                    <a href="{{ url_for('web.new_analysis') }}" class="btn btn-primary">
+                                        <i class="fas fa-vial me-1"></i> Create New Analysis
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Chart View -->
+                    <div class="tab-pane fade" id="chart-view" role="tabpanel" aria-labelledby="chart-tab">
+                        {% if analyses %}
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="card mb-4">
+                                        <div class="card-header">
+                                            <h5 class="mb-0">Analysis Types Distribution</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <canvas id="analysisTypesChart" height="300"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card mb-4">
+                                        <div class="card-header">
+                                            <h5 class="mb-0">Results Timeline</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <canvas id="resultsTimelineChart" height="300"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h5 class="mb-0">Bioactivity Comparison</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <canvas id="bioactivityComparisonChart" height="300"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="text-center py-5">
+                                <p class="text-muted mb-3">No analysis results to visualize</p>
+                                <a href="{{ url_for('web.new_analysis') }}" class="btn btn-primary">
+                                    <i class="fas fa-vial me-1"></i> Create New Analysis
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0">Advanced Visualizations</h5>
+            </div>
+            <div class="card-body">
+                <p>Select an analysis result to view detailed visualizations:</p>
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <select class="form-select" id="analysisSelector">
+                            <option value="" selected disabled>-- Select Analysis --</option>
+                            {% if analyses %}
+                                {% for analysis in analyses %}
+                                    {% if analysis.status == 'completed' %}
+                                    <option value="{{ analysis.id }}">
+                                        {{ analysis.id }} - {{ analysis.sample.name }} ({{ analysis.analysis_type|replace('_', ' ')|title }})
+                                    </option>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-outline-secondary" id="viewMolecular">
+                                <i class="fas fa-atom me-1"></i> Molecular View
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" id="viewHeatmap">
+                                <i class="fas fa-th me-1"></i> Heatmap
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" id="viewNetwork">
+                                <i class="fas fa-project-diagram me-1"></i> Network
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="advancedVisualizationContainer" class="mt-4">
+                    <div class="text-center py-5 text-muted">
+                        <i class="fas fa-chart-network fa-3x mb-3"></i>
+                        <p>Select an analysis to view visualizations</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function exportAnalysis(analysisId) {
+        // In a real app, this would trigger a download
+        console.log(`Exporting analysis ${analysisId}`);
+        alert(`Exporting analysis ${analysisId} (simulated)`);
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize export all button
+        const exportAllBtn = document.getElementById('exportAllResults');
+        if (exportAllBtn) {
+            exportAllBtn.addEventListener('click', function() {
+                // In a real app, this would trigger a download of all results
+                alert('Exporting all results (simulated)');
+            });
+        }
+        
+        // Initialize analysis selector
+        const analysisSelector = document.getElementById('analysisSelector');
+        const visualizationContainer = document.getElementById('advancedVisualizationContainer');
+        
+        if (analysisSelector && visualizationContainer) {
+            analysisSelector.addEventListener('change', function() {
+                const analysisId = this.value;
+                if (!analysisId) return;
+                
+                // Show loading state
+                visualizationContainer.innerHTML = `
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-3">Loading visualization for analysis ${analysisId}...</p>
+                    </div>
+                `;
+                
+                // In a real app, this would fetch the visualization data
+                // For now, let's simulate it with a timeout
+                setTimeout(() => {
+                    visualizationContainer.innerHTML = `
+                        <div class="card shadow-sm">
+                            <div class="card-header">
+                                <h5 class="mb-0">Bioactivity Analysis Results</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <canvas id="analysisResultChart" height="300"></canvas>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <h6>Top Features</h6>
+                                        <ul class="list-group">
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                Molecular Weight
+                                                <span class="badge bg-primary rounded-pill">0.35</span>
+                                            </li>
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                pH Level
+                                                <span class="badge bg-primary rounded-pill">0.25</span>
+                                            </li>
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                Temperature
+                                                <span class="badge bg-primary rounded-pill">0.20</span>
+                                            </li>
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                Concentration
+                                                <span class="badge bg-primary rounded-pill">0.15</span>
+                                            </li>
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                Incubation Time
+                                                <span class="badge bg-primary rounded-pill">0.05</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Initialize the chart
+                    const ctx = document.getElementById('analysisResultChart').getContext('2d');
+                    new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: ['Sample 1', 'Sample 2', 'Sample 3', 'Sample 4', 'Sample 5'],
+                            datasets: [{
+                                label: 'Bioactivity Score',
+                                data: [0.85, 0.72, 0.63, 0.91, 0.45],
+                                backgroundColor: 'rgba(74, 143, 110, 0.8)'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    max: 1.0
+                                }
+                            }
+                        }
+                    });
+                }, 1000);
+            });
+        }
+        
+        // Initialize visualization buttons
+        const viewMolecularBtn = document.getElementById('viewMolecular');
+        const viewHeatmapBtn = document.getElementById('viewHeatmap');
+        const viewNetworkBtn = document.getElementById('viewNetwork');
+        
+        if (viewMolecularBtn && viewHeatmapBtn && viewNetworkBtn) {
+            // Molecular view
+            viewMolecularBtn.addEventListener('click', function() {
+                const analysisId = analysisSelector.value;
+                if (!analysisId) {
+                    alert('Please select an analysis first');
+                    return;
+                }
+                
+                // Show loading state
+                visualizationContainer.innerHTML = `
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-3">Loading molecular view...</p>
+                    </div>
+                `;
+                
+                // In a real app, this would load a molecular viewer
+                // For now, let's simulate it
+                setTimeout(() => {
+                    visualizationContainer.innerHTML = `
+                        <div class="card shadow-sm">
+                            <div class="card-header">
+                                <h5 class="mb-0">Molecular Structure Viewer</h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="molecularViewer" data-molecule-data='{"name":"Beta-Glucan","formula":"C6H10O5","weight":"162.14 g/mol"}'></div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Initialize the molecular viewer
+                    if (typeof MolecularViewer === 'function') {
+                        const viewer = new MolecularViewer('molecularViewer');
+                        // Fake molecule data would be loaded here
+                    }
+                }, 1000);
+            });
+            
+            // Heatmap view
+            viewHeatmapBtn.addEventListener('click', function() {
+                const analysisId = analysisSelector.value;
+                if (!analysisId) {
+                    alert('Please select an analysis first');
+                    return;
+                }
+                
+                // Show loading state
+                visualizationContainer.innerHTML = `
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-3">Loading heatmap visualization...</p>
+                    </div>
+                `;
+                
+                // In a real app, this would load a heatmap
+                setTimeout(() => {
+                    visualizationContainer.innerHTML = `
+                        <div class="card shadow-sm">
+                            <div class="card-header">
+                                <h5 class="mb-0">Bioactivity Heatmap</h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="bioactivityHeatmapViz"></div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Initialize the heatmap (simulate with Chart.js)
+                    const ctx = document.createElement('canvas');
+                    ctx.height = 300;
+                    document.getElementById('bioactivityHeatmapViz').appendChild(ctx);
+                    
+                    new Chart(ctx, {
+                        type: 'matrix',
+                        data: {
+                            datasets: [{
+                                label: 'Bioactivity Heatmap',
+                                data: [
+                                    {x: 'Target 1', y: 'Compound A', v: 0.8},
+                                    {x: 'Target 1', y: 'Compound B', v: 0.3},
+                                    {x: 'Target 1', y: 'Compound C', v: 0.5},
+                                    {x: 'Target 2', y: 'Compound A', v: 0.7},
+                                    {x: 'Target 2', y: 'Compound B', v: 0.9},
+                                    {x: 'Target 2', y: 'Compound C', v: 0.2},
+                                    {x: 'Target 3', y: 'Compound A', v: 0.4},
+                                    {x: 'Target 3', y: 'Compound B', v: 0.6},
+                                    {x: 'Target 3', y: 'Compound C', v: 0.8}
+                                ],
+                                backgroundColor(ctx) {
+                                    const value = ctx.dataset.data[ctx.dataIndex].v;
+                                    const alpha = value;
+                                    return `rgba(74, 143, 110, ${alpha})`;
+                                },
+                                borderWidth: 1,
+                                borderColor: 'rgba(255, 255, 255, 0.5)'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        title() {
+                                            return '';
+                                        },
+                                        label(ctx) {
+                                            const d = ctx.dataset.data[ctx.dataIndex];
+                                            return [`Compound: ${d.y}`, `Target: ${d.x}`, `Bioactivity: ${d.v.toFixed(2)}`];
+                                        }
+                                    }
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: 'Targets'
+                                    }
+                                },
+                                y: {
+                                    title: {
+                                        display: true,
+                                        text: 'Compounds'
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }, 1000);
+            });
+            
+            // Network view
+            viewNetworkBtn.addEventListener('click', function() {
+                const analysisId = analysisSelector.value;
+                if (!analysisId) {
+                    alert('Please select an analysis first');
+                    return;
+                }
+                
+                // Show loading state
+                visualizationContainer.innerHTML = `
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-3">Loading network visualization...</p>
+                    </div>
+                `;
+                
+                // In a real app, this would load a network visualization
+                setTimeout(() => {
+                    visualizationContainer.innerHTML = `
+                        <div class="card shadow-sm">
+                            <div class="card-header">
+                                <h5 class="mb-0">Compound Relationship Network</h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="compoundNetworkGraphViz"></div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Implement a simple network visualization using D3.js
+                    // This would be a placeholder in a real app
+                    const container = document.getElementById('compoundNetworkGraphViz');
+                    container.innerHTML = `
+                        <svg width="100%" height="400">
+                            <g transform="translate(150, 200)">
+                                <text x="0" y="0" text-anchor="middle" font-size="16">Network visualization would be displayed here</text>
+                                <text x="0" y="30" text-anchor="middle" font-size="14">Using D3.js or similar library</text>
+                            </g>
+                        </svg>
+                    `;
+                }, 1000);
+            });
+        }
+        
+        // Initialize charts for chart view
+        const chartView = document.getElementById('chart-view');
+        if (chartView && {{ analyses|length > 0 }}) {
+            // Analysis Types Distribution Chart
+            const typesCtx = document.getElementById('analysisTypesChart');
+            if (typesCtx) {
+                new Chart(typesCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Bioactivity Analysis', 'Compound Identification', 'Potency Prediction'],
+                        datasets: [{
+                            data: [5, 3, 2],
+                            backgroundColor: [
+                                'rgba(74, 143, 110, 0.8)',
+                                'rgba(23, 162, 184, 0.8)',
+                                'rgba(255, 193, 7, 0.8)'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'right'
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Results Timeline Chart
+            const timelineCtx = document.getElementById('resultsTimelineChart');
+            if (timelineCtx) {
+                new Chart(timelineCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+                        datasets: [{
+                            label: 'Analyses Completed',
+                            data: [3, 5, 4, 8, 6, 7, 10],
+                            fill: false,
+                            borderColor: 'rgba(74, 143, 110, 1)',
+                            tension: 0.1
+                        }]
+                    },
+                    options: {
+                        responsive: true
+                    }
+                });
+            }
+            
+            // Bioactivity Comparison Chart
+            const bioactivityCtx = document.getElementById('bioactivityComparisonChart');
+            if (bioactivityCtx) {
+                new Chart(bioactivityCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Agaricus bisporus', 'Lentinula edodes', 'Ganoderma lucidum', 'Cordyceps militaris', 'Other'],
+                        datasets: [{
+                            label: 'Average Bioactivity Score',
+                            data: [0.65, 0.78, 0.82, 0.71, 0.59],
+                            backgroundColor: 'rgba(74, 143, 110, 0.8)'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 1.0
+                            }
+                        }
+                    }
+                });
+            }
+        }
+    });
+</script>
+{% endblock %}

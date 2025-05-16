@@ -1,0 +1,302 @@
+{% extends "base.html" %}
+
+{% block title %}New Analysis - Mycology Research Pipeline{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">New Analysis</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{{ url_for('web.view_results') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-poll me-1"></i> View Results
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4 order-md-2 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header">
+                <h5 class="mb-0">Analysis Information</h5>
+            </div>
+            <div class="card-body">
+                <p><i class="fas fa-info-circle text-primary me-2"></i>Create a new analysis to process your mycological samples.</p>
+                
+                <h6 class="mt-4">Analysis Types:</h6>
+                <ul class="list-unstyled">
+                    <li class="mb-2">
+                        <strong><i class="fas fa-chart-bar text-info me-2"></i>Bioactivity Analysis</strong>
+                        <p class="text-muted small mb-0">Analyzes bioactivity patterns in compounds.</p>
+                    </li>
+                    <li class="mb-2">
+                        <strong><i class="fas fa-microscope text-info me-2"></i>Compound Identification</strong>
+                        <p class="text-muted small mb-0">Identifies compounds based on their properties.</p>
+                    </li>
+                    <li>
+                        <strong><i class="fas fa-flask text-info me-2"></i>Potency Prediction</strong>
+                        <p class="text-muted small mb-0">Predicts the potency of medicinal compounds.</p>
+                    </li>
+                </ul>
+                
+                <h6 class="mt-4">Processing Steps:</h6>
+                <ol class="small">
+                    <li>Select a sample from your collection</li>
+                    <li>Choose an analysis type</li>
+                    <li>Configure parameters if needed</li>
+                    <li>Submit the analysis for processing</li>
+                    <li>View results when processing is complete</li>
+                </ol>
+                
+                <div class="alert alert-info mt-4" role="alert">
+                    <i class="fas fa-lightbulb me-2"></i>
+                    <strong>Tip:</strong> For batch processing of multiple samples, use the <a href="{{ url_for('web.new_batch_job') }}" class="alert-link">Batch Processing</a> tool.
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8 order-md-1">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0">Analysis Setup</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" action="{{ url_for('web.new_analysis') }}">
+                    <div class="mb-3">
+                        <label for="sample_id" class="form-label">Sample</label>
+                        <select class="form-select" id="sample_id" name="sample_id" required>
+                            <option value="" selected disabled>-- Select Sample --</option>
+                            {% for sample in samples %}
+                            <option value="{{ sample.id }}">{{ sample.name }} {% if sample.species %}({{ sample.species }}){% endif %}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="form-text text-muted">
+                            Select the sample you want to analyze.
+                            {% if not samples %}
+                            <span class="text-danger">No samples available. <a href="{{ url_for('web.list_samples') }}">Add a sample</a> first.</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="analysis_type" class="form-label">Analysis Type</label>
+                        <select class="form-select" id="analysis_type" name="analysis_type" required>
+                            <option value="" selected disabled>-- Select Analysis Type --</option>
+                            {% for type in analysis_types %}
+                            <option value="{{ type }}">{{ type|replace('_', ' ')|title }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="form-text text-muted">Select the type of analysis to perform.</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="parameters" class="form-label">Parameters (JSON)</label>
+                        <textarea class="form-control" id="parameters" name="parameters" rows="5" placeholder='{"param1": "value1", "param2": 42}'></textarea>
+                        <div class="form-text text-muted">Optional parameters in JSON format.</div>
+                    </div>
+                    
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="visualizeResults" name="visualize_results" checked>
+                        <label class="form-check-label" for="visualizeResults">Visualize Results</label>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <button type="reset" class="btn btn-outline-secondary">Reset</button>
+                        <button type="submit" class="btn btn-primary" {% if not samples %}disabled{% endif %}>
+                            <i class="fas fa-vial me-1"></i> Run Analysis
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card shadow-sm mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-vial me-2"></i>
+                    Sample Preview
+                </h5>
+            </div>
+            <div class="card-body">
+                <div id="samplePreview" class="text-center py-5 text-muted">
+                    <i class="fas fa-flask fa-3x mb-3"></i>
+                    <p>Select a sample to preview its details</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0">Recent Analyses</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Sample</th>
+                                <th>Analysis Type</th>
+                                <th>Status</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentAnalysesTable">
+                            <!-- This would be populated with recent analyses -->
+                            <tr>
+                                <td colspan="5" class="text-center py-3">No recent analyses found</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle sample selection to update preview
+        const sampleSelect = document.getElementById('sample_id');
+        const samplePreview = document.getElementById('samplePreview');
+        
+        if (sampleSelect && samplePreview) {
+            sampleSelect.addEventListener('change', function() {
+                const sampleId = this.value;
+                
+                if (!sampleId) {
+                    samplePreview.innerHTML = `
+                        <i class="fas fa-flask fa-3x mb-3"></i>
+                        <p>Select a sample to preview its details</p>
+                    `;
+                    return;
+                }
+                
+                // Show loading state
+                samplePreview.innerHTML = `
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Loading sample details...</p>
+                `;
+                
+                // Fetch sample details (in a real app, this would be an AJAX call)
+                // For this demo, we'll simulate loading
+                setTimeout(() => {
+                    // Find the selected sample name from the dropdown
+                    const sampleName = sampleSelect.options[sampleSelect.selectedIndex].text;
+                    
+                    // Simulate sample details
+                    samplePreview.innerHTML = `
+                        <div class="row">
+                            <div class="col-md-6">
+                                <img src="https://pixabay.com/get/gc89351855045e408ee4648c704bf0a8c5e2e0fbfc83bee239529d2d8bc55cea7bfbfd1c3c27a35ff541437be53e072d6ebdcb35118964c3da16ec267cc32be8c_1280.jpg" 
+                                     class="img-fluid rounded" style="max-height: 200px;" alt="Sample image">
+                            </div>
+                            <div class="col-md-6 text-start">
+                                <h5>${sampleName}</h5>
+                                <p><strong>ID:</strong> ${sampleId}</p>
+                                <p><strong>Compounds:</strong> <span class="badge bg-info">2</span></p>
+                                <p><strong>Status:</strong> <span class="badge bg-success">Ready for analysis</span></p>
+                            </div>
+                        </div>
+                    `;
+                }, 500);
+            });
+        }
+        
+        // Validate JSON in parameters field
+        const parametersField = document.getElementById('parameters');
+        if (parametersField) {
+            parametersField.addEventListener('blur', function() {
+                const value = this.value.trim();
+                if (value) {
+                    try {
+                        JSON.parse(value);
+                        this.classList.remove('is-invalid');
+                        this.classList.add('is-valid');
+                    } catch (e) {
+                        this.classList.remove('is-valid');
+                        this.classList.add('is-invalid');
+                        // Add error message
+                        let errorMsg = document.getElementById('parameters-error');
+                        if (!errorMsg) {
+                            errorMsg = document.createElement('div');
+                            errorMsg.id = 'parameters-error';
+                            errorMsg.className = 'invalid-feedback';
+                            this.parentNode.appendChild(errorMsg);
+                        }
+                        errorMsg.textContent = 'Invalid JSON format';
+                    }
+                } else {
+                    this.classList.remove('is-invalid');
+                    this.classList.remove('is-valid');
+                }
+            });
+        }
+        
+        // Load recent analyses (in a real app, this would be an AJAX call)
+        const recentAnalysesTable = document.getElementById('recentAnalysesTable');
+        if (recentAnalysesTable) {
+            // Simulate loading recent analyses
+            setTimeout(() => {
+                // Fake data for demonstration
+                const analyses = [
+                    {
+                        id: 123,
+                        sample: 'Agaricus bisporus Extract',
+                        type: 'bioactivity_analysis',
+                        status: 'completed',
+                        created: '2023-10-25 14:32'
+                    },
+                    {
+                        id: 122,
+                        sample: 'Lentinula edodes Sample',
+                        type: 'compound_identification',
+                        status: 'completed',
+                        created: '2023-10-24 09:15'
+                    },
+                    {
+                        id: 121,
+                        sample: 'Ganoderma lucidum Extract',
+                        type: 'potency_prediction',
+                        status: 'failed',
+                        created: '2023-10-23 16:47'
+                    }
+                ];
+                
+                if (analyses.length > 0) {
+                    let html = '';
+                    analyses.forEach(analysis => {
+                        const statusClass = analysis.status === 'completed' ? 'bg-success' :
+                                           analysis.status === 'processing' ? 'bg-warning' :
+                                           analysis.status === 'failed' ? 'bg-danger' : 'bg-secondary';
+                        
+                        html += `
+                            <tr>
+                                <td>${analysis.sample}</td>
+                                <td>${analysis.type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}</td>
+                                <td><span class="badge ${statusClass}">${analysis.status}</span></td>
+                                <td>${analysis.created}</td>
+                                <td>
+                                    <a href="/analysis/${analysis.id}" class="btn btn-sm btn-outline-info">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                    recentAnalysesTable.innerHTML = html;
+                }
+            }, 500);
+        }
+    });
+</script>
+{% endblock %}
