@@ -343,3 +343,9 @@ def about():
 def documentation():
     """Documentation page."""
     return render_template('documentation.html')
+
+
+@web_bp.route('/molecular-viewer')
+def molecular_viewer():
+    """3D Molecular Visualization."""
+    return render_template('molecular_viewer.html')

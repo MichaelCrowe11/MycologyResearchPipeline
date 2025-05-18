@@ -20,6 +20,11 @@
     <!-- Chart.js for charts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
     
+    <!-- 3Dmol.js for molecular visualization -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <script src="https://3Dmol.org/build/3Dmol-min.js"></script>
+    <script src="https://3Dmol.org/build/3Dmol.ui-min.js"></script>
+    
     {% block head %}{% endblock %}
 </head>
 <body>
@@ -68,6 +73,11 @@
                         <li class="nav-item">
                             <a class="nav-link rounded-pill px-3 mx-1 {% if '/logs' in request.path %}active bg-light{% endif %}" href="{{ url_for('web.list_research_logs') }}">
                                 <i class="fas fa-clipboard-list me-1"></i> Logs
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link rounded-pill px-3 mx-1 {% if '/molecular-viewer' in request.path %}active bg-light{% endif %}" href="{{ url_for('web.molecular_viewer') }}">
+                                <i class="fas fa-atom me-1"></i> 3D Viewer
                             </a>
                         </li>
                     </ul>
