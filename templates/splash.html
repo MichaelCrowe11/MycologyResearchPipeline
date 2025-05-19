@@ -35,12 +35,15 @@
         .logo-container {
             margin-bottom: 20px;
             transition: all 0.5s ease;
+            background: transparent;
+            padding: 20px;
+            border-radius: 10px;
         }
         
         .logo-container img {
-            max-width: 90%;
+            max-width: 400px;
             height: auto;
-            max-height: 60vh;
+            max-height: 50vh;
         }
         
         h1 {
@@ -194,7 +197,7 @@
     
     <div class="splash-container">
         <div class="logo-container animated">
-            <img src="{{ url_for('static', filename='images/logo/mycology-logo-white.svg') }}" alt="Mycology Research Pipeline" id="logo-img">
+            <img src="{{ url_for('static', filename='images/logo/mycology-logo-light.png') }}" alt="Mycology Research Pipeline" id="logo-img">
         </div>
         
         <h2 class="animated delay-1">Welcome to the Pipeline—where fungal intelligence meets business precision.</h2>
@@ -225,7 +228,7 @@
                     logoImg.src = "{{ url_for('static', filename='images/logo/mycology-logo-dark.png') }}";
                 } else {
                     themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
-                    logoImg.src = "{{ url_for('static', filename='images/logo/mycology-logo-white.svg') }}";
+                    logoImg.src = "{{ url_for('static', filename='images/logo/mycology-logo-light.png') }}";
                 }
             });
             
