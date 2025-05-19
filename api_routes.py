@@ -39,8 +39,9 @@ def health_check():
               example: "2023-10-21T12:34:56Z"
     """
     try:
-        # Check database connection
-        db.session.execute("SELECT 1")
+        # Check database connection using SQLAlchemy text()
+        from sqlalchemy import text
+        db.session.execute(text("SELECT 1"))
         db_status = "connected"
     except SQLAlchemyError as e:
         logger.error(f"Database connection error: {str(e)}")
