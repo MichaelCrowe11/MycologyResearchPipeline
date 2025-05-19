@@ -58,7 +58,7 @@
                 <h5 class="mb-0">Metadata</h5>
             </div>
             <div class="card-body">
-                <pre class="bg-dark text-light p-3 rounded"><code>{{ sample.sample_metadata|tojson(indent=2) }}</code></pre>
+                <pre class="bg-dark text-light p-3 rounded"><code>{{ sample.metadata_dict|tojson(indent=2) }}</code></pre>
             </div>
         </div>
         {% endif %}

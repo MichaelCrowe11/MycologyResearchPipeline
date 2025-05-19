@@ -24,6 +24,14 @@ class Sample(db.Model):
     
     def __repr__(self):
         return f"<Sample {self.id}: {self.name}>"
+        
+    @property
+    def metadata_dict(self):
+        """Return sample_metadata as a Python dictionary for JSON serialization."""
+        if self.sample_metadata is None:
+            return {}
+        # Convert SQLAlchemy JSON type to Python dict for serialization
+        return self.sample_metadata
 
 
 class Compound(db.Model):
