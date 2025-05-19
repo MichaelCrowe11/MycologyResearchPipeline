@@ -14,6 +14,12 @@ web_bp = Blueprint('web', __name__)
 
 
 @web_bp.route('/')
+def splash():
+    """Render the splash page."""
+    return render_template('splash.html')
+
+
+@web_bp.route('/home')
 def index():
     """Render the homepage."""
     # Get latest samples and analyses for the dashboard

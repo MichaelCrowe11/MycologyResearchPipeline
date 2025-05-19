@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mycology Research Pipeline</title>
+    
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            background-color: #121212;
+            color: #f8f9fa;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .splash-container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: radial-gradient(circle at center, #1a1a1a 0%, #0a0a0a 100%);
+        }
+        
+        .logo-container {
+            margin-bottom: 20px;
+            transition: all 0.5s ease;
+        }
+        
+        .logo-container img {
+            max-width: 90%;
+            height: auto;
+            max-height: 60vh;
+        }
+        
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+        
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 300;
+            margin-bottom: 30px;
+            max-width: 800px;
+        }
+        
+        .tagline {
+            font-style: italic;
+            color: #adb5bd;
+            margin-bottom: 40px;
+        }
+        
+        .enter-button {
+            background-color: transparent;
+            color: white;
+            border: 2px solid white;
+            padding: 12px 30px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+        }
+        
+        .enter-button:hover {
+            background-color: white;
+            color: black;
+            transform: scale(1.05);
+        }
+        
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 100;
+        }
+        
+        /* Light theme styles */
+        body.light-theme {
+            background-color: #f8f9fa;
+            color: #212529;
+        }
+        
+        body.light-theme .splash-container {
+            background: radial-gradient(circle at center, #ffffff 0%, #e9ecef 100%);
+        }
+        
+        body.light-theme .tagline {
+            color: #6c757d;
+        }
+        
+        body.light-theme .enter-button {
+            color: #212529;
+            border: 2px solid #212529;
+        }
+        
+        body.light-theme .enter-button:hover {
+            background-color: #212529;
+            color: white;
+        }
+        
+        body.light-theme .theme-toggle {
+            color: #212529;
+        }
+        
+        /* Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animated {
+            animation: fadeIn 1.2s ease-out forwards;
+        }
+        
+        .delay-1 {
+            animation-delay: 0.3s;
+        }
+        
+        .delay-2 {
+            animation-delay: 0.6s;
+        }
+        
+        .delay-3 {
+            animation-delay: 0.9s;
+        }
+        
+        .particles-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            animation: float 15s infinite linear;
+        }
+        
+        body.light-theme .particle {
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(0) translateX(0) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) translateX(100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="particles-container" id="particles-container"></div>
+
+    <button class="theme-toggle" id="theme-toggle">
+        <i class="fas fa-sun"></i>
+    </button>
+    
+    <div class="splash-container">
+        <div class="logo-container animated">
+            <img src="{{ url_for('static', filename='images/logo/mycology-logo-white.svg') }}" alt="Mycology Research Pipeline" id="logo-img">
+        </div>
+        
+        <h2 class="animated delay-1">Welcome to the Pipeline—where fungal intelligence meets business precision.</h2>
+        
+        <p class="tagline animated delay-2">From Spore to Systems: Grow, Learn, Scale</p>
+        
+        <a href="{{ url_for('web.index') }}" class="enter-button animated delay-3">
+            Enter Pipeline <i class="fas fa-arrow-right ms-2"></i>
+        </a>
+    </div>
+    
+    <!-- Bootstrap JS with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Theme toggle functionality
+            const themeToggle = document.getElementById('theme-toggle');
+            const body = document.body;
+            const logoImg = document.getElementById('logo-img');
+            
+            themeToggle.addEventListener('click', function() {
+                body.classList.toggle('light-theme');
+                
+                // Update the icon and logo based on theme
+                if (body.classList.contains('light-theme')) {
+                    themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+                    logoImg.src = "{{ url_for('static', filename='images/logo/mycology-logo-dark.png') }}";
+                } else {
+                    themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+                    logoImg.src = "{{ url_for('static', filename='images/logo/mycology-logo-white.svg') }}";
+                }
+            });
+            
+            // Create particle effects
+            const particlesContainer = document.getElementById('particles-container');
+            const particleCount = 50;
+            
+            for (let i = 0; i < particleCount; i++) {
+                let particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                // Random position
+                particle.style.left = Math.random() * 100 + 'vw';
+                particle.style.top = Math.random() * 100 + 'vh';
+                
+                // Random size
+                const size = Math.random() * 4 + 2;
+                particle.style.width = size + 'px';
+                particle.style.height = size + 'px';
+                
+                // Random animation duration
+                const duration = Math.random() * 15 + 10;
+                particle.style.animationDuration = duration + 's';
+                
+                // Random animation delay
+                const delay = Math.random() * 5;
+                particle.style.animationDelay = delay + 's';
+                
+                particlesContainer.appendChild(particle);
+            }
+        });
+    </script>
+</body>
+</html>
