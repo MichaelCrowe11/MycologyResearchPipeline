@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400">
+  <defs>
+    <linearGradient id="bg-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2c7873" stop-opacity="1" />
+      <stop offset="100%" stop-color="#207567" stop-opacity="1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="100%" height="100%" fill="url(#bg-gradient)" />
+  
+  <!-- Main graph/chart visualization -->
+  <g transform="translate(50, 50)">
+    <!-- Axis -->
+    <line x1="0" y1="250" x2="700" y2="250" stroke="white" stroke-width="3" />
+    <line x1="0" y1="0" x2="0" y2="250" stroke="white" stroke-width="3" />
+    
+    <!-- X-axis ticks -->
+    <line x1="100" y1="245" x2="100" y2="255" stroke="white" stroke-width="2" />
+    <line x1="200" y1="245" x2="200" y2="255" stroke="white" stroke-width="2" />
+    <line x1="300" y1="245" x2="300" y2="255" stroke="white" stroke-width="2" />
+    <line x1="400" y1="245" x2="400" y2="255" stroke="white" stroke-width="2" />
+    <line x1="500" y1="245" x2="500" y2="255" stroke="white" stroke-width="2" />
+    <line x1="600" y1="245" x2="600" y2="255" stroke="white" stroke-width="2" />
+    
+    <!-- Y-axis ticks -->
+    <line x1="-5" y1="50" x2="5" y2="50" stroke="white" stroke-width="2" />
+    <line x1="-5" y1="100" x2="5" y2="100" stroke="white" stroke-width="2" />
+    <line x1="-5" y1="150" x2="5" y2="150" stroke="white" stroke-width="2" />
+    <line x1="-5" y1="200" x2="5" y2="200" stroke="white" stroke-width="2" />
+    
+    <!-- Data bars -->
+    <g fill="rgba(255,255,255,0.7)">
+      <rect x="50" y="120" width="50" height="130" />
+      <rect x="150" y="80" width="50" height="170" />
+      <rect x="250" y="40" width="50" height="210" />
+      <rect x="350" y="100" width="50" height="150" />
+      <rect x="450" y="60" width="50" height="190" />
+      <rect x="550" y="150" width="50" height="100" />
+    </g>
+    
+    <!-- Data points and line -->
+    <polyline points="75,80 175,150 275,30 375,120 475,90 575,130" fill="none" stroke="white" stroke-width="3" />
+    <circle cx="75" cy="80" r="8" fill="white" />
+    <circle cx="175" cy="150" r="8" fill="white" />
+    <circle cx="275" cy="30" r="8" fill="white" />
+    <circle cx="375" cy="120" r="8" fill="white" />
+    <circle cx="475" cy="90" r="8" fill="white" />
+    <circle cx="575" cy="130" r="8" fill="white" />
+  </g>
+  
+  <!-- Text -->
+  <text x="400" y="380" font-family="Arial, sans-serif" font-size="24" fill="white" text-anchor="middle">Bioactivity Analysis</text>
+</svg>
