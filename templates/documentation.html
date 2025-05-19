@@ -3,32 +3,37 @@
 {% block title %}Documentation - Mycology Research Pipeline{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-    <h1 class="h2">Documentation</h1>
-    <div class="btn-toolbar mb-2 mb-md-0">
-        <a href="{{ url_for('web.about') }}" class="btn btn-sm btn-outline-secondary">
-            <i class="fas fa-info-circle me-1"></i> About
-        </a>
+<div class="hero-section hero-results mb-4">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <h1>Documentation</h1>
+                <p>Comprehensive guides and reference materials for using the Mycology Research Pipeline platform effectively.</p>
+            </div>
+            <div class="col-lg-4 d-flex align-items-center justify-content-lg-end">
+                <a href="{{ url_for('web.about') }}" class="btn btn-light">
+                    <i class="fas fa-info-circle me-1"></i> About
+                </a>
+            </div>
+        </div>
     </div>
 </div>
 
 <div class="row mb-4">
     <div class="col-md-3">
-        <div class="card shadow-sm h-100">
+        <div class="card shadow-sm mb-4">
             <div class="card-header">
                 <h5 class="mb-0">Navigation</h5>
             </div>
             <div class="card-body p-0">
-                <div class="list-group list-group-flush" id="docNavList">
-                    <a href="#introduction" class="list-group-item list-group-item-action active">Introduction</a>
+                <div class="list-group list-group-flush" id="doc-nav">
                     <a href="#getting-started" class="list-group-item list-group-item-action">Getting Started</a>
-                    <a href="#samples" class="list-group-item list-group-item-action">Managing Samples</a>
-                    <a href="#analysis" class="list-group-item list-group-item-action">Running Analysis</a>
-                    <a href="#batch-processing" class="list-group-item list-group-item-action">Batch Processing</a>
-                    <a href="#results" class="list-group-item list-group-item-action">Understanding Results</a>
+                    <a href="#samples" class="list-group-item list-group-item-action">Sample Management</a>
+                    <a href="#analysis" class="list-group-item list-group-item-action">Running Analyses</a>
+                    <a href="#batch" class="list-group-item list-group-item-action">Batch Processing</a>
+                    <a href="#results" class="list-group-item list-group-item-action">Viewing Results</a>
                     <a href="#api" class="list-group-item list-group-item-action">API Reference</a>
-                    <a href="#command-line" class="list-group-item list-group-item-action">Command Line Interface</a>
-                    <a href="#advanced" class="list-group-item list-group-item-action">Advanced Features</a>
+                    <a href="#molecular" class="list-group-item list-group-item-action">Molecular Viewer</a>
                     <a href="#troubleshooting" class="list-group-item list-group-item-action">Troubleshooting</a>
                 </div>
             </div>
@@ -36,426 +41,136 @@
     </div>
     
     <div class="col-md-9">
-        <div class="card shadow-sm">
+        <div class="card shadow-sm mb-4" id="getting-started">
+            <div class="card-header">
+                <h4>Getting Started</h4>
+            </div>
             <div class="card-body">
-                <div data-bs-spy="scroll" data-bs-target="#docNavList" data-bs-offset="0" class="scrollspy-example" tabindex="0">
-                    <section id="introduction" class="mb-5">
-                        <h3 class="border-bottom pb-2 mb-3">Introduction</h3>
-                        <p>
-                            The Mycology Research Pipeline is a comprehensive platform for analyzing bioactivity patterns in medicinal compounds found in mycological samples. This documentation provides detailed information on how to use the system effectively.
-                        </p>
-                        <p>
-                            The platform offers several key features:
-                        </p>
-                        <ul>
-                            <li>Sample management for tracking mycological specimens</li>
-                            <li>Bioactivity analysis of medicinal compounds</li>
-                            <li>Compound identification based on properties</li>
-                            <li>Potency prediction for medicinal applications</li>
-                            <li>Batch processing for large datasets</li>
-                            <li>Comprehensive visualization tools</li>
-                            <li>RESTful API for programmatic access</li>
-                        </ul>
-                        <p>
-                            This documentation will help you understand how to use these features effectively in your research workflow.
-                        </p>
-                    </section>
-                    
-                    <section id="getting-started" class="mb-5">
-                        <h3 class="border-bottom pb-2 mb-3">Getting Started</h3>
-                        <p>
-                            To get started with the Mycology Research Pipeline, follow these steps:
-                        </p>
-                        <ol>
-                            <li>
-                                <strong>Create an account</strong>: If this is your first time using the system, you'll need to create an account.
-                            </li>
-                            <li>
-                                <strong>Add samples</strong>: Begin by adding mycological samples to the system. You'll need to provide basic information such as the name, species, and collection date.
-                            </li>
-                            <li>
-                                <strong>Run analyses</strong>: Select a sample and run various types of analyses to examine bioactivity patterns, identify compounds, or predict potency.
-                            </li>
-                            <li>
-                                <strong>Interpret results</strong>: Use the visualization tools provided to interpret your analysis results.
-                            </li>
-                            <li>
-                                <strong>Export or share</strong>: Export your results in various formats or share them with colleagues.
-                            </li>
-                        </ol>
-                        <p>
-                            The following sections provide detailed information on each of these steps.
-                        </p>
-                    </section>
-                    
-                    <section id="samples" class="mb-5">
-                        <h3 class="border-bottom pb-2 mb-3">Managing Samples</h3>
-                        <p>
-                            Mycological samples are the foundation of the research pipeline. A sample represents a physical specimen that you have collected or acquired for research purposes.
-                        </p>
-                        
-                        <h5 class="mt-4">Adding a Sample</h5>
-                        <p>
-                            To add a new sample to the system:
-                        </p>
-                        <ol>
-                            <li>Navigate to the <a href="{{ url_for('web.list_samples') }}">Samples</a> page.</li>
-                            <li>Click the "Add Sample" button.</li>
-                            <li>Fill out the form with the required sample information:
-                                <ul>
-                                    <li><strong>Name</strong>: A unique identifier for the sample (required).</li>
-                                    <li><strong>Species</strong>: The mycological species of the sample.</li>
-                                    <li><strong>Collection Date</strong>: When the sample was collected.</li>
-                                    <li><strong>Location</strong>: Where the sample was collected.</li>
-                                    <li><strong>Description</strong>: Additional notes about the sample.</li>
-                                </ul>
-                            </li>
-                            <li>Click "Add Sample" to save the information.</li>
-                        </ol>
-                        
-                        <h5 class="mt-4">Adding Compounds to a Sample</h5>
-                        <p>
-                            Compounds represent the chemical components present in a sample. To add compounds:
-                        </p>
-                        <ol>
-                            <li>Navigate to the sample details page.</li>
-                            <li>Click "Add Compound" in the Compounds section.</li>
-                            <li>Provide the compound information:
-                                <ul>
-                                    <li><strong>Name</strong>: The name of the compound.</li>
-                                    <li><strong>Formula</strong>: The chemical formula.</li>
-                                    <li><strong>Molecular Weight</strong>: The molecular weight in g/mol.</li>
-                                    <li><strong>Concentration</strong>: The concentration of the compound in the sample.</li>
-                                    <li><strong>Bioactivity Index</strong>: A measure of the compound's bioactivity (0-1).</li>
-                                </ul>
-                            </li>
-                            <li>Click "Save Compound" to add it to the sample.</li>
-                        </ol>
-                    </section>
-                    
-                    <section id="analysis" class="mb-5">
-                        <h3 class="border-bottom pb-2 mb-3">Running Analysis</h3>
-                        <p>
-                            The pipeline offers several types of analyses that can be performed on your samples:
-                        </p>
-                        
-                        <h5 class="mt-4">Bioactivity Analysis</h5>
-                        <p>
-                            This analysis examines the biological activity of compounds in your sample, providing a bioactivity score and confidence intervals.
-                        </p>
-                        <ol>
-                            <li>Navigate to the <a href="{{ url_for('web.new_analysis') }}">New Analysis</a> page.</li>
-                            <li>Select a sample from the dropdown menu.</li>
-                            <li>Choose "Bioactivity Analysis" as the analysis type.</li>
-                            <li>Specify any additional parameters in JSON format (optional).</li>
-                            <li>Click "Run Analysis" to start the process.</li>
-                        </ol>
-                        
-                        <h5 class="mt-4">Compound Identification</h5>
-                        <p>
-                            This analysis helps identify unknown compounds in your sample based on their properties.
-                        </p>
-                        <ol>
-                            <li>Navigate to the <a href="{{ url_for('web.new_analysis') }}">New Analysis</a> page.</li>
-                            <li>Select a sample from the dropdown menu.</li>
-                            <li>Choose "Compound Identification" as the analysis type.</li>
-                            <li>Specify any additional parameters in JSON format (optional).</li>
-                            <li>Click "Run Analysis" to start the process.</li>
-                        </ol>
-                        
-                        <h5 class="mt-4">Potency Prediction</h5>
-                        <p>
-                            This analysis predicts the medicinal potency of compounds in your sample.
-                        </p>
-                        <ol>
-                            <li>Navigate to the <a href="{{ url_for('web.new_analysis') }}">New Analysis</a> page.</li>
-                            <li>Select a sample from the dropdown menu.</li>
-                            <li>Choose "Potency Prediction" as the analysis type.</li>
-                            <li>Specify any additional parameters in JSON format (optional).</li>
-                            <li>Click "Run Analysis" to start the process.</li>
-                        </ol>
-                    </section>
-                    
-                    <section id="batch-processing" class="mb-5">
-                        <h3 class="border-bottom pb-2 mb-3">Batch Processing</h3>
-                        <p>
-                            Batch processing allows you to analyze multiple samples at once by uploading a CSV file containing sample data.
-                        </p>
-                        
-                        <h5 class="mt-4">Creating a Batch Job</h5>
-                        <ol>
-                            <li>Navigate to the <a href="{{ url_for('web.new_batch_job') }}">Batch Processing</a> page.</li>
-                            <li>Provide a name and description for the batch job.</li>
-                            <li>Upload a CSV file containing sample data.</li>
-                            <li>Specify processing parameters in JSON format (optional).</li>
-                            <li>Click "Upload and Process" to start the batch job.</li>
-                        </ol>
-                        
-                        <h5 class="mt-4">CSV Format</h5>
-                        <p>
-                            The CSV file should have the following structure:
-                        </p>
-                        <pre class="bg-dark text-light p-3 rounded"><code>name,species,molecular_weight,pH,concentration
-sample1,Agaricus bisporus,125.2,6.5,0.8
-sample2,Lentinula edodes,135.3,6.7,0.7
-sample3,Ganoderma lucidum,142.1,6.3,0.9</code></pre>
-                        <p>
-                            The first row must contain column headers. Numeric columns will be automatically used as features for analysis.
-                        </p>
-                        
-                        <h5 class="mt-4">Batch Processing Parameters</h5>
-                        <p>
-                            You can customize batch processing by providing parameters in JSON format:
-                        </p>
-                        <pre class="bg-dark text-light p-3 rounded"><code>{
-  "model_type": "regressor",
-  "normalization": true,
-  "drop_na": true,
-  "feature_columns": ["molecular_weight", "pH", "concentration"],
-  "output_prefix": "pred_"
-}</code></pre>
-                    </section>
-                    
-                    <section id="results" class="mb-5">
-                        <h3 class="border-bottom pb-2 mb-3">Understanding Results</h3>
-                        <p>
-                            After running an analysis, you'll be presented with results that include visualizations and numerical data.
-                        </p>
-                        
-                        <h5 class="mt-4">Bioactivity Analysis Results</h5>
-                        <p>
-                            Bioactivity analysis results include:
-                        </p>
-                        <ul>
-                            <li><strong>Bioactivity Scores</strong>: Values between 0 and 1 indicating the level of biological activity.</li>
-                            <li><strong>Confidence Intervals</strong>: Statistical confidence intervals for the bioactivity scores.</li>
-                            <li><strong>Feature Importance</strong>: A breakdown of which features most influenced the prediction.</li>
-                        </ul>
-                        
-                        <h5 class="mt-4">Compound Identification Results</h5>
-                        <p>
-                            Compound identification results include:
-                        </p>
-                        <ul>
-                            <li><strong>Identified Compounds</strong>: Names and formulas of identified compounds.</li>
-                            <li><strong>Confidence Scores</strong>: Confidence levels for each identification.</li>
-                            <li><strong>Match Scores</strong>: Numerical scores indicating how closely properties match known compounds.</li>
-                        </ul>
-                        
-                        <h5 class="mt-4">Potency Prediction Results</h5>
-                        <p>
-                            Potency prediction results include:
-                        </p>
-                        <ul>
-                            <li><strong>Potency Score</strong>: A value indicating the predicted medicinal potency.</li>
-                            <li><strong>Reliability Score</strong>: A measure of the prediction's reliability.</li>
-                            <li><strong>Potency Factors</strong>: A breakdown of factors contributing to the potency.</li>
-                        </ul>
-                        
-                        <h5 class="mt-4">Exporting Results</h5>
-                        <p>
-                            You can export results in various formats:
-                        </p>
-                        <ul>
-                            <li><strong>JSON</strong>: For programmatic access and storage.</li>
-                            <li><strong>CSV</strong>: For spreadsheet analysis.</li>
-                            <li><strong>PDF Report</strong>: For formal documentation.</li>
-                            <li><strong>PNG</strong>: For sharing visualizations.</li>
-                        </ul>
-                    </section>
-                    
-                    <section id="api" class="mb-5">
-                        <h3 class="border-bottom pb-2 mb-3">API Reference</h3>
-                        <p>
-                            The Mycology Research Pipeline provides a RESTful API for programmatic access to all functionality.
-                        </p>
-                        
-                        <h5 class="mt-4">Authentication</h5>
-                        <p>
-                            API requests require authentication via API key.
-                        </p>
-                        <pre class="bg-dark text-light p-3 rounded"><code>curl -H "Authorization: Bearer YOUR_API_KEY" http://localhost:8000/api/health</code></pre>
-                        
-                        <h5 class="mt-4">API Endpoints</h5>
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Endpoint</th>
-                                    <th>Method</th>
-                                    <th>Description</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td><code>/api/health</code></td>
-                                    <td>GET</td>
-                                    <td>Check the health status of the API</td>
-                                </tr>
-                                <tr>
-                                    <td><code>/api/samples</code></td>
-                                    <td>GET</td>
-                                    <td>Get a list of samples</td>
-                                </tr>
-                                <tr>
-                                    <td><code>/api/samples</code></td>
-                                    <td>POST</td>
-                                    <td>Create a new sample</td>
-                                </tr>
-                                <tr>
-                                    <td><code>/api/samples/{id}</code></td>
-                                    <td>GET</td>
-                                    <td>Get details of a specific sample</td>
-                                </tr>
-                                <tr>
-                                    <td><code>/api/process</code></td>
-                                    <td>POST</td>
-                                    <td>Process data for analysis</td>
-                                </tr>
-                                <tr>
-                                    <td><code>/api/analyses/{id}</code></td>
-                                    <td>GET</td>
-                                    <td>Get details of a specific analysis</td>
-                                </tr>
-                                <tr>
-                                    <td><code>/api/batch</code></td>
-                                    <td>POST</td>
-                                    <td>Create a new batch processing job</td>
-                                </tr>
-                                <tr>
-                                    <td><code>/api/batch/{id}</code></td>
-                                    <td>GET</td>
-                                    <td>Get details of a specific batch job</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        
-                        <h5 class="mt-4">Example: Processing Data</h5>
-                        <pre class="bg-dark text-light p-3 rounded"><code>curl -X POST \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_API_KEY" \
-  -d '{"input_data": "feature1,feature2\n1.0,4.0\n2.0,5.0\n3.0,6.0", "parameters": {"normalization": true}}' \
-  http://localhost:8000/api/process</code></pre>
-                        
-                        <p class="mt-3">
-                            For complete API documentation, visit the <a href="/docs" target="_blank">API Documentation</a> page.
-                        </p>
-                    </section>
-                    
-                    <section id="command-line" class="mb-5">
-                        <h3 class="border-bottom pb-2 mb-3">Command Line Interface</h3>
-                        <p>
-                            The Mycology Research Pipeline can also be used from the command line, which is useful for scripting and automation.
-                        </p>
-                        
-                        <h5 class="mt-4">Basic Usage</h5>
-                        <pre class="bg-dark text-light p-3 rounded"><code>python main.py</code></pre>
-                        
-                        <h5 class="mt-4">Starting the API Server</h5>
-                        <pre class="bg-dark text-light p-3 rounded"><code>python main.py api --port 8000 --host 0.0.0.0</code></pre>
-                        
-                        <h5 class="mt-4">Running Batch Processing</h5>
-                        <pre class="bg-dark text-light p-3 rounded"><code>python main.py batch input_file.csv --output-file results.csv --config config.json</code></pre>
-                        
-                        <h5 class="mt-4">Training a Model</h5>
-                        <pre class="bg-dark text-light p-3 rounded"><code>python main.py model train training_data.csv --output-file model.pkl --target-column bioactivity --model-type regressor</code></pre>
-                        
-                        <h5 class="mt-4">Making Predictions</h5>
-                        <pre class="bg-dark text-light p-3 rounded"><code>python main.py model predict model.pkl input_data.csv --output-file predictions.csv</code></pre>
-                    </section>
-                    
-                    <section id="advanced" class="mb-5">
-                        <h3 class="border-bottom pb-2 mb-3">Advanced Features</h3>
-                        <p>
-                            The Mycology Research Pipeline includes several advanced features for power users.
-                        </p>
-                        
-                        <h5 class="mt-4">Research Logs</h5>
-                        <p>
-                            Research logs allow you to document your findings, observations, and experimental notes.
-                        </p>
-                        <ol>
-                            <li>Navigate to the <a href="{{ url_for('web.list_research_logs') }}">Research Logs</a> page.</li>
-                            <li>Click "New Log" to create a new entry.</li>
-                            <li>Optionally associate the log with a sample or analysis.</li>
-                            <li>Enter your notes and save the log.</li>
-                        </ol>
-                        
-                        <h5 class="mt-4">Custom Analysis Models</h5>
-                        <p>
-                            Advanced users can create and train custom analysis models.
-                        </p>
-                        <ol>
-                            <li>Prepare a training dataset with known bioactivity values.</li>
-                            <li>Use the command line interface to train a custom model:
-                                <pre class="bg-dark text-light p-3 rounded"><code>python main.py model train training_data.csv --output-file custom_model.pkl --target-column bioactivity --model-type regressor</code></pre>
-                            </li>
-                            <li>Use your custom model for predictions:
-                                <pre class="bg-dark text-light p-3 rounded"><code>python main.py model predict custom_model.pkl input_data.csv --output-file predictions.csv</code></pre>
-                            </li>
-                        </ol>
-                        
-                        <h5 class="mt-4">Advanced Visualizations</h5>
-                        <p>
-                            The system provides advanced visualizations for deeper analysis:
-                        </p>
-                        <ul>
-                            <li><strong>Heatmaps</strong>: Visualize relationships between compounds and their bioactivity.</li>
-                            <li><strong>Network Graphs</strong>: Explore connections between compounds and their effects.</li>
-                            <li><strong>Molecular Viewers</strong>: Examine compound structures in 3D.</li>
-                            <li><strong>Scatter Plots</strong>: Analyze correlations between molecular properties and bioactivity.</li>
-                        </ul>
-                    </section>
-                    
-                    <section id="troubleshooting" class="mb-5">
-                        <h3 class="border-bottom pb-2 mb-3">Troubleshooting</h3>
-                        <p>
-                            If you encounter issues while using the Mycology Research Pipeline, check these common solutions:
-                        </p>
-                        
-                        <h5 class="mt-4">Analysis Failures</h5>
-                        <p>
-                            If an analysis fails to complete:
-                        </p>
-                        <ul>
-                            <li>Check that your sample data is complete and in the correct format.</li>
-                            <li>Verify that any JSON parameters are correctly formatted.</li>
-                            <li>Check the system logs for detailed error messages.</li>
-                            <li>Try running the analysis with a smaller sample or simpler parameters.</li>
-                        </ul>
-                        
-                        <h5 class="mt-4">Batch Processing Issues</h5>
-                        <p>
-                            If batch processing fails:
-                        </p>
-                        <ul>
-                            <li>Ensure your CSV file has the correct format with headers.</li>
-                            <li>Check for special characters or formatting issues in the CSV.</li>
-                            <li>Try processing a subset of the data to identify problematic rows.</li>
-                            <li>Verify that numeric columns contain valid numbers.</li>
-                        </ul>
-                        
-                        <h5 class="mt-4">API Connection Problems</h5>
-                        <p>
-                            If you're having trouble connecting to the API:
-                        </p>
-                        <ul>
-                            <li>Verify that the API server is running.</li>
-                            <li>Check your API key and authentication headers.</li>
-                            <li>Ensure your network allows connections to the API server.</li>
-                            <li>Try using the health check endpoint to verify connectivity.</li>
-                        </ul>
-                        
-                        <h5 class="mt-4">Getting Help</h5>
-                        <p>
-                            If you continue to experience issues:
-                        </p>
-                        <ul>
-                            <li>Check the detailed logs for error messages.</li>
-                            <li>Consult the knowledge base for known issues and solutions.</li>
-                            <li>Contact support for assistance.</li>
-                        </ul>
-                    </section>
+                <h5>Welcome to the Mycology Research Pipeline</h5>
+                <p>This guide will help you navigate the platform and use its features effectively for your mycology research.</p>
+                
+                <h5 class="mt-4">System Requirements</h5>
+                <ul>
+                    <li>Modern web browser (Chrome, Firefox, Safari, or Edge)</li>
+                    <li>Internet connection</li>
+                    <li>Account access (for secure features)</li>
+                </ul>
+                
+                <h5 class="mt-4">Quick Start Guide</h5>
+                <ol>
+                    <li><strong>Add Samples:</strong> Start by adding mycological samples to the system.</li>
+                    <li><strong>Run Analyses:</strong> Select a sample and run an analysis to discover bioactivity patterns.</li>
+                    <li><strong>View Results:</strong> Explore the analysis results with interactive visualizations.</li>
+                    <li><strong>Process Batches:</strong> For large datasets, use the batch processing functionality.</li>
+                </ol>
+                
+                <div class="alert alert-info mt-4">
+                    <i class="fas fa-info-circle me-2"></i> New to the platform? Check out our <a href="#quickstart-video" class="alert-link">video tutorial</a> for a guided walkthrough.
                 </div>
+            </div>
+        </div>
+        
+        <div class="card shadow-sm mb-4" id="samples">
+            <div class="card-header">
+                <h4>Sample Management</h4>
+            </div>
+            <div class="card-body">
+                <h5>Adding Samples</h5>
+                <p>Samples represent mycological specimens that you want to analyze. To add a new sample:</p>
+                <ol>
+                    <li>Navigate to the <strong>Samples</strong> page</li>
+                    <li>Click the <strong>Add Sample</strong> button</li>
+                    <li>Fill in the required information (name, species, etc.)</li>
+                    <li>Click <strong>Save</strong> to add the sample to the database</li>
+                </ol>
+                
+                <h5 class="mt-4">Sample Fields</h5>
+                <ul>
+                    <li><strong>Name:</strong> Unique identifier for your sample (required)</li>
+                    <li><strong>Species:</strong> Taxonomic classification</li>
+                    <li><strong>Location:</strong> Where the sample was collected</li>
+                    <li><strong>Collection Date:</strong> When the sample was collected</li>
+                    <li><strong>Description:</strong> Additional notes about the sample</li>
+                    <li><strong>Metadata:</strong> Custom JSON data for flexible information storage</li>
+                </ul>
+                
+                <h5 class="mt-4">Adding Compounds</h5>
+                <p>Once you've created a sample, you can add compounds to it:</p>
+                <ol>
+                    <li>Navigate to the sample details page</li>
+                    <li>Click the <strong>Add Compound</strong> button</li>
+                    <li>Fill in the compound information</li>
+                    <li>Click <strong>Save</strong> to add the compound to the sample</li>
+                </ol>
+            </div>
+        </div>
+        
+        <div class="card shadow-sm mb-4" id="analysis">
+            <div class="card-header">
+                <h4>Running Analyses</h4>
+            </div>
+            <div class="card-body">
+                <h5>Analysis Types</h5>
+                <p>The platform supports several types of analyses:</p>
+                <ul>
+                    <li><strong>Bioactivity Analysis:</strong> Evaluates the bioactive properties of compounds</li>
+                    <li><strong>Structural Analysis:</strong> Analyzes molecular structures and properties</li>
+                    <li><strong>Comparative Analysis:</strong> Compares compounds across samples</li>
+                    <li><strong>Classification:</strong> Categorizes compounds based on their properties</li>
+                </ul>
+                
+                <h5 class="mt-4">Running an Analysis</h5>
+                <ol>
+                    <li>Navigate to the <strong>Analysis</strong> page</li>
+                    <li>Select a sample from the dropdown menu</li>
+                    <li>Choose the analysis type</li>
+                    <li>Configure any specific parameters (optional)</li>
+                    <li>Click <strong>Start Analysis</strong> to begin processing</li>
+                </ol>
+                
+                <div class="alert alert-warning mt-4">
+                    <i class="fas fa-exclamation-triangle me-2"></i> Analyses can take several minutes to complete depending on the complexity and size of the data.
+                </div>
+            </div>
+        </div>
+        
+        <div class="card shadow-sm mb-4" id="api">
+            <div class="card-header">
+                <h4>API Reference</h4>
+            </div>
+            <div class="card-body">
+                <p>The Mycology Research Pipeline provides a comprehensive API for programmatic access to all platform features.</p>
+                
+                <h5 class="mt-4">API Endpoints</h5>
+                <p>Key endpoints include:</p>
+                <ul>
+                    <li><code>/api/health</code> - Check API health status</li>
+                    <li><code>/api/samples</code> - Manage samples</li>
+                    <li><code>/api/samples/{id}</code> - Access specific sample</li>
+                    <li><code>/api/analysis</code> - Start or manage analyses</li>
+                    <li><code>/api/analysis/{id}</code> - Access specific analysis</li>
+                    <li><code>/api/batch</code> - Manage batch processing jobs</li>
+                </ul>
+                
+                <div class="alert alert-info mt-4">
+                    <i class="fas fa-info-circle me-2"></i> For complete API documentation, visit <a href="/docs" class="alert-link">the Swagger UI documentation</a>.
+                </div>
+                
+                <h5 class="mt-4">API Client</h5>
+                <p>For convenience, we provide a Python client for interacting with the API:</p>
+                <pre class="bg-dark text-light p-3"><code>from api_client import ApiClient
+
+# Initialize the client
+client = ApiClient(base_url="http://localhost:8000")
+
+# Get a list of samples
+samples = client.get_samples()
+
+# Process a sample
+result = client.process_sample(
+    input_data="sample_data.csv",
+    parameters={"analysis_type": "bioactivity_analysis"}
+)</code></pre>
             </div>
         </div>
     </div>
@@ -465,28 +180,38 @@ sample3,Ganoderma lucidum,142.1,6.3,0.9</code></pre>
 {% block scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Activate scrollspy for documentation navigation
-        const scrollspy = new bootstrap.ScrollSpy(document.body, {
-            target: '#docNavList'
-        });
-        
-        // Add smooth scrolling to navigation links
-        document.querySelectorAll('#docNavList a').forEach(link => {
-            link.addEventListener('click', function(e) {
+        // Smooth scrolling for documentation navigation
+        document.querySelectorAll('#doc-nav a').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
                 e.preventDefault();
+                
                 const targetId = this.getAttribute('href');
                 const targetElement = document.querySelector(targetId);
                 
                 window.scrollTo({
-                    top: targetElement.offsetTop - 20,
+                    top: targetElement.offsetTop - 100,
                     behavior: 'smooth'
                 });
                 
-                // Update active link
-                document.querySelectorAll('#docNavList a').forEach(item => {
-                    item.classList.remove('active');
-                });
+                // Update active state
+                document.querySelectorAll('#doc-nav a').forEach(a => a.classList.remove('active'));
                 this.classList.add('active');
+            });
+        });
+        
+        // Highlight current section based on scroll position
+        window.addEventListener('scroll', function() {
+            const scrollPosition = window.scrollY;
+            
+            document.querySelectorAll('.card[id]').forEach(section => {
+                const sectionTop = section.offsetTop - 120;
+                const sectionBottom = sectionTop + section.offsetHeight;
+                
+                if (scrollPosition >= sectionTop && scrollPosition < sectionBottom) {
+                    const id = section.getAttribute('id');
+                    document.querySelectorAll('#doc-nav a').forEach(a => a.classList.remove('active'));
+                    document.querySelector(`#doc-nav a[href="#${id}"]`).classList.add('active');
+                }
             });
         });
     });
