@@ -326,6 +326,12 @@ def list_research_logs():
     return render_template('logs.html', logs=logs)
 
 
+@web_bp.route('/api-testing')
+def api_testing():
+    """Render the API testing guide."""
+    return render_template('api_testing.html')
+
+
 @web_bp.route('/logs/<int:log_id>')
 def view_research_log(log_id):
     """View a specific research log."""
