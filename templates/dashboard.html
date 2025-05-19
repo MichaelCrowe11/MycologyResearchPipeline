@@ -3,24 +3,33 @@
 {% block title %}Dashboard - Mycology Research Pipeline{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-    <h1 class="h2">Dashboard</h1>
-    <div class="btn-toolbar mb-2 mb-md-0">
-        <div class="btn-group me-2">
-            <button type="button" class="btn btn-sm btn-outline-secondary" id="exportResults">
-                <i class="fas fa-file-export me-1"></i> Export
-            </button>
-            <button type="button" class="btn btn-sm btn-outline-secondary" id="refreshDashboard">
-                <i class="fas fa-sync-alt me-1"></i> Refresh
-            </button>
+<div class="hero-section hero-dashboard mb-4">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <h1>Dashboard</h1>
+                <p>Access key metrics and visualizations for your mycology research. Monitor sample analysis, track bioactivity patterns, and view realtime research insights.</p>
+            </div>
+            <div class="col-lg-4 d-flex align-items-center">
+                <div class="btn-toolbar w-100 justify-content-lg-end">
+                    <div class="btn-group me-2">
+                        <button type="button" class="btn btn-light" id="exportResults">
+                            <i class="fas fa-file-export me-1"></i> Export
+                        </button>
+                        <button type="button" class="btn btn-light" id="refreshDashboard">
+                            <i class="fas fa-sync-alt me-1"></i> Refresh
+                        </button>
+                    </div>
+                    <select class="form-select bg-transparent text-white border-light" id="analysisDateRange" style="max-width: 140px;">
+                        <option value="7">Last 7 Days</option>
+                        <option value="30" selected>Last 30 Days</option>
+                        <option value="90">Last 90 Days</option>
+                        <option value="365">Last Year</option>
+                        <option value="all">All Time</option>
+                    </select>
+                </div>
+            </div>
         </div>
-        <select class="form-select form-select-sm" id="analysisDateRange">
-            <option value="7">Last 7 Days</option>
-            <option value="30" selected>Last 30 Days</option>
-            <option value="90">Last 90 Days</option>
-            <option value="365">Last Year</option>
-            <option value="all">All Time</option>
-        </select>
     </div>
 </div>
 

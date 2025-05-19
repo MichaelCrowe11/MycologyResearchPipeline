@@ -3,13 +3,18 @@
 {% block title %}New Analysis - Mycology Research Pipeline{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-    <h1 class="h2">New Analysis</h1>
-    <div class="btn-toolbar mb-2 mb-md-0">
-        <div class="btn-group me-2">
-            <a href="{{ url_for('web.view_results') }}" class="btn btn-sm btn-outline-secondary">
-                <i class="fas fa-poll me-1"></i> View Results
-            </a>
+<div class="hero-section hero-analysis mb-4">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <h1>New Analysis</h1>
+                <p>Process your mycological samples to discover bioactivity patterns and medicinal compound properties. Apply advanced analysis techniques to extract valuable insights.</p>
+            </div>
+            <div class="col-lg-4 d-flex align-items-center justify-content-lg-end">
+                <a href="{{ url_for('web.view_results') }}" class="btn btn-light">
+                    <i class="fas fa-poll me-1"></i> View Results
+                </a>
+            </div>
         </div>
     </div>
 </div>
