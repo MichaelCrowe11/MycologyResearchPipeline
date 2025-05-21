@@ -3,217 +3,183 @@
 {% block title %}Documentation - Mycology Research Pipeline{% endblock %}
 
 {% block content %}
-<div class="hero-section hero-results mb-4">
+<div class="hero-section mb-4">
     <div class="container">
         <div class="row">
             <div class="col-lg-8">
                 <h1>Documentation</h1>
-                <p>Comprehensive guides and reference materials for using the Mycology Research Pipeline platform effectively.</p>
-            </div>
-            <div class="col-lg-4 d-flex align-items-center justify-content-lg-end">
-                <a href="{{ url_for('web.about') }}" class="btn btn-light">
-                    <i class="fas fa-info-circle me-1"></i> About
-                </a>
+                <p>Comprehensive guides and reference materials for the Mycology Research Pipeline</p>
             </div>
         </div>
     </div>
 </div>
 
-<div class="row mb-4">
-    <div class="col-md-3">
-        <div class="card shadow-sm mb-4">
-            <div class="card-header">
-                <h5 class="mb-0">Navigation</h5>
-            </div>
-            <div class="card-body p-0">
-                <div class="list-group list-group-flush" id="doc-nav">
-                    <a href="#getting-started" class="list-group-item list-group-item-action">Getting Started</a>
-                    <a href="#samples" class="list-group-item list-group-item-action">Sample Management</a>
-                    <a href="#analysis" class="list-group-item list-group-item-action">Running Analyses</a>
-                    <a href="#batch" class="list-group-item list-group-item-action">Batch Processing</a>
-                    <a href="#results" class="list-group-item list-group-item-action">Viewing Results</a>
-                    <a href="#api" class="list-group-item list-group-item-action">API Reference</a>
-                    <a href="#molecular" class="list-group-item list-group-item-action">Molecular Viewer</a>
-                    <a href="#troubleshooting" class="list-group-item list-group-item-action">Troubleshooting</a>
+<div class="container mb-5">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Documentation</h5>
                 </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-md-9">
-        <div class="card shadow-sm mb-4" id="getting-started">
-            <div class="card-header">
-                <h4>Getting Started</h4>
-            </div>
-            <div class="card-body">
-                <h5>Welcome to the Mycology Research Pipeline</h5>
-                <p>This guide will help you navigate the platform and use its features effectively for your mycology research.</p>
-                
-                <h5 class="mt-4">System Requirements</h5>
-                <ul>
-                    <li>Modern web browser (Chrome, Firefox, Safari, or Edge)</li>
-                    <li>Internet connection</li>
-                    <li>Account access (for secure features)</li>
-                </ul>
-                
-                <h5 class="mt-4">Quick Start Guide</h5>
-                <ol>
-                    <li><strong>Add Samples:</strong> Start by adding mycological samples to the system.</li>
-                    <li><strong>Run Analyses:</strong> Select a sample and run an analysis to discover bioactivity patterns.</li>
-                    <li><strong>View Results:</strong> Explore the analysis results with interactive visualizations.</li>
-                    <li><strong>Process Batches:</strong> For large datasets, use the batch processing functionality.</li>
-                </ol>
-                
-                <div class="alert alert-info mt-4">
-                    <i class="fas fa-info-circle me-2"></i> New to the platform? Check out our <a href="#quickstart-video" class="alert-link">video tutorial</a> for a guided walkthrough.
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        <a href="{{ url_for('web.documentation') }}" class="list-group-item list-group-item-action active">Overview</a>
+                        <a href="{{ url_for('web.pubmed_documentation') }}" class="list-group-item list-group-item-action">PubMed Integration</a>
+                        <a href="#" class="list-group-item list-group-item-action">Sample Management</a>
+                        <a href="#" class="list-group-item list-group-item-action">Compound Analysis</a>
+                        <a href="#" class="list-group-item list-group-item-action">Batch Processing</a>
+                        <a href="#" class="list-group-item list-group-item-action">API Reference</a>
+                        <a href="#" class="list-group-item list-group-item-action">Deployment Guide</a>
+                    </div>
                 </div>
             </div>
         </div>
         
-        <div class="card shadow-sm mb-4" id="samples">
-            <div class="card-header">
-                <h4>Sample Management</h4>
-            </div>
-            <div class="card-body">
-                <h5>Adding Samples</h5>
-                <p>Samples represent mycological specimens that you want to analyze. To add a new sample:</p>
-                <ol>
-                    <li>Navigate to the <strong>Samples</strong> page</li>
-                    <li>Click the <strong>Add Sample</strong> button</li>
-                    <li>Fill in the required information (name, species, etc.)</li>
-                    <li>Click <strong>Save</strong> to add the sample to the database</li>
-                </ol>
-                
-                <h5 class="mt-4">Sample Fields</h5>
-                <ul>
-                    <li><strong>Name:</strong> Unique identifier for your sample (required)</li>
-                    <li><strong>Species:</strong> Taxonomic classification</li>
-                    <li><strong>Location:</strong> Where the sample was collected</li>
-                    <li><strong>Collection Date:</strong> When the sample was collected</li>
-                    <li><strong>Description:</strong> Additional notes about the sample</li>
-                    <li><strong>Metadata:</strong> Custom JSON data for flexible information storage</li>
-                </ul>
-                
-                <h5 class="mt-4">Adding Compounds</h5>
-                <p>Once you've created a sample, you can add compounds to it:</p>
-                <ol>
-                    <li>Navigate to the sample details page</li>
-                    <li>Click the <strong>Add Compound</strong> button</li>
-                    <li>Fill in the compound information</li>
-                    <li>Click <strong>Save</strong> to add the compound to the sample</li>
-                </ol>
-            </div>
-        </div>
-        
-        <div class="card shadow-sm mb-4" id="analysis">
-            <div class="card-header">
-                <h4>Running Analyses</h4>
-            </div>
-            <div class="card-body">
-                <h5>Analysis Types</h5>
-                <p>The platform supports several types of analyses:</p>
-                <ul>
-                    <li><strong>Bioactivity Analysis:</strong> Evaluates the bioactive properties of compounds</li>
-                    <li><strong>Structural Analysis:</strong> Analyzes molecular structures and properties</li>
-                    <li><strong>Comparative Analysis:</strong> Compares compounds across samples</li>
-                    <li><strong>Classification:</strong> Categorizes compounds based on their properties</li>
-                </ul>
-                
-                <h5 class="mt-4">Running an Analysis</h5>
-                <ol>
-                    <li>Navigate to the <strong>Analysis</strong> page</li>
-                    <li>Select a sample from the dropdown menu</li>
-                    <li>Choose the analysis type</li>
-                    <li>Configure any specific parameters (optional)</li>
-                    <li>Click <strong>Start Analysis</strong> to begin processing</li>
-                </ol>
-                
-                <div class="alert alert-warning mt-4">
-                    <i class="fas fa-exclamation-triangle me-2"></i> Analyses can take several minutes to complete depending on the complexity and size of the data.
+        <div class="col-md-9">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Documentation Overview</h5>
                 </div>
-            </div>
-        </div>
-        
-        <div class="card shadow-sm mb-4" id="api">
-            <div class="card-header">
-                <h4>API Reference</h4>
-            </div>
-            <div class="card-body">
-                <p>The Mycology Research Pipeline provides a comprehensive API for programmatic access to all platform features.</p>
-                
-                <h5 class="mt-4">API Endpoints</h5>
-                <p>Key endpoints include:</p>
-                <ul>
-                    <li><code>/api/health</code> - Check API health status</li>
-                    <li><code>/api/samples</code> - Manage samples</li>
-                    <li><code>/api/samples/{id}</code> - Access specific sample</li>
-                    <li><code>/api/analysis</code> - Start or manage analyses</li>
-                    <li><code>/api/analysis/{id}</code> - Access specific analysis</li>
-                    <li><code>/api/batch</code> - Manage batch processing jobs</li>
-                </ul>
-                
-                <div class="alert alert-info mt-4">
-                    <i class="fas fa-info-circle me-2"></i> For complete API documentation, visit <a href="/docs" class="alert-link">the Swagger UI documentation</a>.
+                <div class="card-body">
+                    <h2>Mycology Research Pipeline Documentation</h2>
+                    <p class="lead">
+                        Welcome to the official documentation for the Mycology Research Pipeline, a comprehensive platform 
+                        for advanced mycological research, data processing, and scientific exploration.
+                    </p>
+                    
+                    <p>
+                        This documentation provides detailed information on how to use the various features of the platform,
+                        from sample management to advanced data analysis and integration with external resources like PubMed.
+                    </p>
+                    
+                    <div class="alert alert-primary">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Version:</strong> 1.0 (MVP Release)
+                    </div>
+                    
+                    <h3>Key Components</h3>
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5><i class="fas fa-flask me-2 text-primary"></i> Sample Management</h5>
+                                    <p>
+                                        Tools for cataloging, tracking, and managing mycological samples, including species 
+                                        information, collection data, and custom metadata.
+                                    </p>
+                                    <a href="#" class="btn btn-sm btn-outline-primary">Learn More</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5><i class="fas fa-vial me-2 text-primary"></i> Compound Analysis</h5>
+                                    <p>
+                                        Tools for analyzing and visualizing compounds found in mycological samples, including
+                                        chemical properties, bioactivity indices, and molecular structures.
+                                    </p>
+                                    <a href="#" class="btn btn-sm btn-outline-primary">Learn More</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5><i class="fas fa-book me-2 text-primary"></i> PubMed Integration</h5>
+                                    <p>
+                                        Integration with the PubMed database for accessing and managing scientific literature
+                                        related to mycological research and medicinal mushrooms.
+                                    </p>
+                                    <a href="{{ url_for('web.pubmed_documentation') }}" class="btn btn-sm btn-outline-primary">Learn More</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5><i class="fas fa-tasks me-2 text-primary"></i> Batch Processing</h5>
+                                    <p>
+                                        Tools for processing large datasets of mycological samples and compounds, with
+                                        support for automated analysis and reporting.
+                                    </p>
+                                    <a href="#" class="btn btn-sm btn-outline-primary">Learn More</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5><i class="fas fa-chart-line me-2 text-primary"></i> Data Visualization</h5>
+                                    <p>
+                                        Tools for visualizing research data, including interactive charts, graphs, and
+                                        molecular structure viewers.
+                                    </p>
+                                    <a href="#" class="btn btn-sm btn-outline-primary">Learn More</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5><i class="fas fa-code me-2 text-primary"></i> API Reference</h5>
+                                    <p>
+                                        Comprehensive API documentation for developers integrating with the Mycology Research
+                                        Pipeline programmatically.
+                                    </p>
+                                    <a href="#" class="btn btn-sm btn-outline-primary">Learn More</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3>Getting Started</h3>
+                    <p>
+                        To get started with the Mycology Research Pipeline, we recommend these initial steps:
+                    </p>
+                    <ol>
+                        <li>Explore the <a href="{{ url_for('web.dashboard') }}">Dashboard</a> to get an overview of the system</li>
+                        <li>Add your first mycological <a href="{{ url_for('web.new_sample') }}">Sample</a></li>
+                        <li>Run an <a href="{{ url_for('web.new_analysis') }}">Analysis</a> on your sample</li>
+                        <li>Explore scientific literature using the <a href="{{ url_for('web.literature') }}">Literature</a> page</li>
+                        <li>Set up <a href="{{ url_for('web.new_batch_job') }}">Batch Processing</a> for larger datasets</li>
+                    </ol>
+                    
+                    <h3>System Requirements</h3>
+                    <ul>
+                        <li>Web browser: Chrome, Firefox, Safari, or Edge (latest versions)</li>
+                        <li>Internet connection: Required for PubMed integration and external data access</li>
+                        <li>Screen resolution: Minimum 1280x720 recommended</li>
+                    </ul>
+                    
+                    <h3>Support</h3>
+                    <p>
+                        For technical support, please contact:
+                    </p>
+                    <ul>
+                        <li>Email: <a href="mailto:support@mycology-research-pipeline.org">support@mycology-research-pipeline.org</a></li>
+                        <li>GitHub Issues: <a href="https://github.com/mycology-research-pipeline/issues" target="_blank">Report a Bug</a></li>
+                    </ul>
+                    
+                    <h3>Developer Resources</h3>
+                    <p>
+                        For developers interested in extending or integrating with the Mycology Research Pipeline:
+                    </p>
+                    <ul>
+                        <li><a href="#">API Documentation</a></li>
+                        <li><a href="#">Deployment Guide</a></li>
+                        <li><a href="#">GitHub Repository</a></li>
+                        <li><a href="#">Contributing Guidelines</a></li>
+                    </ul>
                 </div>
-                
-                <h5 class="mt-4">API Client</h5>
-                <p>For convenience, we provide a Python client for interacting with the API:</p>
-                <pre class="bg-dark text-light p-3"><code>from api_client import ApiClient
-
-# Initialize the client
-client = ApiClient(base_url="http://localhost:8000")
-
-# Get a list of samples
-samples = client.get_samples()
-
-# Process a sample
-result = client.process_sample(
-    input_data="sample_data.csv",
-    parameters={"analysis_type": "bioactivity_analysis"}
-)</code></pre>
             </div>
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block scripts %}
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Smooth scrolling for documentation navigation
-        document.querySelectorAll('#doc-nav a').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
-                e.preventDefault();
-                
-                const targetId = this.getAttribute('href');
-                const targetElement = document.querySelector(targetId);
-                
-                window.scrollTo({
-                    top: targetElement.offsetTop - 100,
-                    behavior: 'smooth'
-                });
-                
-                // Update active state
-                document.querySelectorAll('#doc-nav a').forEach(a => a.classList.remove('active'));
-                this.classList.add('active');
-            });
-        });
-        
-        // Highlight current section based on scroll position
-        window.addEventListener('scroll', function() {
-            const scrollPosition = window.scrollY;
-            
-            document.querySelectorAll('.card[id]').forEach(section => {
-                const sectionTop = section.offsetTop - 120;
-                const sectionBottom = sectionTop + section.offsetHeight;
-                
-                if (scrollPosition >= sectionTop && scrollPosition < sectionBottom) {
-                    const id = section.getAttribute('id');
-                    document.querySelectorAll('#doc-nav a').forEach(a => a.classList.remove('active'));
-                    document.querySelector(`#doc-nav a[href="#${id}"]`).classList.add('active');
-                }
-            });
-        });
-    });
-</script>
 {% endblock %}

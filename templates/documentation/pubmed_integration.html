@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+
+{% block title %}PubMed Integration Documentation - Mycology Research Pipeline{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('web.dashboard') }}">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('web.documentation') }}">Documentation</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">PubMed Integration</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Documentation</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        <a href="{{ url_for('web.documentation') }}" class="list-group-item list-group-item-action">Overview</a>
+                        <a href="#" class="list-group-item list-group-item-action active">PubMed Integration</a>
+                        <a href="#" class="list-group-item list-group-item-action">Sample Management</a>
+                        <a href="#" class="list-group-item list-group-item-action">Compound Analysis</a>
+                        <a href="#" class="list-group-item list-group-item-action">Batch Processing</a>
+                        <a href="#" class="list-group-item list-group-item-action">API Reference</a>
+                        <a href="#" class="list-group-item list-group-item-action">Deployment Guide</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">PubMed Integration</h5>
+                    <span class="badge bg-primary">Version 1.0</span>
+                </div>
+                <div class="card-body">
+                    <h2 class="mb-4">Scientific Literature Integration</h2>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Note:</strong> The PubMed integration requires an active internet connection to fetch the latest scientific literature.
+                    </div>
+                    
+                    <h3 id="overview">Overview</h3>
+                    <p>
+                        The Mycology Research Pipeline integrates with the National Center for Biotechnology Information (NCBI) 
+                        PubMed database to provide up-to-date scientific literature related to mycological research. This integration
+                        enables researchers to:
+                    </p>
+                    <ul>
+                        <li>Automatically fetch relevant research papers for fungal species</li>
+                        <li>Associate scientific literature with samples in the database</li>
+                        <li>Filter and search through a curated collection of mycology research</li>
+                        <li>Export citation data for use in publications</li>
+                    </ul>
+                    
+                    <h3 id="features">Key Features</h3>
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5><i class="fas fa-search me-2 text-primary"></i> Automated Literature Search</h5>
+                                    <p>
+                                        The system automatically generates optimized search queries for different fungal species
+                                        to find the most relevant scientific papers in the PubMed database.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5><i class="fas fa-database me-2 text-primary"></i> Research Storage</h5>
+                                    <p>
+                                        Literature references are stored in the database and associated with relevant samples,
+                                        allowing for efficient organization and retrieval of research material.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5><i class="fas fa-filter me-2 text-primary"></i> Advanced Filtering</h5>
+                                    <p>
+                                        Filter literature by species, publication year, journal, and keywords to quickly
+                                        find the most relevant research for your work.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5><i class="fas fa-file-export me-2 text-primary"></i> Export Capabilities</h5>
+                                    <p>
+                                        Export citations in various formats for use in publications, bibliographic software,
+                                        or research notes.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3 id="usage">Using the PubMed Integration</h3>
+                    
+                    <h4>Accessing the Literature Page</h4>
+                    <p>
+                        The main interface for accessing scientific literature is the <a href="{{ url_for('web.literature') }}">Literature</a> page.
+                        From here, you can:
+                    </p>
+                    <ul>
+                        <li>Browse all literature references in the database</li>
+                        <li>Filter references by species, year, and other criteria</li>
+                        <li>Perform custom searches</li>
+                        <li>Fetch new literature from PubMed</li>
+                    </ul>
+                    
+                    <h4>Fetching Literature for a Sample</h4>
+                    <p>
+                        To fetch scientific literature for a specific sample:
+                    </p>
+                    <ol>
+                        <li>Navigate to the sample details page</li>
+                        <li>Click the dropdown menu in the Compounds section</li>
+                        <li>Select "Update Literature References"</li>
+                        <li>The system will automatically search PubMed for relevant papers based on the sample's species</li>
+                        <li>New references will be displayed in the Scientific Literature section</li>
+                    </ol>
+                    
+                    <h4>Custom Literature Searches</h4>
+                    <p>
+                        To perform a custom search for scientific literature:
+                    </p>
+                    <ol>
+                        <li>Navigate to the <a href="{{ url_for('web.literature') }}">Literature</a> page</li>
+                        <li>Scroll down to the "Custom Literature Search" section</li>
+                        <li>Enter your PubMed query using standard PubMed syntax</li>
+                        <li>Select the maximum number of results to return</li>
+                        <li>Optionally associate the results with a sample</li>
+                        <li>Click "Search Literature"</li>
+                    </ol>
+                    
+                    <div class="alert alert-secondary mt-4">
+                        <h5><i class="fas fa-lightbulb me-2"></i> Tips for Effective Searches</h5>
+                        <ul class="mb-0">
+                            <li>Use Boolean operators (AND, OR, NOT) to refine your search</li>
+                            <li>Include specific terms related to medicinal properties when relevant</li>
+                            <li>Use quotes around phrases to search for exact matches</li>
+                            <li>Include publication date ranges using [PDAT] field tags</li>
+                            <li>Specify article types with [PT] field tags</li>
+                        </ul>
+                    </div>
+                    
+                    <h3 id="cmid-integration">CMID Research Intelligence Kit Integration</h3>
+                    <p>
+                        The system includes integration with the Comprehensive Mushroom Intelligence Dashboard (CMID) Research Intelligence Kit,
+                        which provides pre-curated scientific literature and compound information for medicinal mushrooms.
+                    </p>
+                    
+                    <h4>Importing CMID Data</h4>
+                    <p>
+                        The CMID data can be imported using the provided import script:
+                    </p>
+                    <pre class="bg-dark text-light p-3 rounded"><code>python import_research_kit.py -v</code></pre>
+                    
+                    <p>
+                        This script will import species information, compound data, and literature references from the CMID Research Kit
+                        into the Mycology Research Pipeline database.
+                    </p>
+                    
+                    <h3 id="cli-tool">Command-line Interface</h3>
+                    <p>
+                        For batch operations and automation, you can use the provided command-line tool:
+                    </p>
+                    <pre class="bg-dark text-light p-3 rounded"><code>python fetch_mycology_literature.py -e your.email@example.com</code></pre>
+                    
+                    <p>
+                        For more options and information, run:
+                    </p>
+                    <pre class="bg-dark text-light p-3 rounded"><code>python fetch_mycology_literature.py --help</code></pre>
+                    
+                    <h3 id="api">API Access</h3>
+                    <p>
+                        The PubMed integration functionality is also available through the API for programmatic access.
+                        See the <a href="{{ url_for('web.api_testing') }}">API Testing</a> page for more information on how to use
+                        these endpoints.
+                    </p>
+                    
+                    <h3 id="limitations">Current Limitations</h3>
+                    <ul>
+                        <li>PubMed imposes rate limits on API requests, which may affect bulk operations</li>
+                        <li>Abstract retrieval requires additional API calls and may not be available for all articles</li>
+                        <li>The system currently does not support full-text retrieval for papers</li>
+                        <li>Citation export is limited to CSV and JSON formats</li>
+                    </ul>
+                    
+                    <h3 id="future">Future Enhancements</h3>
+                    <ul>
+                        <li>Integration with additional scientific databases (Scopus, Web of Science)</li>
+                        <li>Full-text retrieval for open access articles</li>
+                        <li>Natural language processing for more intelligent search and filtering</li>
+                        <li>Citation network visualization</li>
+                        <li>Additional export formats (BibTeX, RIS)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

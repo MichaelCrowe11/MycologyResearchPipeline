@@ -563,6 +563,12 @@ def documentation():
     return render_template('documentation.html')
 
 
+@web_bp.route('/documentation/pubmed')
+def pubmed_documentation():
+    """PubMed integration documentation page."""
+    return render_template('documentation/pubmed_integration.html')
+
+
 @web_bp.route('/molecular-viewer')
 def molecular_viewer():
     """3D Molecular Visualization."""
