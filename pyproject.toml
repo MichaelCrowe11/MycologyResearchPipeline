@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "Add your description here"
 requires-python = ">=3.11"
 dependencies = [
+    "biopython>=1.85",
     "email-validator>=2.2.0",
     "flasgger>=0.9.7.1",
     "flask>=3.1.1",
