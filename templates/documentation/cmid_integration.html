@@ -1,0 +1,235 @@
+{% extends "base.html" %}
+
+{% block title %}CMID Research Kit Integration - Mycology Research Pipeline{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('web.dashboard') }}">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('web.documentation') }}">Documentation</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">CMID Research Kit</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Documentation</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        <a href="{{ url_for('web.documentation') }}" class="list-group-item list-group-item-action">Overview</a>
+                        <a href="{{ url_for('web.pubmed_documentation') }}" class="list-group-item list-group-item-action">PubMed Integration</a>
+                        <a href="{{ url_for('web.cmid_documentation') }}" class="list-group-item list-group-item-action active">CMID Research Kit</a>
+                        <a href="#" class="list-group-item list-group-item-action">Sample Management</a>
+                        <a href="#" class="list-group-item list-group-item-action">Compound Analysis</a>
+                        <a href="#" class="list-group-item list-group-item-action">Batch Processing</a>
+                        <a href="#" class="list-group-item list-group-item-action">API Reference</a>
+                        <a href="#" class="list-group-item list-group-item-action">Deployment Guide</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">CMID Research Intelligence Kit</h5>
+                    <span class="badge bg-primary">Version 2.0</span>
+                </div>
+                <div class="card-body">
+                    <h2 class="mb-4">Comprehensive Mushroom Intelligence Dashboard Integration</h2>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Note:</strong> The CMID Research Intelligence Kit is included with your installation and provides pre-curated data on medicinal mushrooms.
+                    </div>
+                    
+                    <h3 id="overview">Overview</h3>
+                    <p>
+                        The Comprehensive Mushroom Intelligence Dashboard (CMID) Research Intelligence Kit is a specialized 
+                        collection of pre-curated data on medicinal mushrooms, their compounds, and associated research literature.
+                        This integration enhances the Mycology Research Pipeline with validated, high-quality research data
+                        that can be used as a foundation for your own investigations.
+                    </p>
+                    
+                    <h3 id="included-data">What's Included in the Kit</h3>
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5><i class="fas fa-database me-2 text-primary"></i> Species Information</h5>
+                                    <p>
+                                        Detailed information on key medicinal mushroom species, including taxonomic classification,
+                                        common names, and basic biological properties.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5><i class="fas fa-atom me-2 text-primary"></i> Compound Data</h5>
+                                    <p>
+                                        Chemical compound information, including molecular structures, bioactivity profiles,
+                                        and known medicinal properties.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5><i class="fas fa-book-medical me-2 text-primary"></i> Research Citations</h5>
+                                    <p>
+                                        Curated research citations from peer-reviewed journals, linked to PubMed records
+                                        for further exploration.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3 id="data-files">Data Files Included</h3>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>File Name</th>
+                                    <th>Description</th>
+                                    <th>Records</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>CMID_v2_Expanded_Species.csv</code></td>
+                                    <td>Comprehensive species information</td>
+                                    <td>50+</td>
+                                </tr>
+                                <tr>
+                                    <td><code>CMID_v2_Compound_Structure_Matrix.csv</code></td>
+                                    <td>Compound chemical structures and properties</td>
+                                    <td>200+</td>
+                                </tr>
+                                <tr>
+                                    <td><code>CMID_v2_PubMed_Citations.csv</code></td>
+                                    <td>Curated PubMed citations</td>
+                                    <td>500+</td>
+                                </tr>
+                                <tr>
+                                    <td><code>CMID_v2_Bioactivity_Profiles.csv</code></td>
+                                    <td>Bioactivity measurements for compounds</td>
+                                    <td>150+</td>
+                                </tr>
+                                <tr>
+                                    <td><code>CMID_v2_Traditional_Uses.csv</code></td>
+                                    <td>Historical and traditional usage information</td>
+                                    <td>100+</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <h3 id="using-data">Using the CMID Data</h3>
+                    <p>
+                        The CMID Research Intelligence Kit is automatically integrated with the Mycology Research Pipeline,
+                        making the data available throughout the platform. You can:
+                    </p>
+                    <ul>
+                        <li>Browse pre-loaded species information in the Samples section</li>
+                        <li>View compound data and molecular structures in the Compound Analysis tools</li>
+                        <li>Access curated citations in the Literature section</li>
+                        <li>Use the data as a baseline for comparison with your own research results</li>
+                    </ul>
+                    
+                    <h3 id="importing">Importing CMID Data</h3>
+                    <p>
+                        The CMID Research Intelligence Kit comes pre-installed with the Mycology Research Pipeline.
+                        To import or update the data, you can use the provided import script:
+                    </p>
+                    <pre class="bg-dark text-light p-3 rounded"><code>python import_research_kit.py -v</code></pre>
+                    
+                    <p>
+                        This command will import all the data from the kit into your database, creating or updating records
+                        as appropriate. The script is designed to be idempotent, so running it multiple times will not
+                        create duplicate records.
+                    </p>
+                    
+                    <div class="alert alert-secondary mt-4">
+                        <h5><i class="fas fa-lightbulb me-2"></i> Import Options</h5>
+                        <p>The import script provides several options for customizing the import process:</p>
+                        <ul class="mb-0">
+                            <li><code>-v, --verbose</code>: Display detailed information during import</li>
+                            <li><code>--species-only</code>: Import only species data</li>
+                            <li><code>--compounds-only</code>: Import only compound data</li>
+                            <li><code>--citations-only</code>: Import only citation data</li>
+                            <li><code>--force</code>: Force overwrite of existing records</li>
+                        </ul>
+                    </div>
+                    
+                    <h3 id="extending">Extending the CMID Dataset</h3>
+                    <p>
+                        The CMID Research Intelligence Kit is designed to be extensible. You can add your own data
+                        to complement the pre-curated information:
+                    </p>
+                    <ol>
+                        <li>
+                            <strong>Add New Species</strong>: Create new species entries in the system, following the same
+                            data structure as the CMID species.
+                        </li>
+                        <li>
+                            <strong>Add New Compounds</strong>: Add your own compound data, linking it to appropriate species
+                            and including molecular structure information.
+                        </li>
+                        <li>
+                            <strong>Add Citations</strong>: Use the PubMed integration to add relevant research papers to the system,
+                            which will be included alongside the CMID citations.
+                        </li>
+                    </ol>
+                    
+                    <h3 id="data-sources">Data Sources</h3>
+                    <p>
+                        The CMID Research Intelligence Kit data is compiled from multiple authoritative sources:
+                    </p>
+                    <ul>
+                        <li>Peer-reviewed scientific publications</li>
+                        <li>Mycological research databases</li>
+                        <li>Taxonomic authorities</li>
+                        <li>Chemical compound databases</li>
+                        <li>Traditional medicine references</li>
+                    </ul>
+                    
+                    <h3 id="attribution">Attribution and Licensing</h3>
+                    <p>
+                        The CMID Research Intelligence Kit is developed by Michael Crowe and is included with
+                        the Mycology Research Pipeline under the following terms:
+                    </p>
+                    <ul>
+                        <li>The data may be used for research and educational purposes</li>
+                        <li>Any publications using the data should cite "Crowe Logic CMID Research Intelligence Kit v2.0"</li>
+                        <li>Commercial use requires a separate license, please contact for details</li>
+                    </ul>
+                    
+                    <h3 id="updates">Updates and Versions</h3>
+                    <p>
+                        The CMID Research Intelligence Kit is updated periodically with new data and corrections.
+                        Your installation includes version 2.0, released in 2025.
+                    </p>
+                    <p>
+                        To check for updates, visit:
+                        <a href="https://www.mycology-research-pipeline.org/cmid-updates" target="_blank">
+                            https://www.mycology-research-pipeline.org/cmid-updates
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

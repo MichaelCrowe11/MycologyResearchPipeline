@@ -1,0 +1,276 @@
+{% extends "base.html" %}
+
+{% block title %}Data Validation - Mycology Research Pipeline{% endblock %}
+
+{% block content %}
+<div class="hero-section mb-4">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <h1>Data Validation</h1>
+                <p>Ensure the quality and integrity of your research data</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mb-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Validation Options</h5>
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('web.run_validation') }}" method="post">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="validate_samples" name="validate_samples" value="1" checked>
+                                    <label class="form-check-label" for="validate_samples">
+                                        Validate Samples
+                                    </label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="validate_compounds" name="validate_compounds" value="1" checked>
+                                    <label class="form-check-label" for="validate_compounds">
+                                        Validate Compounds
+                                    </label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="validate_literature" name="validate_literature" value="1" checked>
+                                    <label class="form-check-label" for="validate_literature">
+                                        Validate Literature References
+                                    </label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="validate_integrity" name="validate_integrity" value="1" checked>
+                                    <label class="form-check-label" for="validate_integrity">
+                                        Validate Database Integrity
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="report_format" class="form-label">Report Format</label>
+                                    <select class="form-select" id="report_format" name="report_format">
+                                        <option value="html">HTML</option>
+                                        <option value="csv">CSV</option>
+                                        <option value="json">JSON</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="include_suggestions" name="include_suggestions" value="1" checked>
+                                        <label class="form-check-label" for="include_suggestions">Include Suggestions</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-check-circle me-2"></i> Run Validation
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if result %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Validation Results</h5>
+                    <div>
+                        <a href="{{ url_for('web.download_validation_report') }}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-download me-2"></i> Download Report
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="alert {% if result.summary.total_errors > 0 %}alert-danger{% elif result.summary.total_warnings > 0 %}alert-warning{% else %}alert-success{% endif %}">
+                        <h5 class="alert-heading">Validation Summary</h5>
+                        <p class="mb-0">
+                            <strong>Total Errors:</strong> {{ result.summary.total_errors }}<br>
+                            <strong>Total Warnings:</strong> {{ result.summary.total_warnings }}<br>
+                            <strong>Total Suggestions:</strong> {{ result.summary.total_suggestions }}<br>
+                            <strong>Valid:</strong> {% if result.summary.is_valid %}Yes{% else %}No{% endif %}
+                        </p>
+                    </div>
+
+                    {% if result.errors %}
+                    <h4 class="mt-4 text-danger">Errors</h4>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Entity Type</th>
+                                    <th>Entity ID</th>
+                                    <th>Field</th>
+                                    <th>Message</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for error in result.errors %}
+                                <tr>
+                                    <td>{{ error.entity_type }}</td>
+                                    <td>{{ error.entity_id }}</td>
+                                    <td>{{ error.field }}</td>
+                                    <td>{{ error.message }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% endif %}
+
+                    {% if result.warnings %}
+                    <h4 class="mt-4 text-warning">Warnings</h4>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Entity Type</th>
+                                    <th>Entity ID</th>
+                                    <th>Field</th>
+                                    <th>Message</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for warning in result.warnings %}
+                                <tr>
+                                    <td>{{ warning.entity_type }}</td>
+                                    <td>{{ warning.entity_id }}</td>
+                                    <td>{{ warning.field }}</td>
+                                    <td>{{ warning.message }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% endif %}
+
+                    {% if result.suggestions and include_suggestions %}
+                    <h4 class="mt-4 text-info">Suggestions</h4>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Entity Type</th>
+                                    <th>Entity ID</th>
+                                    <th>Field</th>
+                                    <th>Message</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for suggestion in result.suggestions %}
+                                <tr>
+                                    <td>{{ suggestion.entity_type }}</td>
+                                    <td>{{ suggestion.entity_id }}</td>
+                                    <td>{{ suggestion.field }}</td>
+                                    <td>{{ suggestion.message }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0">About Data Validation</h5>
+                </div>
+                <div class="card-body">
+                    <p>
+                        The data validation module ensures that your research data meets quality
+                        standards and maintains proper relationships between entities. This helps
+                        prevent errors in analysis and ensures the scientific integrity of your work.
+                    </p>
+                    
+                    <h5 class="mt-4">Types of Validation</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <h6><i class="fas fa-flask me-2 text-primary"></i> Sample Validation</h6>
+                                    <ul class="small mb-0">
+                                        <li>Verifies required fields are present</li>
+                                        <li>Checks species nomenclature format</li>
+                                        <li>Ensures associations with compounds and analyses</li>
+                                        <li>Validates metadata quality</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <h6><i class="fas fa-atom me-2 text-primary"></i> Compound Validation</h6>
+                                    <ul class="small mb-0">
+                                        <li>Checks for required compound properties</li>
+                                        <li>Validates molecular structure formats</li>
+                                        <li>Ensures proper sample associations</li>
+                                        <li>Checks for duplicate compounds</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <h6><i class="fas fa-book me-2 text-primary"></i> Literature Validation</h6>
+                                    <ul class="small mb-0">
+                                        <li>Verifies PubMed ID formats</li>
+                                        <li>Checks URL validity</li>
+                                        <li>Ensures proper citation formatting</li>
+                                        <li>Validates reference metadata</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <h6><i class="fas fa-database me-2 text-primary"></i> Database Integrity</h6>
+                                    <ul class="small mb-0">
+                                        <li>Identifies orphaned records</li>
+                                        <li>Checks for referential integrity</li>
+                                        <li>Identifies duplicate entries</li>
+                                        <li>Ensures data consistency</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h5 class="mt-4">Fix Validation Issues</h5>
+                    <p>
+                        After running a validation report, you can fix any identified issues by:
+                    </p>
+                    <ol>
+                        <li>Navigating to the entity details page (Sample, Compound, etc.)</li>
+                        <li>Editing the record to fix the identified issues</li>
+                        <li>Running the validation again to confirm the fixes</li>
+                    </ol>
+                    <p>
+                        For database integrity issues, you may need to contact an administrator 
+                        for assistance with orphaned records or other structural problems.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

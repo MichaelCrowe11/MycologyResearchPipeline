@@ -10,6 +10,11 @@ from models import Sample, Compound, Analysis, BatchJob, Version, ResearchLog, L
 from literature import initialize_entrez, fetch_pubmed_articles, fetch_species_literature, update_sample_literature
 from model import load_model
 from batch_processor import process_batch
+from data_validation import (
+    validate_all, validate_all_samples, validate_all_compounds,
+    validate_all_literature_references, validate_database_integrity,
+    export_validation_report
+)
 
 logger = logging.getLogger(__name__)
 web_bp = Blueprint('web', __name__)
@@ -567,6 +572,95 @@ def documentation():
 def pubmed_documentation():
     """PubMed integration documentation page."""
     return render_template('documentation/pubmed_integration.html')
+
+
+@web_bp.route('/documentation/cmid')
+def cmid_documentation():
+    """CMID Research Kit documentation page."""
+    return render_template('documentation/cmid_integration.html')
+
+
+@web_bp.route('/validation')
+def validation():
+    """Data validation page."""
+    return render_template('validation.html')
+
+
+@web_bp.route('/validation/run', methods=['POST'])
+def run_validation():
+    """Run data validation based on form parameters."""
+    # Get form parameters
+    validate_samples_flag = 'validate_samples' in request.form
+    validate_compounds_flag = 'validate_compounds' in request.form
+    validate_literature_flag = 'validate_literature' in request.form
+    validate_integrity_flag = 'validate_integrity' in request.form
+    report_format = request.form.get('report_format', 'html')
+    include_suggestions = 'include_suggestions' in request.form
+    
+    # Initialize validation result
+    result = None
+    
+    # Run selected validations
+    if validate_samples_flag and validate_compounds_flag and validate_literature_flag and validate_integrity_flag:
+        # Run all validations
+        result = validate_all()
+    else:
+        # Run specific validations
+        validation_results = []
+        
+        if validate_samples_flag:
+            validation_results.append(validate_all_samples())
+        
+        if validate_compounds_flag:
+            validation_results.append(validate_all_compounds())
+        
+        if validate_literature_flag:
+            validation_results.append(validate_all_literature_references())
+        
+        if validate_integrity_flag:
+            validation_results.append(validate_database_integrity())
+        
+        # Combine results
+        if validation_results:
+            result = validation_results[0]
+            for r in validation_results[1:]:
+                result.errors.extend(r.errors)
+                result.warnings.extend(r.warnings)
+                result.suggestions.extend(r.suggestions)
+    
+    if result:
+        # Generate report file
+        timestamp = datetime.utcnow().strftime('%Y%m%d%H%M%S')
+        report_path = os.path.join(current_app.config['RESULTS_FOLDER'], f"validation_report_{timestamp}.{report_format}")
+        export_validation_report(result, format=report_format, output_file=report_path)
+        
+        # Store report path in session for download
+        session['validation_report_path'] = report_path
+        
+        # Convert to dictionary for template
+        result_dict = result.as_dict()
+        
+        return render_template(
+            'validation.html',
+            result=result_dict,
+            include_suggestions=include_suggestions
+        )
+    else:
+        flash('No validation options were selected', 'warning')
+        return redirect(url_for('web.validation'))
+
+
+@web_bp.route('/validation/download')
+def download_validation_report():
+    """Download the most recent validation report."""
+    report_path = session.get('validation_report_path')
+    
+    if not report_path or not os.path.exists(report_path):
+        flash('Validation report not found', 'error')
+        return redirect(url_for('web.validation'))
+    
+    report_filename = os.path.basename(report_path)
+    return send_file(report_path, as_attachment=True, download_name=report_filename)
 
 
 @web_bp.route('/molecular-viewer')
