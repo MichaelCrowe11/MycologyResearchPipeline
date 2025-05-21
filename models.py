@@ -73,6 +73,7 @@ class Analysis(db.Model):
     
     # Relationships
     sample = relationship("Sample", back_populates="analyses")
+    research_logs = relationship("ResearchLog", back_populates="analysis")
     
     def __repr__(self):
         return f"<Analysis {self.id}: {self.analysis_type}>"
@@ -129,5 +130,34 @@ class ResearchLog(db.Model):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
+    # Relationships
+    sample = relationship("Sample", back_populates="research_logs")
+    analysis = relationship("Analysis", back_populates="research_logs")
+    
     def __repr__(self):
         return f"<ResearchLog {self.id}: {self.title}>"
+
+
+class LiteratureReference(db.Model):
+    """Model representing a scientific literature reference."""
+    __tablename__ = 'literature_references'
+    
+    id = Column(Integer, primary_key=True)
+    sample_id = Column(Integer, ForeignKey('samples.id'), nullable=True)
+    reference_id = Column(String(50), nullable=False)  # e.g., PubMed ID
+    title = Column(String(500), nullable=False)
+    authors = Column(Text, nullable=True)
+    journal = Column(String(255), nullable=True)
+    year = Column(Integer, nullable=True)
+    url = Column(String(500), nullable=True)
+    abstract = Column(Text, nullable=True)
+    reference_type = Column(String(50), default='pubmed')  # pubmed, doi, etc.
+    reference_metadata = Column(JSON, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    sample = relationship("Sample", back_populates="literature_references")
+    
+    def __repr__(self):
+        return f"<LiteratureReference {self.id}: {self.title[:30]}...>"
