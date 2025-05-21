@@ -6,7 +6,8 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from werkzeug.utils import secure_filename
 
 from app import db
-from models import Sample, Compound, Analysis, BatchJob, Version, ResearchLog
+from models import Sample, Compound, Analysis, BatchJob, Version, ResearchLog, LiteratureReference
+from literature import initialize_entrez, fetch_pubmed_articles, fetch_species_literature, update_sample_literature
 from model import load_model
 from batch_processor import process_batch
 
@@ -337,6 +338,210 @@ def view_research_log(log_id):
     """View a specific research log."""
     log = ResearchLog.query.get_or_404(log_id)
     return render_template('log_details.html', log=log)
+
+
+@web_bp.route('/literature')
+def literature():
+    """View scientific literature references."""
+    # Get filter parameters
+    species_filter = request.args.get('species')
+    year_filter = request.args.get('year')
+    search_query = request.args.get('search')
+    
+    # Build query
+    query = LiteratureReference.query
+    
+    if species_filter:
+        # Join with samples to filter by species
+        samples = Sample.query.filter_by(species=species_filter).all()
+        sample_ids = [s.id for s in samples]
+        query = query.filter(LiteratureReference.sample_id.in_(sample_ids))
+    
+    if year_filter:
+        query = query.filter_by(year=int(year_filter))
+    
+    if search_query:
+        search_term = f"%{search_query}%"
+        query = query.filter(
+            db.or_(
+                LiteratureReference.title.ilike(search_term),
+                LiteratureReference.authors.ilike(search_term),
+                LiteratureReference.journal.ilike(search_term),
+                LiteratureReference.abstract.ilike(search_term)
+            )
+        )
+    
+    # Get results
+    references = query.order_by(LiteratureReference.created_at.desc()).all()
+    
+    # Get unique species for the filter dropdown
+    species_list = db.session.query(Sample.species).distinct().filter(Sample.species.isnot(None)).all()
+    species_list = [s[0] for s in species_list]
+    
+    # Get unique years for the filter dropdown
+    year_list = db.session.query(LiteratureReference.year).distinct().filter(
+        LiteratureReference.year.isnot(None)
+    ).order_by(LiteratureReference.year.desc()).all()
+    year_list = [y[0] for y in year_list]
+    
+    # Get all samples for the custom search form
+    samples = Sample.query.all()
+    
+    return render_template(
+        'literature.html',
+        references=references,
+        species_list=species_list,
+        year_list=year_list,
+        samples=samples
+    )
+
+
+@web_bp.route('/literature/fetch', methods=['GET'])
+def fetch_literature():
+    """Fetch recent literature for existing samples."""
+    # Initialize Entrez with email
+    initialize_entrez()
+    
+    # Get all samples with species information
+    samples_with_species = Sample.query.filter(Sample.species.isnot(None)).all()
+    
+    references_added = 0
+    for sample in samples_with_species:
+        # Fetch literature for the sample
+        articles = fetch_species_literature(sample.species, max_results=3)
+        
+        for article in articles:
+            # Check if reference already exists
+            existing = LiteratureReference.query.filter_by(
+                reference_id=article["pmid"],
+                reference_type="pubmed"
+            ).first()
+            
+            if not existing:
+                # Create new reference
+                ref = LiteratureReference(
+                    sample_id=sample.id,
+                    reference_id=article["pmid"],
+                    title=article["title"],
+                    authors=article["authors"],
+                    journal=article["journal"],
+                    year=article["year"],
+                    url=article["url"],
+                    abstract=article.get("abstract"),
+                    reference_type="pubmed",
+                    created_at=datetime.utcnow(),
+                    updated_at=datetime.utcnow()
+                )
+                db.session.add(ref)
+                references_added += 1
+    
+    db.session.commit()
+    
+    flash(f"Successfully fetched {references_added} new literature references", "success")
+    return redirect(url_for('web.literature'))
+
+
+@web_bp.route('/literature/custom-search', methods=['POST'])
+def custom_literature_search():
+    """Perform a custom literature search."""
+    # Get form data
+    custom_query = request.form.get('custom_query')
+    max_results = int(request.form.get('max_results', 5))
+    associate_with = request.form.get('associate_with')
+    
+    if not custom_query:
+        flash("Please provide a search query", "warning")
+        return redirect(url_for('web.literature'))
+    
+    # Initialize Entrez with email
+    initialize_entrez()
+    
+    # Fetch articles
+    articles = fetch_pubmed_articles(custom_query, max_results=max_results)
+    
+    references_added = 0
+    for article in articles:
+        # Check if reference already exists
+        existing = LiteratureReference.query.filter_by(
+            reference_id=article["pmid"],
+            reference_type="pubmed"
+        ).first()
+        
+        if existing:
+            # Update if associating with a sample
+            if associate_with and not existing.sample_id:
+                existing.sample_id = associate_with
+                db.session.add(existing)
+                references_added += 1
+        else:
+            # Create new reference
+            ref = LiteratureReference(
+                sample_id=associate_with if associate_with else None,
+                reference_id=article["pmid"],
+                title=article["title"],
+                authors=article["authors"],
+                journal=article["journal"],
+                year=article["year"],
+                url=article["url"],
+                abstract=article.get("abstract"),
+                reference_type="pubmed",
+                created_at=datetime.utcnow(),
+                updated_at=datetime.utcnow()
+            )
+            db.session.add(ref)
+            references_added += 1
+    
+    db.session.commit()
+    
+    flash(f"Successfully found {len(articles)} articles and added {references_added} new references", "success")
+    return redirect(url_for('web.literature'))
+
+
+@web_bp.route('/literature/<int:reference_id>')
+def view_reference(reference_id):
+    """View a specific literature reference."""
+    reference = LiteratureReference.query.get_or_404(reference_id)
+    
+    # Find similar references (same species or same journal)
+    similar_references = []
+    if reference.sample_id:
+        # Get references for the same sample
+        similar_references = LiteratureReference.query.filter(
+            LiteratureReference.sample_id == reference.sample_id,
+            LiteratureReference.id != reference.id
+        ).limit(5).all()
+    
+    # If no similar references by sample, try by journal
+    if not similar_references and reference.journal:
+        similar_references = LiteratureReference.query.filter(
+            LiteratureReference.journal == reference.journal,
+            LiteratureReference.id != reference.id
+        ).limit(5).all()
+    
+    return render_template(
+        'reference_details.html',
+        reference=reference,
+        similar_references=similar_references
+    )
+
+
+@web_bp.route('/samples/<int:sample_id>/update-literature')
+def update_sample_literature_route(sample_id):
+    """Update literature for a specific sample."""
+    sample = Sample.query.get_or_404(sample_id)
+    
+    if not sample.species:
+        flash("This sample does not have species information", "warning")
+        return redirect(url_for('web.view_sample', sample_id=sample_id))
+    
+    # Initialize Entrez
+    initialize_entrez()
+    
+    # Update literature
+    references = update_sample_literature(db, sample_id)
+    
+    flash(f"Successfully updated literature references: {len(references)} references found", "success")
+    return redirect(url_for('web.view_sample', sample_id=sample_id))
 
 
 @web_bp.route('/about')

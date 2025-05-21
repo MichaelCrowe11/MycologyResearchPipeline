@@ -21,6 +21,7 @@ class Sample(db.Model):
     # Relationships
     compounds = relationship("Compound", back_populates="sample", cascade="all, delete-orphan")
     analyses = relationship("Analysis", back_populates="sample", cascade="all, delete-orphan")
+    literature_references = relationship("LiteratureReference", back_populates="sample", cascade="all, delete-orphan")
     
     def __repr__(self):
         return f"<Sample {self.id}: {self.name}>"
@@ -73,7 +74,6 @@ class Analysis(db.Model):
     
     # Relationships
     sample = relationship("Sample", back_populates="analyses")
-    research_logs = relationship("ResearchLog", back_populates="analysis")
     
     def __repr__(self):
         return f"<Analysis {self.id}: {self.analysis_type}>"
@@ -129,10 +129,6 @@ class ResearchLog(db.Model):
     analysis_id = Column(Integer, ForeignKey('analyses.id'), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
-    # Relationships
-    sample = relationship("Sample", back_populates="research_logs")
-    analysis = relationship("Analysis", back_populates="research_logs")
     
     def __repr__(self):
         return f"<ResearchLog {self.id}: {self.title}>"
