@@ -403,7 +403,7 @@ def validate_all() -> ValidationResult:
     for warning in sample_result.warnings:
         result.add_warning(warning['entity_type'], warning['entity_id'], warning['field'], warning['message'])
     for suggestion in sample_result.suggestions:
-        result.add_suggestion(suggestion['entity_type'], suggestion['entity_id'], error['field'], error['message'])
+        result.add_suggestion(suggestion['entity_type'], suggestion['entity_id'], suggestion['field'], suggestion['message'])
     
     # Add compound validations
     compound_result = validate_all_compounds()
@@ -412,7 +412,7 @@ def validate_all() -> ValidationResult:
     for warning in compound_result.warnings:
         result.add_warning(warning['entity_type'], warning['entity_id'], warning['field'], warning['message'])
     for suggestion in compound_result.suggestions:
-        result.add_suggestion(suggestion['entity_type'], suggestion['entity_id'], error['field'], error['message'])
+        result.add_suggestion(suggestion['entity_type'], suggestion['entity_id'], suggestion['field'], suggestion['message'])
     
     # Add literature reference validations
     ref_result = validate_all_literature_references()
@@ -421,7 +421,7 @@ def validate_all() -> ValidationResult:
     for warning in ref_result.warnings:
         result.add_warning(warning['entity_type'], warning['entity_id'], warning['field'], warning['message'])
     for suggestion in ref_result.suggestions:
-        result.add_suggestion(suggestion['entity_type'], suggestion['entity_id'], error['field'], error['message'])
+        result.add_suggestion(suggestion['entity_type'], suggestion['entity_id'], suggestion['field'], suggestion['message'])
     
     return result
 
