@@ -131,6 +131,63 @@
         </div>
         
         <div class="card shadow-sm mt-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Scientific Literature</h5>
+                {% if sample.species %}
+                <a href="{{ url_for('web.literature') }}?species={{ sample.species }}" class="btn btn-sm btn-outline-primary">
+                    <i class="fas fa-search me-1"></i> View All
+                </a>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                {% if sample.literature_references %}
+                <div class="list-group list-group-flush">
+                    {% for ref in sample.literature_references[:3] %}
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-1">
+                                    <a href="{{ url_for('web.view_reference', reference_id=ref.id) }}" class="text-decoration-none">
+                                        {{ ref.title }}
+                                    </a>
+                                </h6>
+                                <p class="mb-1 text-muted"><small>{{ ref.authors }}</small></p>
+                                <p class="mb-0"><small><em>{{ ref.journal }}</em> {% if ref.year %}({{ ref.year }}){% endif %}</small></p>
+                            </div>
+                            {% if ref.url %}
+                            <a href="{{ ref.url }}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                                <i class="fas fa-external-link-alt"></i>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                    
+                    {% if sample.literature_references|length > 3 %}
+                    <div class="list-group-item text-center">
+                        <a href="{{ url_for('web.literature') }}?species={{ sample.species }}" class="text-decoration-none">
+                            View all {{ sample.literature_references|length }} references
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-book fa-3x mb-3 text-muted"></i>
+                    <p>No literature references found for this sample.</p>
+                    {% if sample.species %}
+                    <a href="{{ url_for('web.update_sample_literature_route', sample_id=sample.id) }}" class="btn btn-primary">
+                        <i class="fas fa-sync-alt me-1"></i> Fetch Literature References
+                    </a>
+                    {% else %}
+                    <p class="text-muted">Add species information to fetch relevant literature.</p>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="card shadow-sm mt-4">
             <div class="card-header">
                 <h5 class="mb-0">Analyses ({{ sample.analyses|length }})</h5>
             </div>
