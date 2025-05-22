@@ -278,3 +278,23 @@ class OAuthToken(db.Model):
             return False
         
         return True
+
+
+class AIAssistantQuery(db.Model):
+    """Model representing a query to the AI assistant."""
+    __tablename__ = 'ai_assistant_queries'
+    
+    id = Column(Integer, primary_key=True)
+    query_type = Column(String(50), nullable=False)  # sample_analysis, hypothesis_generation, etc.
+    input_data = Column(Text, nullable=True)  # JSON string of input
+    result_data = Column(Text, nullable=True)  # JSON string of result
+    sample_id = Column(Integer, ForeignKey('samples.id'), nullable=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    sample = relationship("Sample", back_populates="ai_queries")
+    user = relationship("User", back_populates="ai_queries")
+    
+    def __repr__(self):
+        return f"<AIAssistantQuery {self.id}: {self.query_type}>"
