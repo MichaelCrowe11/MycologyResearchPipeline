@@ -1,0 +1,645 @@
+{% extends "base.html" %}
+
+{% block title %}Network Visualization - Mycology Research Pipeline{% endblock %}
+
+{% block head %}
+{{ super() }}
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<style>
+    .network-container {
+        width: 100%;
+        height: 600px;
+        background-color: #f8f9fa;
+        border-radius: 5px;
+        overflow: hidden;
+        position: relative;
+    }
+    
+    .node {
+        stroke: #fff;
+        stroke-width: 1.5px;
+    }
+    
+    .link {
+        stroke: #999;
+        stroke-opacity: 0.6;
+        stroke-width: 1px;
+    }
+    
+    .node text {
+        font-size: 12px;
+        fill: #333;
+    }
+    
+    .legend {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background-color: rgba(255, 255, 255, 0.8);
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #ddd;
+    }
+    
+    .legend-item {
+        margin: 5px 0;
+        display: flex;
+        align-items: center;
+    }
+    
+    .legend-color {
+        width: 15px;
+        height: 15px;
+        border-radius: 50%;
+        margin-right: 8px;
+    }
+    
+    .node-tooltip {
+        position: absolute;
+        background-color: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 8px 12px;
+        border-radius: 4px;
+        font-size: 12px;
+        pointer-events: none;
+        z-index: 1000;
+        display: none;
+    }
+    
+    .controls {
+        margin-bottom: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="hero-section mb-4">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <h1>Compound Network Visualization</h1>
+                <p>Explore the relationships between medicinal compounds in mushroom species</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mb-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Compound Relationship Network</h5>
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-outline-primary" id="centerGraph">Center Graph</button>
+                        <button class="btn btn-sm btn-outline-primary" id="toggleLabels">Toggle Labels</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="controls">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="speciesFilter">Filter by Species:</label>
+                                    <select class="form-select" id="speciesFilter">
+                                        <option value="all">All Species</option>
+                                        <option value="Hericium erinaceus">Lion's Mane (Hericium erinaceus)</option>
+                                        <option value="Ganoderma lucidum">Reishi (Ganoderma lucidum)</option>
+                                        <option value="Trametes versicolor">Turkey Tail (Trametes versicolor)</option>
+                                        <option value="Cordyceps militaris">Cordyceps (Cordyceps militaris)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="relationshipType">Relationship Type:</label>
+                                    <select class="form-select" id="relationshipType">
+                                        <option value="all">All Relationships</option>
+                                        <option value="structural">Structural Similarity</option>
+                                        <option value="functional">Functional Similarity</option>
+                                        <option value="bioactivity">Bioactivity Profile</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="nodeSize">Node Size By:</label>
+                                    <select class="form-select" id="nodeSize">
+                                        <option value="relevance">Medicinal Relevance</option>
+                                        <option value="studies">Number of Studies</option>
+                                        <option value="potency">Potency Score</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="network-container">
+                        <div id="networkVisualization"></div>
+                        <div class="node-tooltip" id="nodeTooltip"></div>
+                        <div class="legend">
+                            <h6>Legend</h6>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background-color: #1f77b4;"></div>
+                                <span>Lion's Mane Compounds</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background-color: #ff7f0e;"></div>
+                                <span>Reishi Compounds</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background-color: #2ca02c;"></div>
+                                <span>Turkey Tail Compounds</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background-color: #d62728;"></div>
+                                <span>Cordyceps Compounds</span>
+                            </div>
+                            <div class="legend-item mt-2">
+                                <div style="height: 2px; width: 20px; background-color: #999; margin-right: 8px;"></div>
+                                <span>Structural Similarity</span>
+                            </div>
+                            <div class="legend-item">
+                                <div style="height: 2px; width: 20px; background-color: #999; border-top: 1px dashed #999; margin-right: 8px;"></div>
+                                <span>Functional Similarity</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-3">
+                        <h5>Network Analysis</h5>
+                        <p>
+                            This network visualization shows the relationships between bioactive compounds found in medicinal mushrooms. 
+                            Compounds are connected based on structural similarities, functional properties, and bioactivity profiles.
+                        </p>
+                        <p>
+                            <strong>Node Size</strong>: Represents the compound's relevance in medicinal applications.
+                            <br>
+                            <strong>Node Color</strong>: Indicates the mushroom species in which the compound is found.
+                            <br>
+                            <strong>Edge Type</strong>: Shows the type of relationship between compounds.
+                        </p>
+                        <p>
+                            The network helps identify compound clusters with similar properties, potential synergistic effects, 
+                            and compounds that might share medicinal mechanisms. This analysis supports drug discovery by identifying
+                            promising compound candidates for further investigation.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Compound Details</h5>
+                </div>
+                <div class="card-body">
+                    <div id="compoundDetails">
+                        <p class="text-muted">Select a compound in the network to view details</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Related Research</h5>
+                </div>
+                <div class="card-body">
+                    <div id="relatedResearch">
+                        <p class="text-muted">Select a compound to view related research</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0">Analysis Methods</h5>
+                </div>
+                <div class="card-body">
+                    <h5>Network Visualization Methods</h5>
+                    <p>
+                        The network visualization uses advanced graph analysis techniques to display relationships
+                        between medicinal compounds found in mushrooms. The process involves:
+                    </p>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h6><i class="fas fa-project-diagram me-2 text-primary"></i> Graph Construction</h6>
+                                    <ul class="small mb-0">
+                                        <li>Compounds are represented as nodes in the graph</li>
+                                        <li>Relationships between compounds are shown as edges</li>
+                                        <li>Force-directed layout positions nodes based on their relationships</li>
+                                        <li>Community detection algorithms identify compound clusters</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h6><i class="fas fa-dna me-2 text-primary"></i> Similarity Measures</h6>
+                                    <ul class="small mb-0">
+                                        <li>Tanimoto coefficient for structural similarity</li>
+                                        <li>Functional group analysis for activity relationships</li>
+                                        <li>Machine learning models for bioactivity prediction</li>
+                                        <li>Natural language processing of research literature</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h5>Data Integration</h5>
+                    <p>
+                        The network integrates data from multiple sources:
+                    </p>
+                    <ul>
+                        <li>Chemical structure databases (PubChem, ChEMBL)</li>
+                        <li>Scientific literature from PubMed</li>
+                        <li>CMID Research Intelligence Kit</li>
+                        <li>Experimental bioactivity assays</li>
+                    </ul>
+                    
+                    <p>
+                        By visualizing these relationships, researchers can identify patterns and potential new 
+                        medicinal compounds that might otherwise remain hidden in isolated datasets.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Sample data for the network visualization
+        const networkData = {
+            nodes: [
+                // Lion's Mane compounds
+                { id: 1, name: "Hericenone B", species: "Hericium erinaceus", type: "terpenoid", 
+                  relevance: 85, studies: 24, potency: 78, 
+                  description: "Cyathane diterpenoid known for neurotrophic properties" },
+                { id: 2, name: "Erinacine A", species: "Hericium erinaceus", type: "terpenoid", 
+                  relevance: 90, studies: 32, potency: 82, 
+                  description: "Promotes nerve growth factor synthesis, neuroprotective effects" },
+                { id: 3, name: "Erinacine E", species: "Hericium erinaceus", type: "terpenoid", 
+                  relevance: 75, studies: 18, potency: 70, 
+                  description: "Diterpenoid with potential neuroprotective properties" },
+                { id: 4, name: "3-Hydroxyhericenone F", species: "Hericium erinaceus", type: "terpenoid", 
+                  relevance: 65, studies: 12, potency: 60, 
+                  description: "Aromatic compound with anti-inflammatory properties" },
+                
+                // Reishi compounds
+                { id: 5, name: "Ganoderic Acid A", species: "Ganoderma lucidum", type: "triterpene", 
+                  relevance: 88, studies: 45, potency: 85, 
+                  description: "Triterpene with hepatoprotective and anti-tumor activities" },
+                { id: 6, name: "Ganoderic Acid B", species: "Ganoderma lucidum", type: "triterpene", 
+                  relevance: 80, studies: 38, potency: 75, 
+                  description: "Shows anti-inflammatory and immunomodulatory effects" },
+                { id: 7, name: "Ganoderol B", species: "Ganoderma lucidum", type: "triterpene", 
+                  relevance: 72, studies: 25, potency: 68, 
+                  description: "Lanostane triterpene with antioxidant properties" },
+                { id: 8, name: "Lucidenic Acid A", species: "Ganoderma lucidum", type: "triterpene", 
+                  relevance: 70, studies: 22, potency: 65, 
+                  description: "Triterpene with hepatoprotective and anti-HIV activities" },
+                
+                // Turkey Tail compounds
+                { id: 9, name: "Polysaccharide Krestin (PSK)", species: "Trametes versicolor", type: "polysaccharide", 
+                  relevance: 92, studies: 120, potency: 88, 
+                  description: "Protein-bound polysaccharide with strong immunomodulatory effects" },
+                { id: 10, name: "Polysaccharide Peptide (PSP)", species: "Trametes versicolor", type: "polysaccharide", 
+                  relevance: 90, studies: 105, potency: 86, 
+                  description: "Enhances immune system function, potential anticancer properties" },
+                { id: 11, name: "Coriolan", species: "Trametes versicolor", type: "polysaccharide", 
+                  relevance: 65, studies: 18, potency: 60, 
+                  description: "Beta-glucan with immunomodulatory properties" },
+                
+                // Cordyceps compounds
+                { id: 12, name: "Cordycepin", species: "Cordyceps militaris", type: "nucleoside", 
+                  relevance: 88, studies: 85, potency: 82, 
+                  description: "3'-deoxyadenosine with antitumor, antiviral, and immunomodulatory effects" },
+                { id: 13, name: "Cordycepic Acid", species: "Cordyceps militaris", type: "organic acid", 
+                  relevance: 70, studies: 42, potency: 65, 
+                  description: "D-mannitol with diuretic and anti-tussive effects" },
+                { id: 14, name: "Ergosterol", species: "Cordyceps militaris", type: "sterol", 
+                  relevance: 75, studies: 38, potency: 70, 
+                  description: "Provitamin D2 with immunomodulatory and anticancer properties" }
+            ],
+            links: [
+                // Structural similarity
+                { source: 1, target: 2, value: 0.8, type: "structural" },
+                { source: 2, target: 3, value: 0.9, type: "structural" },
+                { source: 1, target: 3, value: 0.7, type: "structural" },
+                { source: 3, target: 4, value: 0.85, type: "structural" },
+                { source: 5, target: 6, value: 0.9, type: "structural" },
+                { source: 6, target: 7, value: 0.8, type: "structural" },
+                { source: 5, target: 8, value: 0.75, type: "structural" },
+                { source: 7, target: 8, value: 0.7, type: "structural" },
+                { source: 9, target: 10, value: 0.85, type: "structural" },
+                { source: 9, target: 11, value: 0.6, type: "structural" },
+                { source: 12, target: 13, value: 0.4, type: "structural" },
+                
+                // Functional similarity
+                { source: 1, target: 5, value: 0.6, type: "functional" },
+                { source: 2, target: 6, value: 0.5, type: "functional" },
+                { source: 9, target: 12, value: 0.65, type: "functional" },
+                { source: 10, target: 12, value: 0.7, type: "functional" },
+                { source: 3, target: 7, value: 0.55, type: "functional" },
+                { source: 4, target: 8, value: 0.45, type: "functional" },
+                { source: 11, target: 14, value: 0.6, type: "functional" },
+                
+                // Bioactivity profile
+                { source: 2, target: 9, value: 0.7, type: "bioactivity" },
+                { source: 5, target: 12, value: 0.65, type: "bioactivity" },
+                { source: 1, target: 10, value: 0.5, type: "bioactivity" },
+                { source: 6, target: 13, value: 0.4, type: "bioactivity" },
+                { source: 7, target: 14, value: 0.55, type: "bioactivity" }
+            ]
+        };
+        
+        // Set up dimensions and colors
+        const width = document.querySelector('.network-container').offsetWidth;
+        const height = document.querySelector('.network-container').offsetHeight;
+        
+        const colorScale = d3.scaleOrdinal()
+            .domain(["Hericium erinaceus", "Ganoderma lucidum", "Trametes versicolor", "Cordyceps militaris"])
+            .range(["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728"]);
+        
+        // Create SVG container
+        const svg = d3.select("#networkVisualization")
+            .append("svg")
+            .attr("width", width)
+            .attr("height", height);
+        
+        // Create container for the graph
+        const g = svg.append("g");
+        
+        // Set up zoom behavior
+        const zoom = d3.zoom()
+            .scaleExtent([0.1, 4])
+            .on("zoom", (event) => {
+                g.attr("transform", event.transform);
+            });
+        
+        svg.call(zoom);
+        
+        // Create the links
+        const link = g.append("g")
+            .attr("class", "links")
+            .selectAll("line")
+            .data(networkData.links)
+            .enter()
+            .append("line")
+            .attr("class", "link")
+            .style("stroke-width", d => Math.sqrt(d.value) * 2)
+            .style("stroke-dasharray", d => d.type === "functional" ? "5,5" : null);
+        
+        // Create the nodes
+        const node = g.append("g")
+            .attr("class", "nodes")
+            .selectAll("circle")
+            .data(networkData.nodes)
+            .enter()
+            .append("g")
+            .attr("class", "node")
+            .call(d3.drag()
+                .on("start", dragstarted)
+                .on("drag", dragged)
+                .on("end", dragended));
+        
+        // Add circles to nodes
+        node.append("circle")
+            .attr("r", d => getNodeSize(d))
+            .style("fill", d => colorScale(d.species))
+            .on("mouseover", showTooltip)
+            .on("mouseout", hideTooltip)
+            .on("click", showDetails);
+        
+        // Add labels to nodes
+        const labels = node.append("text")
+            .text(d => d.name)
+            .attr("dx", d => getNodeSize(d) + 5)
+            .attr("dy", ".35em")
+            .style("font-size", "10px")
+            .style("display", "none");
+        
+        // Set up force simulation
+        const simulation = d3.forceSimulation()
+            .nodes(networkData.nodes)
+            .force("link", d3.forceLink().id(d => d.id).links(networkData.links).distance(100))
+            .force("charge", d3.forceManyBody().strength(-200))
+            .force("center", d3.forceCenter(width / 2, height / 2))
+            .force("collide", d3.forceCollide().radius(d => getNodeSize(d) + 10))
+            .on("tick", ticked);
+        
+        // Define tick function
+        function ticked() {
+            link
+                .attr("x1", d => d.source.x)
+                .attr("y1", d => d.source.y)
+                .attr("x2", d => d.target.x)
+                .attr("y2", d => d.target.y);
+            
+            node.attr("transform", d => `translate(${d.x},${d.y})`);
+        }
+        
+        // Define drag functions
+        function dragstarted(event, d) {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            d.fx = d.x;
+            d.fy = d.y;
+        }
+        
+        function dragged(event, d) {
+            d.fx = event.x;
+            d.fy = event.y;
+        }
+        
+        function dragended(event, d) {
+            if (!event.active) simulation.alphaTarget(0);
+            d.fx = null;
+            d.fy = null;
+        }
+        
+        // Tooltip functions
+        function showTooltip(event, d) {
+            const tooltip = d3.select("#nodeTooltip");
+            tooltip.html(`
+                <strong>${d.name}</strong><br>
+                ${d.species}<br>
+                Type: ${d.type}<br>
+                Relevance: ${d.relevance}%
+            `)
+            .style("left", (event.pageX + 10) + "px")
+            .style("top", (event.pageY - 20) + "px")
+            .style("display", "block");
+        }
+        
+        function hideTooltip() {
+            d3.select("#nodeTooltip").style("display", "none");
+        }
+        
+        // Show compound details
+        function showDetails(event, d) {
+            // Update compound details
+            d3.select("#compoundDetails").html(`
+                <h5>${d.name}</h5>
+                <p><strong>Species:</strong> ${d.species}</p>
+                <p><strong>Type:</strong> ${d.type}</p>
+                <p><strong>Description:</strong> ${d.description}</p>
+                <div class="row mt-3">
+                    <div class="col-md-4">
+                        <div class="card bg-light">
+                            <div class="card-body p-2 text-center">
+                                <h6 class="mb-0">Medicinal Relevance</h6>
+                                <span class="display-6">${d.relevance}%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card bg-light">
+                            <div class="card-body p-2 text-center">
+                                <h6 class="mb-0">Studies</h6>
+                                <span class="display-6">${d.studies}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card bg-light">
+                            <div class="card-body p-2 text-center">
+                                <h6 class="mb-0">Potency</h6>
+                                <span class="display-6">${d.potency}%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `);
+            
+            // Update related research
+            d3.select("#relatedResearch").html(`
+                <h5>Research Papers for ${d.name}</h5>
+                <div class="list-group">
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">Bioactive properties of ${d.name} isolated from ${d.species}</h6>
+                            <small>2024</small>
+                        </div>
+                        <p class="mb-1">Journal of Medicinal Mushrooms</p>
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">Structural characterization and medicinal potential of ${d.name}</h6>
+                            <small>2023</small>
+                        </div>
+                        <p class="mb-1">International Journal of Medicinal Chemistry</p>
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">Comparative analysis of ${d.type} compounds in medicinal mushrooms</h6>
+                            <small>2022</small>
+                        </div>
+                        <p class="mb-1">Phytochemistry</p>
+                    </a>
+                </div>
+            `);
+        }
+        
+        // Filter functions
+        d3.select("#speciesFilter").on("change", updateFilters);
+        d3.select("#relationshipType").on("change", updateFilters);
+        d3.select("#nodeSize").on("change", updateNodeSizes);
+        
+        function updateFilters() {
+            const speciesFilter = d3.select("#speciesFilter").property("value");
+            const relationshipFilter = d3.select("#relationshipType").property("value");
+            
+            // Filter nodes
+            node.style("display", d => {
+                if (speciesFilter !== "all" && d.species !== speciesFilter) {
+                    return "none";
+                }
+                return null;
+            });
+            
+            // Filter links
+            link.style("display", d => {
+                // Check if source or target node is filtered out
+                const sourceNode = networkData.nodes.find(n => n.id === d.source.id);
+                const targetNode = networkData.nodes.find(n => n.id === d.target.id);
+                
+                if (speciesFilter !== "all" && 
+                    sourceNode.species !== speciesFilter && 
+                    targetNode.species !== speciesFilter) {
+                    return "none";
+                }
+                
+                if (relationshipFilter !== "all" && d.type !== relationshipFilter) {
+                    return "none";
+                }
+                
+                return null;
+            });
+            
+            // Restart simulation
+            simulation.alpha(0.3).restart();
+        }
+        
+        function updateNodeSizes() {
+            const sizingOption = d3.select("#nodeSize").property("value");
+            
+            node.selectAll("circle")
+                .transition()
+                .duration(500)
+                .attr("r", d => getNodeSize(d, sizingOption));
+            
+            // Update force collide
+            simulation.force("collide", d3.forceCollide().radius(d => getNodeSize(d, sizingOption) + 10))
+                .alpha(0.3)
+                .restart();
+        }
+        
+        function getNodeSize(d, option = "relevance") {
+            const scale = 0.2;
+            
+            switch(option) {
+                case "relevance":
+                    return 5 + (d.relevance * scale);
+                case "studies":
+                    return 5 + (d.studies * scale);
+                case "potency":
+                    return 5 + (d.potency * scale);
+                default:
+                    return 5 + (d.relevance * scale);
+            }
+        }
+        
+        // Button controls
+        d3.select("#centerGraph").on("click", () => {
+            svg.transition()
+                .duration(750)
+                .call(zoom.transform, d3.zoomIdentity);
+        });
+        
+        d3.select("#toggleLabels").on("click", () => {
+            const currentDisplay = labels.style("display");
+            labels.style("display", currentDisplay === "none" ? "block" : "none");
+        });
+        
+        // Initial centering
+        svg.call(zoom.transform, d3.zoomIdentity);
+    });
+</script>
+{% endblock %}

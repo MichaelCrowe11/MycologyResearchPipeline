@@ -667,3 +667,9 @@ def download_validation_report():
 def molecular_viewer():
     """3D Molecular Visualization."""
     return render_template('molecular_viewer.html')
+
+
+@web_bp.route('/network-visualization')
+def network_visualization():
+    """Network Visualization for compound relationships."""
+    return render_template('network_visualization.html')
