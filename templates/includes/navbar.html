@@ -38,16 +38,11 @@
                         <li><a class="dropdown-item" href="{{ url_for('web.dashboard') }}">Batch Processing</a></li>
                     </ul>
                 </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="docsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Documentation
-                    </a>
-                    <ul class="dropdown-menu" aria-labelledby="docsDropdown">
-                        <li><a class="dropdown-item" href="{{ url_for('web.documentation') }}">User Guide</a></li>
-                        <li><a class="dropdown-item" href="{{ url_for('web.documentation') }}">API Reference</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="{{ url_for('web.documentation') }}">Tutorials</a></li>
-                    </ul>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'web.documentation' %}active{% endif %}" href="{{ url_for('web.documentation') }}">Documentation</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'api.docs' %}active{% endif %}" href="{{ url_for('api.docs') }}">API</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {% if request.endpoint == 'web.image_analysis' %}active{% endif %}" href="{{ url_for('web.image_analysis') }}">Image Analysis</a>
@@ -77,27 +72,27 @@
                             {% endif %}
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                            <li><a class="dropdown-item" href="{{ url_for('web.dashboard') }}">
+                            <li><a class="dropdown-item" href="{{ url_for('auth.profile') }}">
                                 <i class="fas fa-user me-2"></i>Profile
                             </a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('web.dashboard') }}">
+                            <li><a class="dropdown-item" href="{{ url_for('auth.membership') }}">
                                 <i class="fas fa-id-card me-2"></i>Membership
                             </a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('web.dashboard') }}">
+                            <li><a class="dropdown-item" href="{{ url_for('auth.api_keys') }}">
                                 <i class="fas fa-key me-2"></i>API Keys
                             </a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{{ url_for('web.index') }}">
+                            <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">
                                 <i class="fas fa-sign-out-alt me-2"></i>Logout
                             </a></li>
                         </ul>
                     </li>
                 {% else %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('web.dashboard') }}">Login</a>
+                        <a class="nav-link" href="{{ url_for('auth.login') }}">Login</a>
                     </li>
                     <li class="nav-item">
-                        <a class="btn btn-primary" href="{{ url_for('web.dashboard') }}">Sign Up</a>
+                        <a class="btn btn-primary" href="{{ url_for('auth.register') }}">Sign Up</a>
                     </li>
                 {% endif %}
             </ul>
