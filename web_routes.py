@@ -121,20 +121,19 @@ def image_analysis():
             image_file.save(file_path)
             
             # Create a new analysis record
-            analysis = Analysis(
-                user_id=current_user.id,
-                name=f"Image Analysis: {filename}",
-                description=request.form.get('notes', ''),
-                type="image_analysis",
-                parameters={
-                    "identify_species": "identify_species" in request.form,
-                    "analyze_morphology": "analyze_morphology" in request.form,
-                    "analyze_color": "analyze_color" in request.form,
-                    "analyze_growth": "analyze_growth" in request.form,
-                },
-                status="processing",
-                start_time=datetime.now()
-            )
+            analysis = Analysis()
+            analysis.user_id = current_user.id
+            analysis.name = f"Image Analysis: {filename}"
+            analysis.description = request.form.get('notes', '')
+            analysis.type = "image_analysis"
+            analysis.parameters = {
+                "identify_species": "identify_species" in request.form,
+                "analyze_morphology": "analyze_morphology" in request.form,
+                "analyze_color": "analyze_color" in request.form,
+                "analyze_growth": "analyze_growth" in request.form,
+            }
+            analysis.status = "processing"
+            analysis.start_time = datetime.now()
             db.session.add(analysis)
             db.session.commit()
             
@@ -219,19 +218,18 @@ def batch_processing():
             input_file.save(file_path)
             
             # Create a new batch job record
-            batch_job = BatchJob(
-                user_id=current_user.id,
-                name=request.form.get('name', f"Batch Job: {filename}"),
-                description=request.form.get('description', ''),
-                type=request.form.get('type', 'compound_analysis'),
-                parameters={
-                    "analysis_type": request.form.get('analysis_type', 'default'),
-                    "options": request.form.getlist('options')
-                },
-                input_file=new_filename,
-                status="processing",
-                start_time=datetime.now()
-            )
+            batch_job = BatchJob()
+            batch_job.user_id = current_user.id
+            batch_job.name = request.form.get('name', f"Batch Job: {filename}")
+            batch_job.description = request.form.get('description', '')
+            batch_job.type = request.form.get('type', 'compound_analysis')
+            batch_job.parameters = {
+                "analysis_type": request.form.get('analysis_type', 'default'),
+                "options": request.form.getlist('options')
+            }
+            batch_job.input_file = new_filename
+            batch_job.status = "processing"
+            batch_job.start_time = datetime.now()
             db.session.add(batch_job)
             db.session.commit()
             
@@ -322,11 +320,10 @@ def literature_search():
             results = search(query, start_date=start_date, end_date=end_date)
             
             # Log the search
-            log = ResearchLog(
-                user_id=current_user.id,
-                title=f"Literature Search: {query}",
-                content=f"Searched {database} for '{query}' between {start_date} and {end_date}. Found {len(results)} results."
-            )
+            log = ResearchLog()
+            log.user_id = current_user.id
+            log.title = f"Literature Search: {query}"
+            log.content = f"Searched {database} for '{query}' between {start_date} and {end_date}. Found {len(results)} results."
             db.session.add(log)
             db.session.commit()
             
