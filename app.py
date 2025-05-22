@@ -2,6 +2,7 @@ import os
 import logging
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager
 from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix
 
@@ -28,6 +29,16 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
 # Initialize SQLAlchemy
 db = SQLAlchemy(model_class=Base)
 db.init_app(app)
+
+# Initialize Flask-Login
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'web.dashboard'  # Redirect to dashboard for login
+
+@login_manager.user_loader
+def load_user(user_id):
+    from models import User
+    return User.query.get(int(user_id))
 
 # Create all tables
 with app.app_context():

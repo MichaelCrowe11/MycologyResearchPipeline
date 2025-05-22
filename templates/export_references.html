@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+
+{% block title %}Export References - Mycology Research Pipeline{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Export References</h1>
+        <a href="{{ url_for('web.literature_search') }}" class="btn btn-primary">Back to Search</a>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Export Options</h5>
+        </div>
+        <div class="card-body">
+            <form id="exportForm" method="post" action="{{ url_for('web.export_references') }}">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Export Format</label>
+                        <div class="d-flex flex-wrap">
+                            <div class="form-check me-4 mb-2">
+                                <input class="form-check-input" type="radio" name="format" id="formatBibTeX" value="bibtex" checked>
+                                <label class="form-check-label" for="formatBibTeX">BibTeX</label>
+                            </div>
+                            <div class="form-check me-4 mb-2">
+                                <input class="form-check-input" type="radio" name="format" id="formatCSV" value="csv">
+                                <label class="form-check-label" for="formatCSV">CSV</label>
+                            </div>
+                            <div class="form-check me-4 mb-2">
+                                <input class="form-check-input" type="radio" name="format" id="formatRIS" value="ris">
+                                <label class="form-check-label" for="formatRIS">RIS</label>
+                            </div>
+                            <div class="form-check me-4 mb-2">
+                                <input class="form-check-input" type="radio" name="format" id="formatJSON" value="json">
+                                <label class="form-check-label" for="formatJSON">JSON</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Include Fields</label>
+                        <div class="d-flex flex-wrap">
+                            <div class="form-check me-4 mb-2">
+                                <input class="form-check-input" type="checkbox" name="include_abstract" id="includeAbstract" checked>
+                                <label class="form-check-label" for="includeAbstract">Abstract</label>
+                            </div>
+                            <div class="form-check me-4 mb-2">
+                                <input class="form-check-input" type="checkbox" name="include_notes" id="includeNotes" checked>
+                                <label class="form-check-label" for="includeNotes">Your Notes</label>
+                            </div>
+                            <div class="form-check me-4 mb-2">
+                                <input class="form-check-input" type="checkbox" name="include_tags" id="includeTags" checked>
+                                <label class="form-check-label" for="includeTags">Tags</label>
+                            </div>
+                            <div class="form-check me-4 mb-2">
+                                <input class="form-check-input" type="checkbox" name="include_compounds" id="includeCompounds" checked>
+                                <label class="form-check-label" for="includeCompounds">Compounds</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-file-export me-2"></i>Export Selected References
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Your References</h5>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="selectAllReferences">
+                <label class="form-check-label" for="selectAllReferences">Select All</label>
+            </div>
+        </div>
+        <div class="card-body">
+            {% if references %}
+                <form id="referencesForm">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th style="width: 50px;"></th>
+                                    <th>Title</th>
+                                    <th>Authors</th>
+                                    <th>Journal</th>
+                                    <th>Year</th>
+                                    <th>Your Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for reference in references %}
+                                <tr>
+                                    <td>
+                                        <div class="form-check">
+                                            <input class="form-check-input reference-checkbox" type="checkbox" name="references" value="{{ reference.id }}" id="ref{{ reference.id }}">
+                                            <label class="form-check-label" for="ref{{ reference.id }}"></label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('web.view_literature_reference', reference_id=reference.id) }}" class="fw-bold text-decoration-none">
+                                            {{ reference.title }}
+                                        </a>
+                                    </td>
+                                    <td>{{ reference.authors }}</td>
+                                    <td>{{ reference.journal }}</td>
+                                    <td>{{ reference.year }}</td>
+                                    <td>
+                                        {% set notes_count = reference.notes|length %}
+                                        {% if notes_count > 0 %}
+                                            <span class="badge bg-primary">{{ notes_count }} note{% if notes_count > 1 %}s{% endif %}</span>
+                                        {% else %}
+                                            <span class="text-muted">No notes</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </form>
+            {% else %}
+                <div class="alert alert-info">
+                    <p class="mb-0">You don't have any saved references yet. Use the literature search to find and save references.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Select all references functionality
+    const selectAllCheckbox = document.getElementById('selectAllReferences');
+    const referenceCheckboxes = document.querySelectorAll('.reference-checkbox');
+    
+    selectAllCheckbox.addEventListener('change', function() {
+        referenceCheckboxes.forEach(checkbox => {
+            checkbox.checked = selectAllCheckbox.checked;
+        });
+    });
+    
+    // Form submission handling
+    const exportForm = document.getElementById('exportForm');
+    const referencesForm = document.getElementById('referencesForm');
+    
+    exportForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Get selected references
+        const selectedReferences = [];
+        referenceCheckboxes.forEach(checkbox => {
+            if (checkbox.checked) {
+                selectedReferences.push(checkbox.value);
+            }
+        });
+        
+        if (selectedReferences.length === 0) {
+            alert('Please select at least one reference to export.');
+            return;
+        }
+        
+        // Get export format
+        const format = document.querySelector('input[name="format"]:checked').value;
+        
+        // Get included fields
+        const includeAbstract = document.getElementById('includeAbstract').checked;
+        const includeNotes = document.getElementById('includeNotes').checked;
+        const includeTags = document.getElementById('includeTags').checked;
+        const includeCompounds = document.getElementById('includeCompounds').checked;
+        
+        // Create form data for submission
+        const formData = new FormData();
+        formData.append('format', format);
+        formData.append('include_abstract', includeAbstract);
+        formData.append('include_notes', includeNotes);
+        formData.append('include_tags', includeTags);
+        formData.append('include_compounds', includeCompounds);
+        
+        selectedReferences.forEach(refId => {
+            formData.append('references[]', refId);
+        });
+        
+        // Submit form data (would normally be AJAX or form submission)
+        alert('Export functionality to be implemented. Selected ' + selectedReferences.length + ' references in ' + format + ' format.');
+        
+        // For demo purposes - in a real implementation, you would submit the form
+        // and download the resulting file
+    });
+});
+</script>
+{% endblock %}
