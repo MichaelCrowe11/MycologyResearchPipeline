@@ -24,12 +24,12 @@ def index():
     # Get the current version
     current_version = Version.query.filter_by(is_current=True).first()
     if not current_version:
-        current_version = Version(
-            version="1.0.0",
-            release_date=datetime.now(),
-            description="Initial release of the Mycology Research Pipeline.",
-            is_current=True
-        )
+        # Create the version record correctly
+        current_version = Version()
+        current_version.version = "1.0.0"
+        current_version.release_date = datetime.now()
+        current_version.description = "Initial release of the Mycology Research Pipeline."
+        current_version.is_current = True
         db.session.add(current_version)
         db.session.commit()
     

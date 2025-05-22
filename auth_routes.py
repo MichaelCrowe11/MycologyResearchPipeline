@@ -26,7 +26,7 @@ auth_bp = Blueprint('auth', __name__)
 
 # Initialize login manager
 login_manager = LoginManager(app)
-login_manager.login_view = 'auth.login'
+login_manager.login_view = 'replit_auth.login'
 
 
 @login_manager.user_loader
