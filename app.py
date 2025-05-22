@@ -75,10 +75,12 @@ def create_app(config_object=active_config):
     from api_routes import api_bp
     from web_routes import web_bp
     from auth_routes import auth_bp
+    from ai_routes import ai_bp
     
     app.register_blueprint(api_bp, url_prefix='/api')
     app.register_blueprint(web_bp)
     app.register_blueprint(auth_bp, url_prefix='/auth')
+    app.register_blueprint(ai_bp, url_prefix='/ai')
     
     # Setup database tables
     with app.app_context():

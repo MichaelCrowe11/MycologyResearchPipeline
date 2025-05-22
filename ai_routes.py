@@ -73,13 +73,12 @@ def analyze_sample_route(sample_id):
             analysis_result = analyze_sample(sample_data)
             
             # Create a record of this query
-            query = AIAssistantQuery(
-                query_type='sample_analysis',
-                input_data=json.dumps(sample_data),
-                result_data=json.dumps(analysis_result),
-                sample_id=sample.id,
-                user_id=current_user.id if hasattr(current_user, 'is_authenticated') and current_user.is_authenticated else None
-            )
+            query = AIAssistantQuery()
+            query.query_type = 'sample_analysis'
+            query.input_data = json.dumps(sample_data)
+            query.result_data = json.dumps(analysis_result)
+            query.sample_id = sample.id
+            query.user_id = current_user.id if hasattr(current_user, 'is_authenticated') and current_user.is_authenticated else None
             db.session.add(query)
             db.session.commit()
             
@@ -125,12 +124,11 @@ def generate_hypothesis_route():
             hypothesis_result = generate_hypothesis(context_data)
             
             # Create a record of this query
-            query = AIAssistantQuery(
-                query_type='hypothesis_generation',
-                input_data=json.dumps(context_data),
-                result_data=json.dumps(hypothesis_result),
-                user_id=current_user.id if hasattr(current_user, 'is_authenticated') and current_user.is_authenticated else None
-            )
+            query = AIAssistantQuery()
+            query.query_type = 'hypothesis_generation'
+            query.input_data = json.dumps(context_data)
+            query.result_data = json.dumps(hypothesis_result)
+            query.user_id = current_user.id if hasattr(current_user, 'is_authenticated') and current_user.is_authenticated else None
             db.session.add(query)
             db.session.commit()
             

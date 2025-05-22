@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Generate Research Hypotheses{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="display-5 mb-3">
+                <i class="fas fa-lightbulb text-success me-2"></i>
+                AI Hypothesis Generator
+            </h1>
+            <p class="lead">
+                Generate novel research hypotheses based on your existing findings and research goals.
+            </p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Research Context</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{{ url_for('ai.generate_hypothesis_route') }}">
+                        <div class="mb-3">
+                            <label for="research_area" class="form-label">Research Area</label>
+                            <input type="text" class="form-control" id="research_area" name="research_area" 
+                                   placeholder="e.g., Medicinal Mushroom Compounds, Mycoremediation, Fungal Ecology" required>
+                            <div class="form-text">Specify your field of research as precisely as possible.</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="existing_findings" class="form-label">Existing Findings</label>
+                            <textarea class="form-control" id="existing_findings" name="existing_findings" 
+                                      rows="4" placeholder="Enter each finding on a new line"></textarea>
+                            <div class="form-text">List relevant findings from your previous research. Be specific.</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="objectives" class="form-label">Research Objectives</label>
+                            <textarea class="form-control" id="objectives" name="objectives" 
+                                      rows="3" placeholder="Enter each objective on a new line"></textarea>
+                            <div class="form-text">What are you trying to achieve with your research?</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="available_methods" class="form-label">Available Methods and Resources</label>
+                            <textarea class="form-control" id="available_methods" name="available_methods" 
+                                      rows="3" placeholder="Enter each method/resource on a new line"></textarea>
+                            <div class="form-text">List technologies, equipment, or methodologies available to you.</div>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-lightbulb me-2"></i>Generate Hypotheses
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">How It Works</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h6><i class="fas fa-info-circle text-primary me-2"></i>Context Analysis</h6>
+                        <p class="small">The AI analyzes your research area, existing findings, and objectives to identify patterns and gaps.</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h6><i class="fas fa-brain text-primary me-2"></i>Knowledge Integration</h6>
+                        <p class="small">Combines your context with comprehensive mycological knowledge to generate novel ideas.</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h6><i class="fas fa-flask text-primary me-2"></i>Testable Hypotheses</h6>
+                        <p class="small">Formulates specific, testable hypotheses aligned with your research goals and available methods.</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h6><i class="fas fa-chart-line text-primary me-2"></i>Impact Assessment</h6>
+                        <p class="small">Evaluates the potential significance and feasibility of each hypothesis.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Tips for Better Results</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="small">
+                        <li>Be specific about your research area</li>
+                        <li>Include quantitative data in your findings when possible</li>
+                        <li>List contradictory or unexpected findings</li>
+                        <li>Specify the scope of your research objectives</li>
+                        <li>Be detailed about available research methods</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
