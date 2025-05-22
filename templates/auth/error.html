@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Authentication Error - Mycology Research Pipeline{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <div class="mb-4">
+                <i class="fas fa-exclamation-triangle text-warning fa-5x"></i>
+            </div>
+            <h1 class="display-4 mb-4">Authentication Error</h1>
+            <p class="lead mb-4">We encountered an issue with your authentication request. This could be due to an expired session, invalid credentials, or a system error.</p>
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">What to do next:</h5>
+                    <ul class="list-group list-group-flush text-start">
+                        <li class="list-group-item">Try logging in again</li>
+                        <li class="list-group-item">Clear your browser cookies and cache</li>
+                        <li class="list-group-item">Check if you're using the correct account</li>
+                        <li class="list-group-item">Contact support if the problem persists</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                <a href="{{ url_for('replit_auth.login') }}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-sign-in-alt me-2"></i>Log In
+                </a>
+                <a href="{{ url_for('web.index') }}" class="btn btn-outline-secondary btn-lg">
+                    <i class="fas fa-home me-2"></i>Go to Homepage
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

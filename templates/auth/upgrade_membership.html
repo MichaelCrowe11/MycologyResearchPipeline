@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+
+{% block title %}Upgrade Membership - Mycology Research Pipeline{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-5">
+        <div class="col-12 text-center">
+            <h1 class="display-5 fw-bold mb-3">Upgrade Your Membership</h1>
+            <p class="lead">Choose the plan that's right for your research needs</p>
+        </div>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-3 mb-5 g-4 justify-content-center">
+        <!-- Free Plan -->
+        <div class="col">
+            <div class="card h-100 card-hover">
+                <div class="card-header text-center bg-info text-white py-3">
+                    <h4 class="mb-0">Free</h4>
+                </div>
+                <div class="card-body d-flex flex-column">
+                    <div class="pricing text-center mb-4">
+                        <span class="display-5 fw-bold">$0</span>
+                        <span class="text-muted">/month</span>
+                    </div>
+                    <ul class="list-unstyled mb-4">
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Up to 5 samples</li>
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Basic image analysis</li>
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Literature search</li>
+                        <li class="mb-2"><i class="fas fa-times text-danger me-2"></i> Batch processing</li>
+                        <li class="mb-2"><i class="fas fa-times text-danger me-2"></i> Advanced analytics</li>
+                        <li class="mb-2"><i class="fas fa-times text-danger me-2"></i> Export capabilities</li>
+                        <li class="mb-2"><i class="fas fa-times text-danger me-2"></i> Priority support</li>
+                    </ul>
+                    <div class="mt-auto text-center">
+                        {% if current_user.membership and current_user.membership.tier == 'free' %}
+                        <button class="btn btn-lg btn-outline-secondary w-100" disabled>Current Plan</button>
+                        {% else %}
+                        <button class="btn btn-lg btn-outline-info w-100">Select</button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Basic Plan -->
+        <div class="col">
+            <div class="card h-100 card-hover border-success">
+                <div class="card-header text-center bg-success text-white py-3">
+                    <h4 class="mb-0">Basic</h4>
+                </div>
+                <div class="card-body d-flex flex-column">
+                    <div class="pricing text-center mb-4">
+                        <span class="display-5 fw-bold">$29</span>
+                        <span class="text-muted">/month</span>
+                    </div>
+                    <ul class="list-unstyled mb-4">
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Up to 100 samples</li>
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Advanced image analysis</li>
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Enhanced literature search</li>
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Basic batch processing</li>
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Standard analytics</li>
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i> CSV export capabilities</li>
+                        <li class="mb-2"><i class="fas fa-times text-danger me-2"></i> Priority support</li>
+                    </ul>
+                    <div class="mt-auto text-center">
+                        {% if current_user.membership and current_user.membership.tier == 'basic' %}
+                        <button class="btn btn-lg btn-outline-secondary w-100" disabled>Current Plan</button>
+                        {% else %}
+                        <button class="btn btn-lg btn-success w-100">Select</button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Premium Plan -->
+        <div class="col">
+            <div class="card h-100 card-hover border-warning">
+                <div class="card-header text-center bg-warning text-white py-3">
+                    <h4 class="mb-0">Premium</h4>
+                    <span class="badge bg-danger position-absolute top-0 end-0 translate-middle">Popular</span>
+                </div>
+                <div class="card-body d-flex flex-column">
+                    <div class="pricing text-center mb-4">
+                        <span class="display-5 fw-bold">$99</span>
+                        <span class="text-muted">/month</span>
+                    </div>
+                    <ul class="list-unstyled mb-4">
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Up to 1,000 samples</li>
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Premium image analysis</li>
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Full literature access</li>
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Advanced batch processing</li>
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Advanced analytics & reporting</li>
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i> All export formats</li>
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Priority support</li>
+                    </ul>
+                    <div class="mt-auto text-center">
+                        {% if current_user.membership and current_user.membership.tier == 'premium' %}
+                        <button class="btn btn-lg btn-outline-secondary w-100" disabled>Current Plan</button>
+                        {% else %}
+                        <button class="btn btn-lg btn-warning w-100">Select</button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">Frequently Asked Questions</h4>
+                </div>
+                <div class="card-body">
+                    <div class="accordion" id="faqAccordion">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingOne">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                    Can I upgrade or downgrade my plan at any time?
+                                </button>
+                            </h2>
+                            <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    Yes, you can upgrade your plan at any time. Downgrading is available at the end of your current billing cycle.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingTwo">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                    What happens to my data if I downgrade?
+                                </button>
+                            </h2>
+                            <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    Your data is always preserved, even if you downgrade. However, you may not be able to add new samples beyond your plan's limits.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingThree">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                    Is there a discount for academic institutions?
+                                </button>
+                            </h2>
+                            <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    Yes, we offer special pricing for academic institutions and research facilities. Please contact our support team for more information.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

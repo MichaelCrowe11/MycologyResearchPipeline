@@ -1,192 +1,33 @@
+"""
+Database models for the Mycology Research Pipeline.
+"""
 from datetime import datetime
-from app import db
+import json
 from flask_login import UserMixin
-from sqlalchemy import Column, Integer, String, Float, DateTime, Text, JSON, ForeignKey, Boolean, Enum
-from sqlalchemy.orm import relationship
-import enum
-
-
-class Sample(db.Model):
-    """Model representing a mycological sample."""
-    __tablename__ = 'samples'
-    
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('users.id'), nullable=True)
-    name = Column(String(255), nullable=False)
-    description = Column(Text, nullable=True)
-    species = Column(String(255), nullable=True)
-    collection_date = Column(DateTime, default=datetime.utcnow)
-    location = Column(String(255), nullable=True)
-    sample_metadata = Column(JSON, nullable=True)
-    is_public = Column(Boolean, default=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
-    # Relationships
-    user = relationship("User", back_populates="samples")
-    compounds = relationship("Compound", back_populates="sample", cascade="all, delete-orphan")
-    analyses = relationship("Analysis", back_populates="sample", cascade="all, delete-orphan")
-    literature_references = relationship("LiteratureReference", back_populates="sample", cascade="all, delete-orphan")
-    
-    def __repr__(self):
-        return f"<Sample {self.id}: {self.name}>"
-        
-    @property
-    def metadata_dict(self):
-        """Return sample_metadata as a Python dictionary for JSON serialization."""
-        if self.sample_metadata is None:
-            return {}
-        # Convert SQLAlchemy JSON type to Python dict for serialization
-        return self.sample_metadata
-
-
-class Compound(db.Model):
-    """Model representing a medicinal compound in a sample."""
-    __tablename__ = 'compounds'
-    
-    id = Column(Integer, primary_key=True)
-    sample_id = Column(Integer, ForeignKey('samples.id'), nullable=False)
-    name = Column(String(255), nullable=False)
-    formula = Column(String(255), nullable=True)
-    molecular_weight = Column(Float, nullable=True)
-    concentration = Column(Float, nullable=True)
-    bioactivity_index = Column(Float, nullable=True)
-    compound_metadata = Column(JSON, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
-    # Relationships
-    sample = relationship("Sample", back_populates="compounds")
-    
-    def __repr__(self):
-        return f"<Compound {self.id}: {self.name}>"
-
-
-class Analysis(db.Model):
-    """Model representing an analysis performed on a sample."""
-    __tablename__ = 'analyses'
-    
-    id = Column(Integer, primary_key=True)
-    sample_id = Column(Integer, ForeignKey('samples.id'), nullable=False)
-    analysis_type = Column(String(100), nullable=False)
-    parameters = Column(JSON, nullable=True)
-    results = Column(JSON, nullable=True)
-    status = Column(String(50), default='pending')
-    start_time = Column(DateTime, nullable=True)
-    end_time = Column(DateTime, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
-    # Relationships
-    sample = relationship("Sample", back_populates="analyses")
-    
-    def __repr__(self):
-        return f"<Analysis {self.id}: {self.analysis_type}>"
-
-
-class BatchJob(db.Model):
-    """Model representing a batch processing job."""
-    __tablename__ = 'batch_jobs'
-    
-    id = Column(Integer, primary_key=True)
-    name = Column(String(255), nullable=True)
-    description = Column(Text, nullable=True)
-    input_file = Column(String(255), nullable=True)
-    output_file = Column(String(255), nullable=True)
-    parameters = Column(JSON, nullable=True)
-    status = Column(String(50), default='pending')
-    start_time = Column(DateTime, nullable=True)
-    end_time = Column(DateTime, nullable=True)
-    error_message = Column(Text, nullable=True)
-    total_records = Column(Integer, default=0)
-    processed_records = Column(Integer, default=0)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
-    def __repr__(self):
-        return f"<BatchJob {self.id}: {self.name}>"
-
-
-class Version(db.Model):
-    """Model for tracking pipeline versions."""
-    __tablename__ = 'versions'
-    
-    id = Column(Integer, primary_key=True)
-    version = Column(String(50), nullable=False, unique=True)
-    description = Column(Text, nullable=True)
-    is_current = Column(Boolean, default=False)
-    release_date = Column(DateTime, default=datetime.utcnow)
-    changelog = Column(Text, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    
-    def __repr__(self):
-        return f"<Version {self.version}>"
-
-
-class ResearchLog(db.Model):
-    """Model for research logs and notes."""
-    __tablename__ = 'research_logs'
-    
-    id = Column(Integer, primary_key=True)
-    title = Column(String(255), nullable=False)
-    content = Column(Text, nullable=True)
-    sample_id = Column(Integer, ForeignKey('samples.id'), nullable=True)
-    analysis_id = Column(Integer, ForeignKey('analyses.id'), nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
-    def __repr__(self):
-        return f"<ResearchLog {self.id}: {self.title}>"
-
-
-class LiteratureReference(db.Model):
-    """Model representing a scientific literature reference."""
-    __tablename__ = 'literature_references'
-    
-    id = Column(Integer, primary_key=True)
-    sample_id = Column(Integer, ForeignKey('samples.id'), nullable=True)
-    reference_id = Column(String(50), nullable=False)  # e.g., PubMed ID
-    title = Column(String(500), nullable=False)
-    authors = Column(Text, nullable=True)
-    journal = Column(String(255), nullable=True)
-    year = Column(Integer, nullable=True)
-    url = Column(String(500), nullable=True)
-    abstract = Column(Text, nullable=True)
-    reference_type = Column(String(50), default='pubmed')  # pubmed, doi, etc.
-    reference_metadata = Column(JSON, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
-    # Relationships
-    sample = relationship("Sample", back_populates="literature_references")
-    
-    def __repr__(self):
-        return f"<LiteratureReference {self.id}: {self.title[:30]}...>"
+from sqlalchemy.dialects.postgresql import JSONB
+from app import db
 
 
 class User(UserMixin, db.Model):
-    """Model representing a user of the platform."""
+    """User model for authentication and access control."""
     __tablename__ = 'users'
     
-    id = Column(Integer, primary_key=True)
-    email = Column(String(255), unique=True, nullable=False)
-    password_hash = Column(String(255), nullable=False)
-    first_name = Column(String(100), nullable=True)
-    last_name = Column(String(100), nullable=True)
-    organization = Column(String(255), nullable=True)
-    role = Column(String(50), default='user')  # user, admin
-    is_active = Column(Boolean, default=True)
-    last_login = Column(DateTime, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    id = db.Column(db.String, primary_key=True)
+    email = db.Column(db.String(120), unique=True, nullable=True)
+    first_name = db.Column(db.String(64), nullable=True)
+    last_name = db.Column(db.String(64), nullable=True)
+    profile_image_url = db.Column(db.String(255), nullable=True)
+    
+    # Timestamps
+    created_at = db.Column(db.DateTime, default=datetime.now)
+    updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
     
     # Relationships
-    memberships = relationship("Membership", back_populates="user", cascade="all, delete-orphan")
-    samples = relationship("Sample", back_populates="user")
-    api_tokens = relationship("OAuthToken", back_populates="user", cascade="all, delete-orphan")
-    
-    def __repr__(self):
-        return f"<User {self.id}: {self.email}>"
+    samples = db.relationship('Sample', back_populates='user', lazy='dynamic')
+    analyses = db.relationship('Analysis', back_populates='user', lazy='dynamic')
+    batch_jobs = db.relationship('BatchJob', back_populates='user', lazy='dynamic')
+    literature_references = db.relationship('LiteratureReference', back_populates='user', lazy='dynamic')
+    membership = db.relationship('Membership', back_populates='user', uselist=False)
     
     @property
     def full_name(self):
@@ -197,84 +38,231 @@ class User(UserMixin, db.Model):
             return self.first_name
         elif self.last_name:
             return self.last_name
-        return "Unnamed User"
-    
-    @property
-    def active_membership(self):
-        """Return the user's active membership."""
-        return Membership.query.filter_by(
-            user_id=self.id, is_active=True
-        ).first()
+        return "Anonymous User"
 
 
 class Membership(db.Model):
-    """Model representing a user's membership plan."""
+    """User membership levels and subscription details."""
     __tablename__ = 'memberships'
     
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
-    plan = Column(String(50), nullable=False)  # free, basic, pro, enterprise
-    start_date = Column(DateTime, nullable=False)
-    end_date = Column(DateTime, nullable=True)
-    is_active = Column(Boolean, default=True)
-    features_access = Column(JSON, nullable=True)  # JSON with feature access flags
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.String, db.ForeignKey('users.id'), nullable=False)
+    tier = db.Column(db.String(20), nullable=False, default='free')  # free, basic, premium, enterprise
+    
+    # Subscription details
+    start_date = db.Column(db.DateTime, default=datetime.now)
+    end_date = db.Column(db.DateTime, nullable=True)
+    is_active = db.Column(db.Boolean, default=True)
+    
+    # Timestamps
+    created_at = db.Column(db.DateTime, default=datetime.now)
+    updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
     
     # Relationships
-    user = relationship("User", back_populates="memberships")
-    
-    def __repr__(self):
-        return f"<Membership {self.id}: {self.plan} for User {self.user_id}>"
+    user = db.relationship('User', back_populates='membership')
     
     @property
-    def is_valid(self):
-        """Check if the membership is valid (active and not expired)."""
-        if not self.is_active:
-            return False
-        
-        if self.end_date and self.end_date < datetime.utcnow():
-            return False
-        
-        return True
+    def is_premium(self):
+        """Check if the user has premium features."""
+        return self.tier in ['premium', 'enterprise'] and self.is_active
     
     @property
-    def days_remaining(self):
-        """Return the number of days remaining in the membership."""
-        if not self.end_date:
-            return None
-        
-        delta = self.end_date - datetime.utcnow()
-        return max(0, delta.days)
-
-
-class OAuthToken(db.Model):
-    """Model representing an OAuth token for API access."""
-    __tablename__ = 'oauth_tokens'
+    def is_enterprise(self):
+        """Check if the user has enterprise features."""
+        return self.tier == 'enterprise' and self.is_active
     
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
-    token = Column(String(255), unique=True, nullable=False)
-    name = Column(String(100), nullable=True)
-    scopes = Column(String(255), nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    expires_at = Column(DateTime, nullable=True)
-    revoked_at = Column(DateTime, nullable=True)
-    is_active = Column(Boolean, default=True)
+    @property
+    def max_samples(self):
+        """Maximum number of samples based on membership tier."""
+        limits = {
+            'free': 5,
+            'basic': 100,
+            'premium': 1000,
+            'enterprise': 10000
+        }
+        return limits.get(self.tier, 5)
+    
+    @property
+    def max_batch_size(self):
+        """Maximum batch job size based on membership tier."""
+        limits = {
+            'free': 5,
+            'basic': 100,
+            'premium': 1000,
+            'enterprise': 10000
+        }
+        return limits.get(self.tier, 5)
+
+
+class Sample(db.Model):
+    """Sample data model for mycology specimens."""
+    __tablename__ = 'samples'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.String, db.ForeignKey('users.id'), nullable=False)
+    name = db.Column(db.String(128), nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    species = db.Column(db.String(128), nullable=True)
+    collection_date = db.Column(db.DateTime, nullable=True)
+    location = db.Column(db.String(255), nullable=True)
+    sample_metadata = db.Column(JSONB, nullable=True)
+    is_public = db.Column(db.Boolean, default=False)
+    
+    # Timestamps
+    created_at = db.Column(db.DateTime, default=datetime.now)
+    updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
     
     # Relationships
-    user = relationship("User", back_populates="api_tokens")
+    user = db.relationship('User', back_populates='samples')
+    analyses = db.relationship('Analysis', back_populates='sample', lazy='dynamic')
     
     def __repr__(self):
-        return f"<OAuthToken {self.id}: for User {self.user_id}>"
+        return f"<Sample {self.name}>"
     
     @property
-    def is_valid(self):
-        """Check if the token is valid (active and not expired)."""
-        if not self.is_active or self.revoked_at is not None:
-            return False
+    def formatted_metadata(self):
+        """Return formatted metadata as a dictionary."""
+        if not self.sample_metadata:
+            return {}
         
-        if self.expires_at and self.expires_at < datetime.utcnow():
-            return False
+        if isinstance(self.sample_metadata, str):
+            try:
+                return json.loads(self.sample_metadata)
+            except:
+                return {}
         
-        return True
+        return self.sample_metadata
+
+
+class Analysis(db.Model):
+    """Analysis data model for processing results."""
+    __tablename__ = 'analyses'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.String, db.ForeignKey('users.id'), nullable=False)
+    sample_id = db.Column(db.Integer, db.ForeignKey('samples.id'), nullable=True)
+    name = db.Column(db.String(128), nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    type = db.Column(db.String(50), nullable=False)  # image_analysis, bioactivity_prediction, etc.
+    parameters = db.Column(JSONB, nullable=True)
+    results = db.Column(JSONB, nullable=True)
+    status = db.Column(db.String(20), default='pending')  # pending, processing, completed, failed
+    error_message = db.Column(db.Text, nullable=True)
+    
+    # Timestamps
+    created_at = db.Column(db.DateTime, default=datetime.now)
+    start_time = db.Column(db.DateTime, nullable=True)
+    end_time = db.Column(db.DateTime, nullable=True)
+    updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
+    
+    # Relationships
+    user = db.relationship('User', back_populates='analyses')
+    sample = db.relationship('Sample', back_populates='analyses')
+    
+    def __repr__(self):
+        return f"<Analysis {self.name} ({self.status})>"
+
+
+class BatchJob(db.Model):
+    """Batch processing job for multiple samples."""
+    __tablename__ = 'batch_jobs'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.String, db.ForeignKey('users.id'), nullable=False)
+    name = db.Column(db.String(128), nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    type = db.Column(db.String(50), nullable=False)  # image_analysis, bioactivity_prediction, etc.
+    parameters = db.Column(JSONB, nullable=True)
+    input_file = db.Column(db.String(255), nullable=True)
+    output_file = db.Column(db.String(255), nullable=True)
+    status = db.Column(db.String(20), default='pending')  # pending, processing, completed, failed
+    error_message = db.Column(db.Text, nullable=True)
+    total_records = db.Column(db.Integer, default=0)
+    processed_records = db.Column(db.Integer, default=0)
+    
+    # Timestamps
+    created_at = db.Column(db.DateTime, default=datetime.now)
+    start_time = db.Column(db.DateTime, nullable=True)
+    end_time = db.Column(db.DateTime, nullable=True)
+    updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
+    
+    # Relationships
+    user = db.relationship('User', back_populates='batch_jobs')
+    
+    def __repr__(self):
+        return f"<BatchJob {self.name} ({self.status})>"
+    
+    @property
+    def progress(self):
+        """Calculate progress percentage."""
+        if not self.total_records or self.total_records == 0:
+            return 0
+        return int((self.processed_records / self.total_records) * 100)
+
+
+class LiteratureReference(db.Model):
+    """Scientific literature reference data."""
+    __tablename__ = 'literature_references'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.String, db.ForeignKey('users.id'), nullable=False)
+    title = db.Column(db.String(255), nullable=False)
+    authors = db.Column(db.Text, nullable=True)
+    journal = db.Column(db.String(255), nullable=True)
+    publication_date = db.Column(db.Date, nullable=True)
+    doi = db.Column(db.String(100), nullable=True, unique=True)
+    pubmed_id = db.Column(db.String(20), nullable=True, unique=True)
+    abstract = db.Column(db.Text, nullable=True)
+    keywords = db.Column(db.Text, nullable=True)
+    url = db.Column(db.String(255), nullable=True)
+    citation_count = db.Column(db.Integer, default=0)
+    is_favorite = db.Column(db.Boolean, default=False)
+    notes = db.Column(db.Text, nullable=True)
+    
+    # Timestamps
+    created_at = db.Column(db.DateTime, default=datetime.now)
+    updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
+    
+    # Relationships
+    user = db.relationship('User', back_populates='literature_references')
+    
+    def __repr__(self):
+        return f"<LiteratureReference {self.title}>"
+
+
+class ResearchLog(db.Model):
+    """Research activity log for tracking work."""
+    __tablename__ = 'research_logs'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.String, db.ForeignKey('users.id'), nullable=False)
+    title = db.Column(db.String(255), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    is_public = db.Column(db.Boolean, default=False)
+    
+    # Timestamps
+    created_at = db.Column(db.DateTime, default=datetime.now)
+    updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
+    
+    # Relationships
+    user = db.relationship('User', backref=db.backref('research_logs', lazy='dynamic'))
+    
+    def __repr__(self):
+        return f"<ResearchLog {self.title}>"
+
+
+class Version(db.Model):
+    """System version information."""
+    __tablename__ = 'versions'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    version = db.Column(db.String(20), nullable=False)
+    release_date = db.Column(db.DateTime, default=datetime.now)
+    description = db.Column(db.Text, nullable=True)
+    is_current = db.Column(db.Boolean, default=False)
+    
+    # Timestamps
+    created_at = db.Column(db.DateTime, default=datetime.now)
+    
+    def __repr__(self):
+        return f"<Version {self.version}>"
