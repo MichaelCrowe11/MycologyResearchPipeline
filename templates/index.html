@@ -1,131 +1,101 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
-{% block title %}Home - Mycology Research Pipeline{% endblock %}
+{% block title %}Mycology Research Pipeline{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <!-- Hero Section -->
-    <div class="row justify-content-center mb-5">
-        <div class="col-lg-10">
-            <div class="hero-section py-5 px-4">
-                <div class="row align-items-center">
-                    <div class="col-lg-7">
-                        <h1 class="display-4 fw-bold mb-4">Mycology Research Pipeline</h1>
-                        <p class="lead mb-4">A comprehensive platform for advanced mycological research, compound analysis, and bioactivity prediction</p>
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-start">
-                            <a href="{{ url_for('web.dashboard') }}" class="btn btn-primary btn-lg px-4 me-md-2">
-                                <i class="fas fa-chart-line me-2"></i>Dashboard
-                            </a>
-                            <a href="{{ url_for('web.documentation') }}" class="btn btn-outline-secondary btn-lg px-4">
-                                <i class="fas fa-book me-2"></i>Documentation
-                            </a>
-                        </div>
+<div class="container">
+    <div class="row align-items-center mb-5">
+        <div class="col-md-6 text-center">
+            <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="Mycology Research Pipeline Logo" class="img-fluid mb-4" style="max-width: 300px;">
+        </div>
+        <div class="col-md-6">
+            <h1 class="display-4 fw-bold">MYCOLOGY</h1>
+            <h2 class="fs-2 mb-4">RESEARCH PIPELINE</h2>
+            <p class="lead">Grow with precision.</p>
+            <p class="mb-4">From Spore to Systems: Grow, Learn, Scale</p>
+            {% if not current_user.is_authenticated %}
+            <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                <a href="{{ url_for('replit_auth.login') }}" class="btn btn-primary btn-lg px-4 me-md-2">Get Started</a>
+                <a href="{{ url_for('web.documentation') }}" class="btn btn-outline-secondary btn-lg px-4">Learn More</a>
+            </div>
+            {% else %}
+            <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                <a href="{{ url_for('web.dashboard') }}" class="btn btn-primary btn-lg px-4 me-md-2">Dashboard</a>
+                <a href="{{ url_for('web.literature_search') }}" class="btn btn-outline-secondary btn-lg px-4">Literature Search</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <hr class="my-5">
+
+    <div class="row g-4 py-5">
+        <div class="col-md-4">
+            <div class="card h-100 bg-dark border-0 shadow">
+                <div class="card-body text-center">
+                    <div class="feature-icon bg-primary bg-gradient rounded-circle mb-3">
+                        <i class="fas fa-microscope fa-2x text-white p-3"></i>
                     </div>
-                    <div class="col-lg-5 d-none d-lg-block text-center">
-                        <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="Mycology Research" class="img-fluid" width="320">
+                    <h3 class="card-title">Analysis Tools</h3>
+                    <p class="card-text">Powerful tools for analyzing mycological samples and identifying compounds with potential medicinal properties.</p>
+                    <a href="{{ url_for('web.documentation') }}#analysis" class="btn btn-outline-light mt-3">Learn More</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card h-100 bg-dark border-0 shadow">
+                <div class="card-body text-center">
+                    <div class="feature-icon bg-primary bg-gradient rounded-circle mb-3">
+                        <i class="fas fa-book fa-2x text-white p-3"></i>
                     </div>
+                    <h3 class="card-title">Literature Integration</h3>
+                    <p class="card-text">Seamlessly integrate with scientific literature to enhance your research with the latest findings in mycology.</p>
+                    <a href="{{ url_for('web.literature_search') }}" class="btn btn-outline-light mt-3">Search Literature</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card h-100 bg-dark border-0 shadow">
+                <div class="card-body text-center">
+                    <div class="feature-icon bg-primary bg-gradient rounded-circle mb-3">
+                        <i class="fas fa-flask fa-2x text-white p-3"></i>
+                    </div>
+                    <h3 class="card-title">Batch Processing</h3>
+                    <p class="card-text">Process large datasets efficiently with our batch processing capabilities, saving time and resources.</p>
+                    <a href="{{ url_for('web.batch_processing') }}" class="btn btn-outline-light mt-3">Start Processing</a>
                 </div>
             </div>
         </div>
     </div>
-    
-    <!-- Features Section -->
-    <div class="row justify-content-center mb-5">
-        <div class="col-lg-10">
-            <h2 class="text-center mb-5">Key Features</h2>
-            <div class="row g-4">
-                <div class="col-md-4">
-                    <div class="card h-100">
-                        <div class="card-body text-center py-4">
-                            <div class="mb-3">
-                                <i class="fas fa-microscope fa-3x text-primary"></i>
-                            </div>
-                            <h4 class="card-title">Image Analysis</h4>
-                            <p class="card-text">Identify mushroom species, analyze morphology, and determine growth stages using our computer vision technology.</p>
-                            <a href="{{ url_for('web.image_analysis') }}" class="btn btn-outline-primary mt-3">Try Image Analysis</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card h-100">
-                        <div class="card-body text-center py-4">
-                            <div class="mb-3">
-                                <i class="fas fa-search fa-3x text-primary"></i>
-                            </div>
-                            <h4 class="card-title">Literature Search</h4>
-                            <p class="card-text">Access comprehensive scientific literature from multiple databases with advanced filtering and export capabilities.</p>
-                            <a href="{{ url_for('web.literature_search') }}" class="btn btn-outline-primary mt-3">Search Literature</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card h-100">
-                        <div class="card-body text-center py-4">
-                            <div class="mb-3">
-                                <i class="fas fa-flask fa-3x text-primary"></i>
-                            </div>
-                            <h4 class="card-title">Bioactivity Prediction</h4>
-                            <p class="card-text">Predict potential medicinal properties of fungal compounds using our machine learning algorithms.</p>
-                            <a href="{{ url_for('web.dashboard') }}" class="btn btn-outline-primary mt-3">Explore Analytics</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
+
+    <div class="row my-5">
+        <div class="col-lg-6">
+            <h2 class="fw-bold">Why Choose Our Platform?</h2>
+            <p class="lead">The Mycology Research Pipeline provides cutting-edge tools for researchers, scientists, and enthusiasts.</p>
+            <ul class="list-group list-group-flush bg-transparent mb-4">
+                <li class="list-group-item bg-transparent"><i class="fas fa-check-circle text-success me-2"></i> Advanced image analysis for species identification</li>
+                <li class="list-group-item bg-transparent"><i class="fas fa-check-circle text-success me-2"></i> Machine learning models for bioactivity prediction</li>
+                <li class="list-group-item bg-transparent"><i class="fas fa-check-circle text-success me-2"></i> Integration with scientific literature databases</li>
+                <li class="list-group-item bg-transparent"><i class="fas fa-check-circle text-success me-2"></i> Powerful visualization tools for data exploration</li>
+                <li class="list-group-item bg-transparent"><i class="fas fa-check-circle text-success me-2"></i> API access for custom workflow integration</li>
+            </ul>
         </div>
-    </div>
-    
-    <!-- Membership Section -->
-    <div class="row justify-content-center mb-5">
-        <div class="col-lg-10">
-            <div class="card bg-primary text-white">
-                <div class="card-body p-5 text-center">
-                    <h3 class="mb-3">Unlock Full Research Capabilities</h3>
-                    <p class="lead mb-4">Choose the membership tier that's right for your research needs</p>
-                    <a href="{{ url_for('auth.upgrade_membership') }}" class="btn btn-light btn-lg">Explore Membership Plans</a>
+        <div class="col-lg-6">
+            <div class="card bg-dark border-0 shadow">
+                <div class="card-header bg-primary">
+                    <h3 class="mb-0 text-white">Latest Platform Updates</h3>
                 </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Recent Updates Section -->
-    <div class="row justify-content-center">
-        <div class="col-lg-10">
-            <div class="row">
-                <div class="col-md-8">
-                    <h3 class="mb-4">Recent Updates</h3>
-                    <div class="list-group">
-                        <div class="list-group-item">
-                            <div class="d-flex w-100 justify-content-between">
-                                <h5 class="mb-1">Enhanced Species Identification</h5>
-                                <small class="text-muted">3 days ago</small>
-                            </div>
-                            <p class="mb-1">Improved computer vision models with expanded database of mushroom species for more accurate identification.</p>
+                <div class="card-body">
+                    <div class="d-flex align-items-start mb-3">
+                        <div class="badge bg-success me-3 p-2">
+                            <i class="fas fa-code-branch"></i>
                         </div>
-                        <div class="list-group-item">
-                            <div class="d-flex w-100 justify-content-between">
-                                <h5 class="mb-1">New Literature Sources Added</h5>
-                                <small class="text-muted">1 week ago</small>
-                            </div>
-                            <p class="mb-1">Added integration with additional scientific databases for broader literature search capabilities.</p>
-                        </div>
-                        <div class="list-group-item">
-                            <div class="d-flex w-100 justify-content-between">
-                                <h5 class="mb-1">Batch Processing Improvements</h5>
-                                <small class="text-muted">2 weeks ago</small>
-                            </div>
-                            <p class="mb-1">Enhanced batch processing performance for analyzing large datasets of fungal samples.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <h3 class="mb-4">Current Version</h3>
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">Version {{ current_version.version }}</h5>
-                            <h6 class="card-subtitle mb-2 text-muted">Released: {{ current_version.release_date.strftime('%b %d, %Y') if current_version.release_date else 'Recently' }}</h6>
-                            <p class="card-text">{{ current_version.description }}</p>
-                            <a href="{{ url_for('web.documentation') }}" class="card-link">Release Notes</a>
-                            <a href="{{ url_for('web.documentation') }}" class="card-link">Documentation</a>
+                        <div>
+                            <h5 class="mb-1">{{ current_version.version }}</h5>
+                            <p class="small text-muted mb-1">Released: {{ current_version.release_date.strftime('%B %d, %Y') }}</p>
+                            <p>{{ current_version.description }}</p>
                         </div>
                     </div>
                 </div>
@@ -133,4 +103,26 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .feature-icon {
+        width: 4rem;
+        height: 4rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .list-group-item {
+        border-left: none;
+        border-right: none;
+        padding: 0.75rem 0;
+    }
+    
+    .list-group-item:first-child {
+        border-top: none;
+    }
+</style>
 {% endblock %}
