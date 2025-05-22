@@ -1,0 +1,799 @@
+{% extends "base.html" %}
+
+{% block title %}Image Analysis - Mycology Research Pipeline{% endblock %}
+
+{% block content %}
+<div class="hero-section mb-4">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <h1>Computer Vision Analysis</h1>
+                <p>Analyze mushroom samples using advanced image processing techniques</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mb-5">
+    <!-- Image Upload Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0">Upload Sample Image</h5>
+                </div>
+                <div class="card-body">
+                    <form id="upload-form" action="{{ url_for('web.process_image') }}" method="post" enctype="multipart/form-data">
+                        <div class="row">
+                            <div class="col-md-7">
+                                <div class="mb-3">
+                                    <label for="image_file" class="form-label">Select Image File</label>
+                                    <input class="form-control" type="file" id="image_file" name="image_file" accept="image/*" required>
+                                    <div class="form-text">Supported formats: JPG, PNG, BMP, TIFF (Max size: 10MB)</div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="sample_name" class="form-label">Sample Name (optional)</label>
+                                    <input type="text" class="form-control" id="sample_name" name="sample_name" placeholder="e.g., Lion's Mane Sample #3">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="sample_description" class="form-label">Description (optional)</label>
+                                    <textarea class="form-control" id="sample_description" name="sample_description" rows="2" placeholder="Brief description of the mushroom sample..."></textarea>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Analysis Options</label>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="species" id="analyze_species" name="analyze_options" checked>
+                                        <label class="form-check-label" for="analyze_species">
+                                            Species Identification
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="morphology" id="analyze_morphology" name="analyze_options" checked>
+                                        <label class="form-check-label" for="analyze_morphology">
+                                            Morphological Analysis
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="color" id="analyze_color" name="analyze_options" checked>
+                                        <label class="form-check-label" for="analyze_color">
+                                            Color Analysis
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="growth" id="analyze_growth" name="analyze_options" checked>
+                                        <label class="form-check-label" for="analyze_growth">
+                                            Growth Stage Analysis
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <div class="image-preview-container mb-3">
+                                    <div id="image-preview" class="image-preview">
+                                        <div class="image-placeholder">
+                                            <i class="fas fa-camera fa-3x mb-3"></i>
+                                            <p>Preview will appear here</p>
+                                        </div>
+                                        <img id="preview-img" src="" alt="Preview" style="display: none; max-width: 100%; max-height: 300px;">
+                                    </div>
+                                </div>
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-primary" id="analyze-btn">
+                                        <i class="fas fa-microscope me-2"></i> Analyze Image
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Results Section (initially hidden) -->
+    <div id="results-section" class="row" style="display: none;">
+        <div class="col-12">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Analysis Results</h5>
+                    <div>
+                        <button class="btn btn-sm btn-outline-primary" id="download-results-btn">
+                            <i class="fas fa-download me-2"></i> Download Results
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="analysis-loading" class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-3">Analyzing image... This may take a few moments.</p>
+                    </div>
+                    
+                    <div id="analysis-results" style="display: none;">
+                        <div class="row">
+                            <!-- Species Identification Results -->
+                            <div class="col-md-6 mb-4" id="species-results-section">
+                                <div class="card h-100">
+                                    <div class="card-header bg-primary bg-opacity-25">
+                                        <h5 class="mb-0">
+                                            <i class="fas fa-tag me-2"></i> Species Identification
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="text-center mb-4">
+                                            <h3 id="primary-species-name">Hericium erinaceus</h3>
+                                            <p class="text-muted mb-1" id="common-name">Lion's Mane Mushroom</p>
+                                            <div class="confidence-indicator mb-3">
+                                                <span class="badge rounded-pill bg-success" id="species-confidence">
+                                                    High Confidence (92%)
+                                                </span>
+                                            </div>
+                                        </div>
+                                        
+                                        <h6>Alternatives</h6>
+                                        <div id="alternative-species" class="mb-4">
+                                            <div class="alternate-species-item d-flex justify-content-between align-items-center mb-2">
+                                                <span>Hericium coralloides</span>
+                                                <span class="badge bg-secondary">8%</span>
+                                            </div>
+                                            <div class="alternate-species-item d-flex justify-content-between align-items-center mb-2">
+                                                <span>Hericium americanum</span>
+                                                <span class="badge bg-secondary">5%</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div id="image-quality-section">
+                                            <h6>Image Quality</h6>
+                                            <div class="quality-indicator d-flex align-items-center mb-2">
+                                                <div class="progress flex-grow-1 me-2" style="height: 8px;">
+                                                    <div id="quality-progress" class="progress-bar bg-success" role="progressbar" style="width: 75%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+                                                </div>
+                                                <span id="quality-score">75%</span>
+                                            </div>
+                                            <div id="quality-issues" class="quality-issues">
+                                                <!-- Quality issues will be listed here -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Growth Stage Results -->
+                            <div class="col-md-6 mb-4" id="growth-results-section">
+                                <div class="card h-100">
+                                    <div class="card-header bg-success bg-opacity-25">
+                                        <h5 class="mb-0">
+                                            <i class="fas fa-seedling me-2"></i> Growth Stage Analysis
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="text-center mb-4">
+                                            <h3 id="growth-stage">Mature Stage</h3>
+                                            <div class="mb-3">
+                                                <span class="badge rounded-pill bg-success" id="growth-confidence">
+                                                    High Confidence (89%)
+                                                </span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mb-4">
+                                            <h6>Growth Progress</h6>
+                                            <div class="growth-progress-bar mb-2">
+                                                <div class="progress" style="height: 15px;">
+                                                    <div id="growth-progress" class="progress-bar bg-primary" role="progressbar" style="width: 75%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex justify-content-between text-muted small">
+                                                <span>Early Growth</span>
+                                                <span>Mid Growth</span>
+                                                <span>Mature</span>
+                                                <span>Late Stage</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div id="harvest-estimate" class="mb-4">
+                                            <h6>Harvest Estimate</h6>
+                                            <div class="alert alert-info">
+                                                <i class="fas fa-clock me-2"></i>
+                                                <span id="days-to-harvest">Optimal harvest time: Ready now</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div id="stage-distribution">
+                                            <h6>Stage Probabilities</h6>
+                                            <div class="stage-bar mb-2 d-flex align-items-center">
+                                                <span class="stage-name" style="width: 120px;">Early Growth</span>
+                                                <div class="progress flex-grow-1">
+                                                    <div class="progress-bar bg-secondary" role="progressbar" style="width: 5%" aria-valuenow="5" aria-valuemin="0" aria-valuemax="100"></div>
+                                                </div>
+                                                <span class="stage-value ms-2" style="width: 40px;">5%</span>
+                                            </div>
+                                            <div class="stage-bar mb-2 d-flex align-items-center">
+                                                <span class="stage-name" style="width: 120px;">Mid Growth</span>
+                                                <div class="progress flex-grow-1">
+                                                    <div class="progress-bar bg-secondary" role="progressbar" style="width: 15%" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100"></div>
+                                                </div>
+                                                <span class="stage-value ms-2" style="width: 40px;">15%</span>
+                                            </div>
+                                            <div class="stage-bar mb-2 d-flex align-items-center">
+                                                <span class="stage-name" style="width: 120px;">Mature</span>
+                                                <div class="progress flex-grow-1">
+                                                    <div class="progress-bar bg-primary" role="progressbar" style="width: 75%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+                                                </div>
+                                                <span class="stage-value ms-2" style="width: 40px;">75%</span>
+                                            </div>
+                                            <div class="stage-bar mb-2 d-flex align-items-center">
+                                                <span class="stage-name" style="width: 120px;">Late Stage</span>
+                                                <div class="progress flex-grow-1">
+                                                    <div class="progress-bar bg-secondary" role="progressbar" style="width: 5%" aria-valuenow="5" aria-valuemin="0" aria-valuemax="100"></div>
+                                                </div>
+                                                <span class="stage-value ms-2" style="width: 40px;">5%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Morphological Analysis Results -->
+                            <div class="col-md-6 mb-4" id="morphology-results-section">
+                                <div class="card h-100">
+                                    <div class="card-header bg-info bg-opacity-25">
+                                        <h5 class="mb-0">
+                                            <i class="fas fa-microscope me-2"></i> Morphological Analysis
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row mb-4">
+                                            <div class="col-md-6">
+                                                <h6>Measurements</h6>
+                                                <table class="table table-sm">
+                                                    <tbody>
+                                                        <tr>
+                                                            <th>Area</th>
+                                                            <td id="morpho-area">24,532 px²</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th>Perimeter</th>
+                                                            <td id="morpho-perimeter">683.2 px</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th>Width</th>
+                                                            <td id="morpho-width">189 px</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th>Height</th>
+                                                            <td id="morpho-height">232 px</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th>Equivalent Radius</th>
+                                                            <td id="morpho-radius">88.4 px</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <h6>Shape Features</h6>
+                                                <table class="table table-sm">
+                                                    <tbody>
+                                                        <tr>
+                                                            <th>Circularity</th>
+                                                            <td id="morpho-circularity">0.78</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th>Aspect Ratio</th>
+                                                            <td id="morpho-aspect-ratio">0.82</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th>Elongation</th>
+                                                            <td id="morpho-elongation">0.69</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th>Convexity</th>
+                                                            <td id="morpho-convexity">0.93</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="text-center">
+                                            <img id="morphology-image" src="" alt="Morphology Visualization" class="img-fluid mb-2" style="max-height: 200px; display: none;">
+                                            <p class="text-muted small">Morphological feature visualization</p>
+                                        </div>
+                                        
+                                        <div class="alert alert-info small">
+                                            <i class="fas fa-info-circle me-2"></i>
+                                            Morphological analysis measures physical characteristics to help quantify growth patterns and identify species-specific traits.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Color Analysis Results -->
+                            <div class="col-md-6 mb-4" id="color-results-section">
+                                <div class="card h-100">
+                                    <div class="card-header bg-warning bg-opacity-25">
+                                        <h5 class="mb-0">
+                                            <i class="fas fa-palette me-2"></i> Color Analysis
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <h6>Dominant Colors</h6>
+                                        <div id="dominant-colors" class="mb-4">
+                                            <div class="d-flex mb-2">
+                                                <div class="color-box me-2" style="background-color: #8A6642; width: 40px; height: 30px;"></div>
+                                                <div class="flex-grow-1">
+                                                    <div class="progress" style="height: 30px;">
+                                                        <div class="progress-bar bg-success" role="progressbar" style="width: 45%" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100">45%</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex mb-2">
+                                                <div class="color-box me-2" style="background-color: #A88C70; width: 40px; height: 30px;"></div>
+                                                <div class="flex-grow-1">
+                                                    <div class="progress" style="height: 30px;">
+                                                        <div class="progress-bar bg-primary" role="progressbar" style="width: 30%" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100">30%</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex mb-2">
+                                                <div class="color-box me-2" style="background-color: #C4B295; width: 40px; height: 30px;"></div>
+                                                <div class="flex-grow-1">
+                                                    <div class="progress" style="height: 30px;">
+                                                        <div class="progress-bar bg-info" role="progressbar" style="width: 15%" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100">15%</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <h6>RGB Values</h6>
+                                                <table class="table table-sm">
+                                                    <tbody>
+                                                        <tr>
+                                                            <th>Red</th>
+                                                            <td id="color-red">145.7</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th>Green</th>
+                                                            <td id="color-green">118.4</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th>Blue</th>
+                                                            <td id="color-blue">89.2</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <h6>HSV Values</h6>
+                                                <table class="table table-sm">
+                                                    <tbody>
+                                                        <tr>
+                                                            <th>Hue</th>
+                                                            <td id="color-hue">30.5°</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th>Saturation</th>
+                                                            <td id="color-saturation">42.3%</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th>Value</th>
+                                                            <td id="color-value">68.9%</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="alert alert-info small mt-3">
+                                            <i class="fas fa-info-circle me-2"></i>
+                                            Color analysis helps identify species characteristics and assess the mushroom's maturity and condition.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Image Analysis Information -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0">About Computer Vision Analysis</h5>
+                </div>
+                <div class="card-body">
+                    <h5>Advanced Image Analysis for Mycology Research</h5>
+                    <p>
+                        Our computer vision tools help researchers analyze mushroom samples through image processing
+                        and machine learning techniques. Upload images of your samples to get detailed insights
+                        into species, morphology, color patterns, and growth stages.
+                    </p>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h6><i class="fas fa-tag me-2 text-primary"></i> Species Identification</h6>
+                                    <p>
+                                        Automatically identify mushroom species from images using our advanced machine learning models.
+                                        The system analyzes visual features and patterns to match against known species in our database.
+                                    </p>
+                                    <ul class="mb-0">
+                                        <li>Multi-class species classification</li>
+                                        <li>Confidence scoring for identification reliability</li>
+                                        <li>Alternative species suggestions</li>
+                                        <li>Image quality assessment</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h6><i class="fas fa-seedling me-2 text-success"></i> Growth Stage Analysis</h6>
+                                    <p>
+                                        Determine the growth stage and maturity of mushroom specimens to optimize
+                                        cultivation, harvesting, and research timelines.
+                                    </p>
+                                    <ul class="mb-0">
+                                        <li>Growth stage classification</li>
+                                        <li>Growth progress estimation</li>
+                                        <li>Harvest timing recommendations</li>
+                                        <li>Developmental feature extraction</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h6><i class="fas fa-microscope me-2 text-info"></i> Morphological Analysis</h6>
+                                    <p>
+                                        Quantify and visualize the physical characteristics of mushroom samples,
+                                        including shape, size, and structural features.
+                                    </p>
+                                    <ul class="mb-0">
+                                        <li>Automated segmentation and measurement</li>
+                                        <li>Shape analysis (circularity, convexity)</li>
+                                        <li>Size measurements (area, perimeter, dimensions)</li>
+                                        <li>Visual feature extraction</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h6><i class="fas fa-palette me-2 text-warning"></i> Color Analysis</h6>
+                                    <p>
+                                        Analyze color patterns and distributions to identify species characteristics,
+                                        assess quality, and track changes over time.
+                                    </p>
+                                    <ul class="mb-0">
+                                        <li>Dominant color extraction</li>
+                                        <li>Color distribution visualization</li>
+                                        <li>RGB and HSV color space analysis</li>
+                                        <li>Color-based species feature identification</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h5>Best Practices for Image Analysis</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Image Capture Tips</h6>
+                            <ul>
+                                <li>Use good lighting with minimal shadows</li>
+                                <li>Place the mushroom against a neutral background</li>
+                                <li>Include multiple angles if possible</li>
+                                <li>Focus on clear, sharp images</li>
+                                <li>Include a scale reference if possible</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Analysis Recommendations</h6>
+                            <ul>
+                                <li>Select all analysis options for comprehensive results</li>
+                                <li>Add sample names for easier result management</li>
+                                <li>Compare multiple specimens when possible</li>
+                                <li>Save analysis results for documentation</li>
+                                <li>Use results to complement other research methods</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript for Image Analysis Page -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Image preview functionality
+        const imageInput = document.getElementById('image_file');
+        const previewImg = document.getElementById('preview-img');
+        const imagePlaceholder = document.querySelector('.image-placeholder');
+        
+        imageInput.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    previewImg.style.display = 'block';
+                    imagePlaceholder.style.display = 'none';
+                }
+                reader.readAsDataURL(file);
+            } else {
+                previewImg.style.display = 'none';
+                imagePlaceholder.style.display = 'flex';
+            }
+        });
+        
+        // Form submission
+        const uploadForm = document.getElementById('upload-form');
+        
+        uploadForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Show results section with loading indicator
+            document.getElementById('results-section').style.display = 'block';
+            document.getElementById('analysis-loading').style.display = 'block';
+            document.getElementById('analysis-results').style.display = 'none';
+            
+            // Scroll to results
+            document.getElementById('results-section').scrollIntoView({
+                behavior: 'smooth'
+            });
+            
+            // Create FormData object
+            const formData = new FormData(this);
+            
+            // Send AJAX request
+            fetch(this.action, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Hide loading and show results
+                document.getElementById('analysis-loading').style.display = 'none';
+                document.getElementById('analysis-results').style.display = 'block';
+                
+                // Update UI with results
+                updateAnalysisResults(data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('analysis-loading').style.display = 'none';
+                document.getElementById('analysis-results').innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Error:</strong> ${error.message || 'An error occurred during image analysis. Please try again.'}
+                    </div>
+                `;
+                document.getElementById('analysis-results').style.display = 'block';
+            });
+        });
+        
+        // Download results button
+        document.getElementById('download-results-btn').addEventListener('click', function() {
+            // This would be implemented to download JSON/CSV results
+            alert('Download functionality will be available in the final release.');
+        });
+    });
+    
+    // Function to update UI with analysis results
+    function updateAnalysisResults(data) {
+        // In a real implementation, this would update all UI elements with the actual data
+        
+        // For demo purposes, we can use the mock data already in the HTML
+        // but in production this would parse the data and update the DOM elements
+        
+        console.log('Analysis results:', data);
+        
+        // Example of updating some elements:
+        if (data.species) {
+            // Update species information
+            if (data.species.primary_species) {
+                document.getElementById('primary-species-name').textContent = data.species.primary_species.name;
+                document.getElementById('species-confidence').textContent = 
+                    `${data.species.primary_species.confidence >= 0.8 ? 'High' : 'Medium'} Confidence (${Math.round(data.species.primary_species.confidence * 100)}%)`;
+            }
+            
+            // Update alternatives
+            if (data.species.alternatives && data.species.alternatives.length > 0) {
+                const alternativesContainer = document.getElementById('alternative-species');
+                alternativesContainer.innerHTML = '';
+                
+                data.species.alternatives.forEach(alt => {
+                    const altItem = document.createElement('div');
+                    altItem.className = 'alternate-species-item d-flex justify-content-between align-items-center mb-2';
+                    altItem.innerHTML = `
+                        <span>${alt.name}</span>
+                        <span class="badge bg-secondary">${Math.round(alt.confidence * 100)}%</span>
+                    `;
+                    alternativesContainer.appendChild(altItem);
+                });
+            }
+            
+            // Update image quality
+            if (data.species.image_quality) {
+                const qualityScore = data.species.image_quality.score;
+                document.getElementById('quality-progress').style.width = `${qualityScore * 100}%`;
+                document.getElementById('quality-score').textContent = `${Math.round(qualityScore * 100)}%`;
+                
+                // Update quality issues
+                const issuesContainer = document.getElementById('quality-issues');
+                issuesContainer.innerHTML = '';
+                
+                if (data.species.image_quality.issues && data.species.image_quality.issues.length > 0) {
+                    const issuesList = document.createElement('ul');
+                    issuesList.className = 'mb-0 small text-muted';
+                    
+                    data.species.image_quality.issues.forEach(issue => {
+                        const issueItem = document.createElement('li');
+                        issueItem.textContent = issue;
+                        issuesList.appendChild(issueItem);
+                    });
+                    
+                    issuesContainer.appendChild(issuesList);
+                }
+            }
+        }
+        
+        // Update growth stage information if available
+        if (data.growth_stage) {
+            document.getElementById('growth-stage').textContent = data.growth_stage.primary_stage;
+            document.getElementById('growth-confidence').textContent = 
+                `${data.growth_stage.confidence >= 0.8 ? 'High' : 'Medium'} Confidence (${Math.round(data.growth_stage.confidence * 100)}%)`;
+            
+            // Update growth progress
+            const progressValue = data.growth_stage.growth_progress * 100;
+            document.getElementById('growth-progress').style.width = `${progressValue}%`;
+            
+            // Update days to harvest
+            if (data.growth_stage.estimated_days_to_harvest !== null) {
+                const days = data.growth_stage.estimated_days_to_harvest;
+                document.getElementById('days-to-harvest').textContent = 
+                    days > 0 ? `Estimated days to harvest: ${days}` : 'Optimal harvest time: Ready now';
+            }
+            
+            // Update stage distribution
+            if (data.growth_stage.all_stages && data.growth_stage.all_stages.length > 0) {
+                const stageContainer = document.getElementById('stage-distribution');
+                stageContainer.innerHTML = '<h6>Stage Probabilities</h6>';
+                
+                data.growth_stage.all_stages.forEach(stage => {
+                    const stageBar = document.createElement('div');
+                    stageBar.className = 'stage-bar mb-2 d-flex align-items-center';
+                    
+                    const probability = Math.round(stage.probability * 100);
+                    const barClass = stage.name === data.growth_stage.primary_stage ? 'bg-primary' : 'bg-secondary';
+                    
+                    stageBar.innerHTML = `
+                        <span class="stage-name" style="width: 120px;">${stage.name}</span>
+                        <div class="progress flex-grow-1">
+                            <div class="progress-bar ${barClass}" role="progressbar" 
+                                 style="width: ${probability}%" 
+                                 aria-valuenow="${probability}" 
+                                 aria-valuemin="0" 
+                                 aria-valuemax="100"></div>
+                        </div>
+                        <span class="stage-value ms-2" style="width: 40px;">${probability}%</span>
+                    `;
+                    
+                    stageContainer.appendChild(stageBar);
+                });
+            }
+        }
+        
+        // Update morphology data if available
+        if (data.morphology) {
+            if (data.morphology.measurements) {
+                const m = data.morphology.measurements;
+                document.getElementById('morpho-area').textContent = `${m.area.toLocaleString()} px²`;
+                document.getElementById('morpho-perimeter').textContent = `${m.perimeter.toLocaleString()} px`;
+                document.getElementById('morpho-width').textContent = `${m.width} px`;
+                document.getElementById('morpho-height').textContent = `${m.height} px`;
+                document.getElementById('morpho-radius').textContent = `${m.radius.toFixed(1)} px`;
+            }
+            
+            if (data.morphology.shape_features) {
+                const sf = data.morphology.shape_features;
+                document.getElementById('morpho-circularity').textContent = sf.circularity.toFixed(2);
+                document.getElementById('morpho-aspect-ratio').textContent = sf.aspect_ratio.toFixed(2);
+                document.getElementById('morpho-elongation').textContent = sf.elongation.toFixed(2);
+                document.getElementById('morpho-convexity').textContent = sf.convexity.toFixed(2);
+            }
+            
+            // Show morphology image if available
+            if (data.morphology_output_image) {
+                document.getElementById('morphology-image').src = data.morphology_output_image;
+                document.getElementById('morphology-image').style.display = 'block';
+            }
+        }
+        
+        // Update color analysis data if available
+        if (data.color) {
+            // Update RGB values
+            if (data.color.means && data.color.means.rgb) {
+                const rgb = data.color.means.rgb;
+                document.getElementById('color-red').textContent = rgb.r.toFixed(1);
+                document.getElementById('color-green').textContent = rgb.g.toFixed(1);
+                document.getElementById('color-blue').textContent = rgb.b.toFixed(1);
+            }
+            
+            // Update HSV values
+            if (data.color.means && data.color.means.hsv) {
+                const hsv = data.color.means.hsv;
+                document.getElementById('color-hue').textContent = `${hsv.h.toFixed(1)}°`;
+                document.getElementById('color-saturation').textContent = `${(hsv.s / 255 * 100).toFixed(1)}%`;
+                document.getElementById('color-value').textContent = `${(hsv.v / 255 * 100).toFixed(1)}%`;
+            }
+            
+            // Update dominant colors
+            if (data.color.dominant_colors && data.color.dominant_colors.length > 0) {
+                const colorsContainer = document.getElementById('dominant-colors');
+                colorsContainer.innerHTML = '';
+                
+                data.color.dominant_colors.forEach((colorData, index) => {
+                    const rgb = colorData.rgb;
+                    const percentage = colorData.percentage;
+                    
+                    // Create hex color string
+                    const hexColor = rgbToHex(rgb[0], rgb[1], rgb[2]);
+                    
+                    // Set bar color classes
+                    const barClasses = ['bg-success', 'bg-primary', 'bg-info', 'bg-warning', 'bg-secondary'];
+                    const barClass = barClasses[index % barClasses.length];
+                    
+                    const colorBar = document.createElement('div');
+                    colorBar.className = 'd-flex mb-2';
+                    colorBar.innerHTML = `
+                        <div class="color-box me-2" style="background-color: ${hexColor}; width: 40px; height: 30px;"></div>
+                        <div class="flex-grow-1">
+                            <div class="progress" style="height: 30px;">
+                                <div class="progress-bar ${barClass}" role="progressbar" 
+                                     style="width: ${percentage}%" 
+                                     aria-valuenow="${percentage}" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="100">${percentage}%</div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    colorsContainer.appendChild(colorBar);
+                });
+            }
+        }
+    }
+    
+    // Helper function to convert RGB to hex
+    function rgbToHex(r, g, b) {
+        return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+    }
+</script>
+{% endblock %}

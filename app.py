@@ -58,12 +58,27 @@ def create_app(config_object=active_config):
     
     swagger = Swagger(app, config=swagger_config)
     
+    # Setup Flask-Login
+    from flask_login import LoginManager
+    login_manager = LoginManager()
+    login_manager.init_app(app)
+    login_manager.login_view = 'auth.login'
+    login_manager.login_message = 'Please log in to access this page.'
+    login_manager.login_message_category = 'info'
+    
+    @login_manager.user_loader
+    def load_user(user_id):
+        from models import User
+        return User.query.get(int(user_id))
+    
     # Register blueprints
     from api_routes import api_bp
     from web_routes import web_bp
+    from auth_routes import auth_bp
     
     app.register_blueprint(api_bp, url_prefix='/api')
     app.register_blueprint(web_bp)
+    app.register_blueprint(auth_bp, url_prefix='/auth')
     
     # Setup database tables
     with app.app_context():

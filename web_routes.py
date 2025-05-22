@@ -808,6 +808,112 @@ def scheduled_searches():
     return redirect(url_for('web.literature_search'))
 
 
+@web_bp.route('/image-analysis')
+def image_analysis():
+    """Computer vision analysis for mushroom samples."""
+    return render_template('image_analysis.html')
+
+
+@web_bp.route('/process-image', methods=['POST'])
+def process_image():
+    """Process uploaded image with computer vision module."""
+    import computer_vision
+    import os
+    import uuid
+    import json
+    from werkzeug.utils import secure_filename
+    
+    # Check if file was uploaded
+    if 'image_file' not in request.files:
+        return jsonify({'error': 'No file uploaded'}), 400
+    
+    file = request.files['image_file']
+    
+    # Check if filename is empty
+    if file.filename == '':
+        return jsonify({'error': 'No file selected'}), 400
+    
+    # Check file extension
+    allowed_extensions = ['.jpg', '.jpeg', '.png', '.bmp', '.tiff']
+    file_ext = os.path.splitext(file.filename)[1].lower()
+    
+    if file_ext not in allowed_extensions:
+        return jsonify({'error': f'File type not allowed. Supported formats: {", ".join(allowed_extensions)}'}), 400
+    
+    # Get analysis options
+    analyze_options = request.form.getlist('analyze_options')
+    analyze_species = 'species' in analyze_options
+    analyze_morphology = 'morphology' in analyze_options
+    analyze_color = 'color' in analyze_options
+    analyze_growth = 'growth' in analyze_options
+    
+    # Create unique filename
+    unique_filename = str(uuid.uuid4()) + file_ext
+    sample_name = request.form.get('sample_name', 'Unnamed sample')
+    
+    # Create upload directory if it doesn't exist
+    upload_folder = current_app.config['UPLOAD_FOLDER']
+    os.makedirs(upload_folder, exist_ok=True)
+    
+    # Create directory for results
+    results_folder = os.path.join(current_app.config['RESULTS_FOLDER'], 'vision_analysis')
+    os.makedirs(results_folder, exist_ok=True)
+    
+    # Save the file
+    filepath = os.path.join(upload_folder, unique_filename)
+    file.save(filepath)
+    
+    # Create directory for this analysis
+    analysis_id = str(uuid.uuid4())
+    analysis_dir = os.path.join(results_folder, analysis_id)
+    os.makedirs(analysis_dir, exist_ok=True)
+    
+    try:
+        # Process the image
+        results = computer_vision.process_sample_image(
+            image_path=filepath,
+            output_dir=analysis_dir,
+            analyze_species=analyze_species,
+            analyze_morphology=analyze_morphology,
+            analyze_color=analyze_color,
+            analyze_growth=analyze_growth
+        )
+        
+        # Add sample metadata
+        results['sample_name'] = sample_name
+        results['description'] = request.form.get('sample_description', '')
+        results['analysis_id'] = analysis_id
+        
+        # Save results to a JSON file
+        result_file = os.path.join(analysis_dir, 'analysis_results.json')
+        with open(result_file, 'w') as f:
+            json.dump(results, f, indent=2)
+        
+        # Convert image paths to URLs
+        if 'species_output_image' in results:
+            results['species_output_image'] = url_for('web.get_analysis_image', 
+                                                      analysis_id=analysis_id, 
+                                                      filename=os.path.basename(results['species_output_image']))
+        
+        if 'morphology_output_image' in results:
+            results['morphology_output_image'] = url_for('web.get_analysis_image', 
+                                                        analysis_id=analysis_id, 
+                                                        filename=os.path.basename(results['morphology_output_image']))
+        
+        return jsonify(results)
+    
+    except Exception as e:
+        current_app.logger.error(f"Error processing image: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+
+@web_bp.route('/analysis-image/<analysis_id>/<filename>')
+def get_analysis_image(analysis_id, filename):
+    """Get image from analysis results."""
+    results_dir = os.path.join(current_app.config['RESULTS_FOLDER'], 'vision_analysis', analysis_id)
+    return send_file(os.path.join(results_dir, filename))
+
+
 @web_bp.route('/prediction-dashboard')
 def prediction_dashboard():
     """Compound bioactivity prediction dashboard."""

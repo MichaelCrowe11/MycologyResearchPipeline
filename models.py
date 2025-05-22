@@ -1,7 +1,9 @@
 from datetime import datetime
 from app import db
-from sqlalchemy import Column, Integer, String, Float, DateTime, Text, JSON, ForeignKey, Boolean
+from flask_login import UserMixin
+from sqlalchemy import Column, Integer, String, Float, DateTime, Text, JSON, ForeignKey, Boolean, Enum
 from sqlalchemy.orm import relationship
+import enum
 
 
 class Sample(db.Model):
@@ -9,16 +11,19 @@ class Sample(db.Model):
     __tablename__ = 'samples'
     
     id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=True)
     name = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
     species = Column(String(255), nullable=True)
     collection_date = Column(DateTime, default=datetime.utcnow)
     location = Column(String(255), nullable=True)
     sample_metadata = Column(JSON, nullable=True)
+    is_public = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     # Relationships
+    user = relationship("User", back_populates="samples")
     compounds = relationship("Compound", back_populates="sample", cascade="all, delete-orphan")
     analyses = relationship("Analysis", back_populates="sample", cascade="all, delete-orphan")
     literature_references = relationship("LiteratureReference", back_populates="sample", cascade="all, delete-orphan")
@@ -157,3 +162,119 @@ class LiteratureReference(db.Model):
     
     def __repr__(self):
         return f"<LiteratureReference {self.id}: {self.title[:30]}...>"
+
+
+class User(UserMixin, db.Model):
+    """Model representing a user of the platform."""
+    __tablename__ = 'users'
+    
+    id = Column(Integer, primary_key=True)
+    email = Column(String(255), unique=True, nullable=False)
+    password_hash = Column(String(255), nullable=False)
+    first_name = Column(String(100), nullable=True)
+    last_name = Column(String(100), nullable=True)
+    organization = Column(String(255), nullable=True)
+    role = Column(String(50), default='user')  # user, admin
+    is_active = Column(Boolean, default=True)
+    last_login = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    memberships = relationship("Membership", back_populates="user", cascade="all, delete-orphan")
+    samples = relationship("Sample", back_populates="user")
+    api_tokens = relationship("OAuthToken", back_populates="user", cascade="all, delete-orphan")
+    
+    def __repr__(self):
+        return f"<User {self.id}: {self.email}>"
+    
+    @property
+    def full_name(self):
+        """Return the user's full name."""
+        if self.first_name and self.last_name:
+            return f"{self.first_name} {self.last_name}"
+        elif self.first_name:
+            return self.first_name
+        elif self.last_name:
+            return self.last_name
+        return "Unnamed User"
+    
+    @property
+    def active_membership(self):
+        """Return the user's active membership."""
+        return Membership.query.filter_by(
+            user_id=self.id, is_active=True
+        ).first()
+
+
+class Membership(db.Model):
+    """Model representing a user's membership plan."""
+    __tablename__ = 'memberships'
+    
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    plan = Column(String(50), nullable=False)  # free, basic, pro, enterprise
+    start_date = Column(DateTime, nullable=False)
+    end_date = Column(DateTime, nullable=True)
+    is_active = Column(Boolean, default=True)
+    features_access = Column(JSON, nullable=True)  # JSON with feature access flags
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    user = relationship("User", back_populates="memberships")
+    
+    def __repr__(self):
+        return f"<Membership {self.id}: {self.plan} for User {self.user_id}>"
+    
+    @property
+    def is_valid(self):
+        """Check if the membership is valid (active and not expired)."""
+        if not self.is_active:
+            return False
+        
+        if self.end_date and self.end_date < datetime.utcnow():
+            return False
+        
+        return True
+    
+    @property
+    def days_remaining(self):
+        """Return the number of days remaining in the membership."""
+        if not self.end_date:
+            return None
+        
+        delta = self.end_date - datetime.utcnow()
+        return max(0, delta.days)
+
+
+class OAuthToken(db.Model):
+    """Model representing an OAuth token for API access."""
+    __tablename__ = 'oauth_tokens'
+    
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    token = Column(String(255), unique=True, nullable=False)
+    name = Column(String(100), nullable=True)
+    scopes = Column(String(255), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    expires_at = Column(DateTime, nullable=True)
+    revoked_at = Column(DateTime, nullable=True)
+    is_active = Column(Boolean, default=True)
+    
+    # Relationships
+    user = relationship("User", back_populates="api_tokens")
+    
+    def __repr__(self):
+        return f"<OAuthToken {self.id}: for User {self.user_id}>"
+    
+    @property
+    def is_valid(self):
+        """Check if the token is valid (active and not expired)."""
+        if not self.is_active or self.revoked_at is not None:
+            return False
+        
+        if self.expires_at and self.expires_at < datetime.utcnow():
+            return False
+        
+        return True
