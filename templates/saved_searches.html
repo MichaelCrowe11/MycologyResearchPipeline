@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block title %}Saved Searches - Mycology Research Pipeline{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Saved Searches</h1>
+        <a href="{{ url_for('web.literature_search') }}" class="btn btn-primary">New Search</a>
+    </div>
+
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Your Saved Searches</h5>
+            <div class="form-group mb-0">
+                <select class="form-select" id="searchTypeFilter">
+                    <option value="all">All Types</option>
+                    <option value="literature">Literature</option>
+                    <option value="compounds">Compounds</option>
+                    <option value="species">Species</option>
+                </select>
+            </div>
+        </div>
+        <div class="card-body">
+            {% if searches %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Type</th>
+                                <th>Last Run</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for search in searches %}
+                            <tr data-search-type="{{ search.search_type }}">
+                                <td>{{ search.name }}</td>
+                                <td><span class="badge bg-info">{{ search.search_type }}</span></td>
+                                <td>{% if search.last_run_at %}{{ search.last_run_at.strftime('%Y-%m-%d %H:%M') }}{% else %}Never{% endif %}</td>
+                                <td>{{ search.created_at.strftime('%Y-%m-%d') }}</td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="#" class="btn btn-outline-primary run-search" data-search-id="{{ search.id }}">Run</a>
+                                        <a href="#" class="btn btn-outline-secondary edit-search" data-search-id="{{ search.id }}">Edit</a>
+                                        <a href="#" class="btn btn-outline-danger delete-search" data-search-id="{{ search.id }}">Delete</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    <p class="mb-0">You don't have any saved searches yet. Create a new search and save it for future use.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5 class="mb-0">About Saved Searches</h5>
+        </div>
+        <div class="card-body">
+            <p>Saved searches allow you to store complex search queries for easy reuse. You can save searches for literature, compounds, or species analysis.</p>
+            <p>Benefits of saved searches:</p>
+            <ul>
+                <li>Quickly rerun complex queries without having to recreate them</li>
+                <li>Track changes in research findings over time</li>
+                <li>Share search parameters with colleagues (premium feature)</li>
+                <li>Set up regular notifications for new results matching your criteria (premium feature)</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Filter functionality
+    const searchTypeFilter = document.getElementById('searchTypeFilter');
+    const searchRows = document.querySelectorAll('tbody tr');
+    
+    searchTypeFilter.addEventListener('change', function() {
+        const selectedType = this.value;
+        searchRows.forEach(row => {
+            const rowType = row.getAttribute('data-search-type');
+            if (selectedType === 'all' || selectedType === rowType) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+    
+    // Run search button
+    document.querySelectorAll('.run-search').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const searchId = this.getAttribute('data-search-id');
+            // Here you would implement the AJAX call to run the search
+            alert('Running search ' + searchId + '...');
+            // Placeholder for actual functionality
+        });
+    });
+    
+    // Delete search confirmation
+    document.querySelectorAll('.delete-search').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const searchId = this.getAttribute('data-search-id');
+            if (confirm('Are you sure you want to delete this saved search? This cannot be undone.')) {
+                // Here you would implement the AJAX call to delete
+                alert('Search ' + searchId + ' deleted');
+                // Placeholder for actual deletion
+            }
+        });
+    });
+});
+</script>
+{% endblock %}
