@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200" height="200" version="1.1" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+ <g fill="none" stroke="#333" stroke-linecap="round" stroke-linejoin="round">
+  <path d="m100 20v30" stroke-width="2"/>
+  <path d="m100 50-26 15" stroke-width="2"/>
+  <path d="m100 50 26 15" stroke-width="2"/>
+  <path d="m74 65-26 15" stroke-width="2"/>
+  <path d="m74 65v30" stroke-width="2"/>
+  <path d="m126 65 26 15" stroke-width="2"/>
+  <path d="m126 65v30" stroke-width="2"/>
+  <path d="m48 80v30" stroke-width="2"/>
+  <path d="m48 80-16 9" stroke-width="2"/>
+  <path d="m152 80v30" stroke-width="2"/>
+  <path d="m152 80 16 9" stroke-width="2"/>
+  <path d="m48 110 26 15" stroke-width="2"/>
+  <path d="m74 95 26 15" stroke-width="2"/>
+  <path d="m100 110 26-15" stroke-width="2"/>
+  <path d="m126 95 26 15" stroke-width="2"/>
+  <path d="m74 125v20" stroke-width="2"/>
+  <path d="m126 125v20" stroke-width="2"/>
+  <path d="m100 110v30" stroke-width="2"/>
+  <path d="m100 140-26 15" stroke-width="2"/>
+  <path d="m100 140 26 15" stroke-width="2"/>
+  <path d="m100 140v20" stroke-width="2"/>
+ </g>
+ <g fill="#333">
+  <circle cx="100" cy="20" r="4"/>
+  <circle cx="100" cy="50" r="4"/>
+  <circle cx="74" cy="65" r="4"/>
+  <circle cx="126" cy="65" r="4"/>
+  <circle cx="48" cy="80" r="4"/>
+  <circle cx="152" cy="80" r="4"/>
+  <circle cx="32" cy="89" r="4"/>
+  <circle cx="168" cy="89" r="4"/>
+  <circle cx="48" cy="110" r="4"/>
+  <circle cx="74" cy="95" r="4"/>
+  <circle cx="100" cy="110" r="4"/>
+  <circle cx="126" cy="95" r="4"/>
+  <circle cx="152" cy="110" r="4"/>
+  <circle cx="74" cy="125" r="4"/>
+  <circle cx="126" cy="125" r="4"/>
+  <circle cx="74" cy="145" r="4"/>
+  <circle cx="126" cy="145" r="4"/>
+  <circle cx="100" cy="140" r="4"/>
+  <circle cx="74" cy="155" r="4"/>
+  <circle cx="126" cy="155" r="4"/>
+  <circle cx="100" cy="160" r="4"/>
+ </g>
+ <g fill="#333" font-family="Arial" font-size="10px">
+  <text x="94" y="17" text-anchor="middle">O</text>
+  <text x="28" y="93" text-anchor="middle">OH</text>
+  <text x="172" y="93" text-anchor="middle">CH₃</text>
+  <text x="100" y="170" text-anchor="middle">CH₃</text>
+ </g>
+</svg>

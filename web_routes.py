@@ -673,3 +673,45 @@ def molecular_viewer():
 def network_visualization():
     """Network Visualization for compound relationships."""
     return render_template('network_visualization.html')
+
+
+@web_bp.route('/prediction-dashboard')
+def prediction_dashboard():
+    """Compound bioactivity prediction dashboard."""
+    return render_template('prediction_dashboard.html')
+
+
+@web_bp.route('/ml-prediction', methods=['POST'])
+def ml_prediction():
+    """Run machine learning prediction for compound bioactivity."""
+    from ml_bioactivity import predict_compounds
+    
+    # Get form data
+    sample_id = request.form.get('sample_id', 'SAMPLE-001')
+    species = request.form.get('species', 'Hericium erinaceus')
+    
+    # Parse analysis methods
+    include_vision = 'cv_analysis' in request.form
+    include_spectral = 'spectral_analysis' in request.form
+    
+    try:
+        # Run the ML prediction
+        results = predict_compounds(
+            sample_id=sample_id,
+            species=species,
+            include_vision=include_vision,
+            include_spectral=include_spectral
+        )
+        
+        # Log the prediction
+        logger.info(f"Bioactivity prediction completed for sample {sample_id}, species {species}")
+        
+        return jsonify(results)
+    
+    except Exception as e:
+        logger.error(f"Error in bioactivity prediction: {str(e)}")
+        return jsonify({
+            'error': str(e),
+            'status': 'error',
+            'message': 'An error occurred during bioactivity prediction'
+        }), 500

@@ -1,0 +1,788 @@
+{% extends "base.html" %}
+
+{% block title %}Compound Prediction - Mycology Research Pipeline{% endblock %}
+
+{% block head %}
+{{ super() }}
+<style>
+    .prediction-card {
+        transition: transform 0.3s ease;
+    }
+    .prediction-card:hover {
+        transform: translateY(-5px);
+    }
+    .score-circle {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 1.2rem;
+        margin: 0 auto;
+    }
+    .high-score {
+        background-color: rgba(40, 167, 69, 0.2);
+        color: #28a745;
+        border: 2px solid #28a745;
+    }
+    .medium-score {
+        background-color: rgba(255, 193, 7, 0.2);
+        color: #ffc107;
+        border: 2px solid #ffc107;
+    }
+    .low-score {
+        background-color: rgba(220, 53, 69, 0.2);
+        color: #dc3545;
+        border: 2px solid #dc3545;
+    }
+    .feature-importance {
+        height: 15px;
+        margin-bottom: 5px;
+        border-radius: 3px;
+    }
+    .sample-image {
+        max-height: 200px;
+        object-fit: cover;
+        border-radius: 5px;
+    }
+    .prediction-progress {
+        height: 8px;
+    }
+    .chart-container {
+        height: 300px;
+    }
+    .molecular-thumbnail {
+        width: 100%;
+        height: 120px;
+        background-color: #f8f9fa;
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="hero-section mb-4">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <h1>Medicinal Compound Prediction</h1>
+                <p>Advanced analysis and prediction of bioactive compounds in medicinal mushrooms</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mb-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Prediction Dashboard</h5>
+                    <div>
+                        <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#newPredictionModal">
+                            <i class="fas fa-plus me-2"></i>New Prediction
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card mb-4">
+                                <div class="card-header bg-transparent">
+                                    <h5 class="mb-0">Sample Information</h5>
+                                </div>
+                                <div class="card-body">
+                                    <img src="{{ url_for('static', filename='images/lion_mane_sample.jpg') }}" class="img-fluid sample-image mb-3" alt="Sample Image">
+                                    <h5>Lion's Mane (Hericium erinaceus)</h5>
+                                    <p class="text-muted">Sample ID: HE-2025-042</p>
+                                    
+                                    <div class="mt-3">
+                                        <h6>Sample Metadata</h6>
+                                        <table class="table table-sm">
+                                            <tbody>
+                                                <tr>
+                                                    <th scope="row">Collection Date</th>
+                                                    <td>2025-03-15</td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row">Geographic Origin</th>
+                                                    <td>Pacific Northwest, USA</td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row">Growth Stage</th>
+                                                    <td>Mature fruiting body</td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row">Substrate</th>
+                                                    <td>Hardwood (Oak)</td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row">Processing</th>
+                                                    <td>Freeze-dried</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    
+                                    <div class="mt-3">
+                                        <h6>Analysis Methods</h6>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="" id="method1" checked>
+                                            <label class="form-check-label" for="method1">
+                                                HPLC Analysis
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="" id="method2" checked>
+                                            <label class="form-check-label" for="method2">
+                                                Mass Spectrometry
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="" id="method3" checked>
+                                            <label class="form-check-label" for="method3">
+                                                Computer Vision Analysis
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="" id="method4">
+                                            <label class="form-check-label" for="method4">
+                                                NMR Spectroscopy
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="" id="method5">
+                                            <label class="form-check-label" for="method5">
+                                                Bioassay Data
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-8">
+                            <div class="card mb-4">
+                                <div class="card-header bg-transparent">
+                                    <ul class="nav nav-tabs card-header-tabs" id="myTab" role="tablist">
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link active" id="predictions-tab" data-bs-toggle="tab" data-bs-target="#predictions" type="button" role="tab" aria-controls="predictions" aria-selected="true">Predictions</button>
+                                        </li>
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link" id="features-tab" data-bs-toggle="tab" data-bs-target="#features" type="button" role="tab" aria-controls="features" aria-selected="false">Features</button>
+                                        </li>
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link" id="visualization-tab" data-bs-toggle="tab" data-bs-target="#visualization" type="button" role="tab" aria-controls="visualization" aria-selected="false">Visualization</button>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="card-body">
+                                    <div class="tab-content" id="myTabContent">
+                                        <div class="tab-pane fade show active" id="predictions" role="tabpanel" aria-labelledby="predictions-tab">
+                                            <h5 class="mb-4">Predicted Bioactive Compounds</h5>
+                                            
+                                            <div class="row">
+                                                <div class="col-md-6 mb-4">
+                                                    <div class="card prediction-card h-100">
+                                                        <div class="card-body">
+                                                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                                                <h5 class="mb-0">Hericenone B</h5>
+                                                                <div class="score-circle high-score">92%</div>
+                                                            </div>
+                                                            <p class="text-muted">Cyathane diterpenoid with neurotrophic activity</p>
+                                                            <div class="mt-3">
+                                                                <small>Prediction Confidence</small>
+                                                                <div class="progress prediction-progress">
+                                                                    <div class="progress-bar bg-success" role="progressbar" style="width: 92%" aria-valuenow="92" aria-valuemin="0" aria-valuemax="100"></div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="mt-3">
+                                                                <div class="d-flex align-items-center mb-2">
+                                                                    <small class="me-auto">Bioactivity Score</small>
+                                                                    <small>85/100</small>
+                                                                </div>
+                                                                <div class="progress prediction-progress">
+                                                                    <div class="progress-bar bg-info" role="progressbar" style="width: 85%" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100"></div>
+                                                                </div>
+                                                            </div>
+                                                            <hr>
+                                                            <div class="d-flex justify-content-between">
+                                                                <button class="btn btn-sm btn-outline-primary">View Details</button>
+                                                                <button class="btn btn-sm btn-outline-secondary">Compare</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="col-md-6 mb-4">
+                                                    <div class="card prediction-card h-100">
+                                                        <div class="card-body">
+                                                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                                                <h5 class="mb-0">Erinacine A</h5>
+                                                                <div class="score-circle high-score">89%</div>
+                                                            </div>
+                                                            <p class="text-muted">Promotes nerve growth factor synthesis</p>
+                                                            <div class="mt-3">
+                                                                <small>Prediction Confidence</small>
+                                                                <div class="progress prediction-progress">
+                                                                    <div class="progress-bar bg-success" role="progressbar" style="width: 89%" aria-valuenow="89" aria-valuemin="0" aria-valuemax="100"></div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="mt-3">
+                                                                <div class="d-flex align-items-center mb-2">
+                                                                    <small class="me-auto">Bioactivity Score</small>
+                                                                    <small>82/100</small>
+                                                                </div>
+                                                                <div class="progress prediction-progress">
+                                                                    <div class="progress-bar bg-info" role="progressbar" style="width: 82%" aria-valuenow="82" aria-valuemin="0" aria-valuemax="100"></div>
+                                                                </div>
+                                                            </div>
+                                                            <hr>
+                                                            <div class="d-flex justify-content-between">
+                                                                <button class="btn btn-sm btn-outline-primary">View Details</button>
+                                                                <button class="btn btn-sm btn-outline-secondary">Compare</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="col-md-6 mb-4">
+                                                    <div class="card prediction-card h-100">
+                                                        <div class="card-body">
+                                                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                                                <h5 class="mb-0">Erinacine E</h5>
+                                                                <div class="score-circle medium-score">76%</div>
+                                                            </div>
+                                                            <p class="text-muted">Cyathane diterpenoid with neuroprotective effects</p>
+                                                            <div class="mt-3">
+                                                                <small>Prediction Confidence</small>
+                                                                <div class="progress prediction-progress">
+                                                                    <div class="progress-bar bg-warning" role="progressbar" style="width: 76%" aria-valuenow="76" aria-valuemin="0" aria-valuemax="100"></div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="mt-3">
+                                                                <div class="d-flex align-items-center mb-2">
+                                                                    <small class="me-auto">Bioactivity Score</small>
+                                                                    <small>68/100</small>
+                                                                </div>
+                                                                <div class="progress prediction-progress">
+                                                                    <div class="progress-bar bg-info" role="progressbar" style="width: 68%" aria-valuenow="68" aria-valuemin="0" aria-valuemax="100"></div>
+                                                                </div>
+                                                            </div>
+                                                            <hr>
+                                                            <div class="d-flex justify-content-between">
+                                                                <button class="btn btn-sm btn-outline-primary">View Details</button>
+                                                                <button class="btn btn-sm btn-outline-secondary">Compare</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="col-md-6 mb-4">
+                                                    <div class="card prediction-card h-100">
+                                                        <div class="card-body">
+                                                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                                                <h5 class="mb-0">3-Hydroxyhericenone F</h5>
+                                                                <div class="score-circle medium-score">71%</div>
+                                                            </div>
+                                                            <p class="text-muted">Aromatic compound with anti-inflammatory activity</p>
+                                                            <div class="mt-3">
+                                                                <small>Prediction Confidence</small>
+                                                                <div class="progress prediction-progress">
+                                                                    <div class="progress-bar bg-warning" role="progressbar" style="width: 71%" aria-valuenow="71" aria-valuemin="0" aria-valuemax="100"></div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="mt-3">
+                                                                <div class="d-flex align-items-center mb-2">
+                                                                    <small class="me-auto">Bioactivity Score</small>
+                                                                    <small>65/100</small>
+                                                                </div>
+                                                                <div class="progress prediction-progress">
+                                                                    <div class="progress-bar bg-info" role="progressbar" style="width: 65%" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100"></div>
+                                                                </div>
+                                                            </div>
+                                                            <hr>
+                                                            <div class="d-flex justify-content-between">
+                                                                <button class="btn btn-sm btn-outline-primary">View Details</button>
+                                                                <button class="btn btn-sm btn-outline-secondary">Compare</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="tab-pane fade" id="features" role="tabpanel" aria-labelledby="features-tab">
+                                            <h5 class="mb-4">Feature Importance</h5>
+                                            
+                                            <div class="mb-4">
+                                                <h6>Top Features Contributing to Predictions</h6>
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <div style="width: 150px;">Chemical Profile</div>
+                                                    <div class="flex-grow-1">
+                                                        <div class="progress feature-importance">
+                                                            <div class="progress-bar bg-primary" role="progressbar" style="width: 92%" aria-valuenow="92" aria-valuemin="0" aria-valuemax="100"></div>
+                                                        </div>
+                                                    </div>
+                                                    <div style="width: 50px; text-align: right;">92%</div>
+                                                </div>
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <div style="width: 150px;">Growth Conditions</div>
+                                                    <div class="flex-grow-1">
+                                                        <div class="progress feature-importance">
+                                                            <div class="progress-bar bg-primary" role="progressbar" style="width: 85%" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100"></div>
+                                                        </div>
+                                                    </div>
+                                                    <div style="width: 50px; text-align: right;">85%</div>
+                                                </div>
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <div style="width: 150px;">Molecular Weight</div>
+                                                    <div class="flex-grow-1">
+                                                        <div class="progress feature-importance">
+                                                            <div class="progress-bar bg-primary" role="progressbar" style="width: 78%" aria-valuenow="78" aria-valuemin="0" aria-valuemax="100"></div>
+                                                        </div>
+                                                    </div>
+                                                    <div style="width: 50px; text-align: right;">78%</div>
+                                                </div>
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <div style="width: 150px;">Visual Morphology</div>
+                                                    <div class="flex-grow-1">
+                                                        <div class="progress feature-importance">
+                                                            <div class="progress-bar bg-primary" role="progressbar" style="width: 72%" aria-valuenow="72" aria-valuemin="0" aria-valuemax="100"></div>
+                                                        </div>
+                                                    </div>
+                                                    <div style="width: 50px; text-align: right;">72%</div>
+                                                </div>
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <div style="width: 150px;">Spectral Data</div>
+                                                    <div class="flex-grow-1">
+                                                        <div class="progress feature-importance">
+                                                            <div class="progress-bar bg-primary" role="progressbar" style="width: 68%" aria-valuenow="68" aria-valuemin="0" aria-valuemax="100"></div>
+                                                        </div>
+                                                    </div>
+                                                    <div style="width: 50px; text-align: right;">68%</div>
+                                                </div>
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <div style="width: 150px;">Substrate Type</div>
+                                                    <div class="flex-grow-1">
+                                                        <div class="progress feature-importance">
+                                                            <div class="progress-bar bg-primary" role="progressbar" style="width: 65%" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100"></div>
+                                                        </div>
+                                                    </div>
+                                                    <div style="width: 50px; text-align: right;">65%</div>
+                                                </div>
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <div style="width: 150px;">Growth Stage</div>
+                                                    <div class="flex-grow-1">
+                                                        <div class="progress feature-importance">
+                                                            <div class="progress-bar bg-primary" role="progressbar" style="width: 61%" aria-valuenow="61" aria-valuemin="0" aria-valuemax="100"></div>
+                                                        </div>
+                                                    </div>
+                                                    <div style="width: 50px; text-align: right;">61%</div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="mt-4">
+                                                <h6>Visual Analysis Features</h6>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="card mb-3">
+                                                            <div class="card-body">
+                                                                <h6 class="card-title">Morphological Features</h6>
+                                                                <p class="card-text small">Visual features extracted from microscopy images using computer vision.</p>
+                                                                <ul class="small">
+                                                                    <li>Spine density patterns typical of Lion's Mane</li>
+                                                                    <li>Cellular structure consistent with Hericium species</li>
+                                                                    <li>Growth pattern indicating mature development stage</li>
+                                                                    <li>Visual biomarkers correlated with high erinacine content</li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="card mb-3">
+                                                            <div class="card-body">
+                                                                <h6 class="card-title">Spectral Analysis</h6>
+                                                                <p class="card-text small">Chemical fingerprinting based on spectroscopy and chromatography.</p>
+                                                                <ul class="small">
+                                                                    <li>HPLC profile matches known patterns for hericenones</li>
+                                                                    <li>Mass spectrometry peaks at m/z 512, 498, and 463</li>
+                                                                    <li>Absorbance patterns in UV-Vis spectrum</li>
+                                                                    <li>Characteristic NMR signals for cyathane diterpenes</li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="tab-pane fade" id="visualization" role="tabpanel" aria-labelledby="visualization-tab">
+                                            <h5 class="mb-4">Molecular Visualization</h5>
+                                            
+                                            <div class="row mb-4">
+                                                <div class="col-md-3">
+                                                    <div class="molecular-thumbnail">
+                                                        <i class="fas fa-cube fa-3x text-primary"></i>
+                                                    </div>
+                                                    <h6 class="text-center">Hericenone B</h6>
+                                                    <div class="d-grid">
+                                                        <button class="btn btn-sm btn-outline-primary">View 3D</button>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <div class="molecular-thumbnail">
+                                                        <i class="fas fa-cube fa-3x text-primary"></i>
+                                                    </div>
+                                                    <h6 class="text-center">Erinacine A</h6>
+                                                    <div class="d-grid">
+                                                        <button class="btn btn-sm btn-outline-primary">View 3D</button>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <div class="molecular-thumbnail">
+                                                        <i class="fas fa-cube fa-3x text-primary"></i>
+                                                    </div>
+                                                    <h6 class="text-center">Erinacine E</h6>
+                                                    <div class="d-grid">
+                                                        <button class="btn btn-sm btn-outline-primary">View 3D</button>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <div class="molecular-thumbnail">
+                                                        <i class="fas fa-cube fa-3x text-primary"></i>
+                                                    </div>
+                                                    <h6 class="text-center">3-Hydroxyhericenone F</h6>
+                                                    <div class="d-grid">
+                                                        <button class="btn btn-sm btn-outline-primary">View 3D</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="card">
+                                                <div class="card-body">
+                                                    <h6>Relationship Network</h6>
+                                                    <p class="small mb-3">Visualization of structural and functional relationships between predicted compounds.</p>
+                                                    <div class="text-center py-5">
+                                                        <i class="fas fa-project-diagram fa-5x text-secondary mb-3"></i>
+                                                        <p>Interactive compound network visualization would appear here.</p>
+                                                        <a href="{{ url_for('network_visualization') }}" class="btn btn-outline-primary mt-2">
+                                                            Open Network Visualization
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="card">
+                                <div class="card-header bg-transparent">
+                                    <h5 class="mb-0">Model Performance</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="card mb-3">
+                                                <div class="card-body">
+                                                    <h6 class="card-title">Prediction Accuracy</h6>
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="display-4 me-3">92%</div>
+                                                        <div>
+                                                            <span class="badge bg-success"><i class="fas fa-arrow-up me-1"></i>3.2%</span>
+                                                            <div class="text-muted small">from previous model</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="card mb-3">
+                                                <div class="card-body">
+                                                    <h6 class="card-title">Model Metrics</h6>
+                                                    <div class="row">
+                                                        <div class="col-6">
+                                                            <div class="small text-muted">Precision</div>
+                                                            <div>0.94</div>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <div class="small text-muted">Recall</div>
+                                                            <div>0.89</div>
+                                                        </div>
+                                                        <div class="col-6 mt-2">
+                                                            <div class="small text-muted">F1 Score</div>
+                                                            <div>0.91</div>
+                                                        </div>
+                                                        <div class="col-6 mt-2">
+                                                            <div class="small text-muted">ROC AUC</div>
+                                                            <div>0.95</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mt-3">
+                                        <h6>Training Information</h6>
+                                        <p class="small">This prediction was made using our Compound Prediction Model v3.2, which was trained on the CMID Research Intelligence Kit dataset augmented with proprietary bioactivity data. The model employs a gradient boosting ensemble approach combining spectral analysis, computer vision features, and chemical fingerprinting.</p>
+                                        
+                                        <div class="row mt-3">
+                                            <div class="col-md-4">
+                                                <div class="card bg-light">
+                                                    <div class="card-body p-3">
+                                                        <div class="d-flex align-items-center">
+                                                            <i class="fas fa-database me-3 text-primary"></i>
+                                                            <div>
+                                                                <h6 class="mb-0">Training Dataset</h6>
+                                                                <div class="small">4,528 samples</div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="card bg-light">
+                                                    <div class="card-body p-3">
+                                                        <div class="d-flex align-items-center">
+                                                            <i class="fas fa-brain me-3 text-primary"></i>
+                                                            <div>
+                                                                <h6 class="mb-0">Model Architecture</h6>
+                                                                <div class="small">Ensemble (GBM + CNN)</div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="card bg-light">
+                                                    <div class="card-body p-3">
+                                                        <div class="d-flex align-items-center">
+                                                            <i class="fas fa-calendar-alt me-3 text-primary"></i>
+                                                            <div>
+                                                                <h6 class="mb-0">Last Updated</h6>
+                                                                <div class="small">2025-04-12</div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-transparent">
+                    <h5 class="mb-0">Prediction Methodology</h5>
+                </div>
+                <div class="card-body">
+                    <h5>Multimodal Analysis Approach</h5>
+                    <p>
+                        The Mycology Research Pipeline employs a multimodal approach to predict bioactive compounds
+                        in medicinal mushrooms, combining several advanced analytical techniques:
+                    </p>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h6><i class="fas fa-microscope me-2 text-primary"></i> Computer Vision Analysis</h6>
+                                    <p class="small">
+                                        Our system analyzes microscopic images of mushroom samples using deep convolutional
+                                        neural networks (CNNs) to identify visual patterns associated with specific bioactive
+                                        compounds. The visual features extracted include:
+                                    </p>
+                                    <ul class="small">
+                                        <li>Cellular structure patterns</li>
+                                        <li>Morphological characteristics</li>
+                                        <li>Visual biomarkers</li>
+                                        <li>Growth stage indicators</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h6><i class="fas fa-chart-bar me-2 text-primary"></i> Spectral Analysis</h6>
+                                    <p class="small">
+                                        Chemical fingerprinting using various spectroscopic methods provides detailed
+                                        information about the composition of the sample, allowing for accurate
+                                        compound identification:
+                                    </p>
+                                    <ul class="small">
+                                        <li>HPLC chromatography profiles</li>
+                                        <li>Mass spectrometry data</li>
+                                        <li>NMR spectroscopy</li>
+                                        <li>UV-Vis absorption patterns</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h6><i class="fas fa-dna me-2 text-primary"></i> Machine Learning Models</h6>
+                                    <p class="small">
+                                        Our prediction system integrates data from multiple sources using ensemble
+                                        machine learning models trained on the CMID Research Intelligence Kit:
+                                    </p>
+                                    <ul class="small">
+                                        <li>Gradient Boosting Machines (GBM)</li>
+                                        <li>Deep neural networks</li>
+                                        <li>Random Forest classifiers</li>
+                                        <li>Structure-activity relationship models</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h5>Prediction Workflow</h5>
+                    <p>
+                        The compound prediction process follows these steps:
+                    </p>
+                    <ol>
+                        <li><strong>Sample Analysis:</strong> The mushroom sample is analyzed using multiple techniques to gather data.</li>
+                        <li><strong>Feature Extraction:</strong> Key features are extracted from visual, spectral, and chemical data.</li>
+                        <li><strong>Model Prediction:</strong> Our ensemble models predict the most likely compounds present.</li>
+                        <li><strong>Confidence Scoring:</strong> Each prediction receives a confidence score based on model certainty.</li>
+                        <li><strong>Validation:</strong> High-confidence predictions are validated against known compound databases.</li>
+                        <li><strong>Reporting:</strong> Results are presented with detailed visualization and analysis.</li>
+                    </ol>
+                    
+                    <p>
+                        This comprehensive approach allows researchers to accurately identify bioactive compounds
+                        in medicinal mushrooms, even when working with complex mixtures or novel samples.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- New Prediction Modal -->
+<div class="modal fade" id="newPredictionModal" tabindex="-1" aria-labelledby="newPredictionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="newPredictionModalLabel">New Compound Prediction</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="mb-3">
+                        <label for="sampleSelect" class="form-label">Select Sample</label>
+                        <select class="form-select" id="sampleSelect" required>
+                            <option value="">Select a sample</option>
+                            <option value="1">HE-2025-042 (Lion's Mane)</option>
+                            <option value="2">GL-2025-031 (Reishi)</option>
+                            <option value="3">TV-2025-015 (Turkey Tail)</option>
+                            <option value="4">CM-2025-008 (Cordyceps)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Analysis Methods</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="hplcAnalysis" checked>
+                            <label class="form-check-label" for="hplcAnalysis">
+                                HPLC Analysis
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="msAnalysis" checked>
+                            <label class="form-check-label" for="msAnalysis">
+                                Mass Spectrometry
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="cvAnalysis" checked>
+                            <label class="form-check-label" for="cvAnalysis">
+                                Computer Vision Analysis
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="nmrAnalysis">
+                            <label class="form-check-label" for="nmrAnalysis">
+                                NMR Spectroscopy
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="modelSelect" class="form-label">Prediction Model</label>
+                        <select class="form-select" id="modelSelect">
+                            <option value="1">Compound Prediction Model v3.2 (Default)</option>
+                            <option value="2">Bioactivity Prediction Model v2.8</option>
+                            <option value="3">Structural Similarity Model v1.5</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="predictionNotes" class="form-label">Notes</label>
+                        <textarea class="form-control" id="predictionNotes" rows="3" placeholder="Add any additional notes about this prediction..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary">Run Prediction</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Tooltips initialization
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        });
+        
+        // Demo data for chart
+        const chartData = {
+            labels: ['Hericenone B', 'Erinacine A', 'Erinacine E', '3-Hydroxyhericenone F', 'Others'],
+            datasets: [{
+                label: 'Prediction Confidence',
+                data: [92, 89, 76, 71, 45],
+                backgroundColor: [
+                    'rgba(40, 167, 69, 0.7)',
+                    'rgba(40, 167, 69, 0.7)',
+                    'rgba(255, 193, 7, 0.7)',
+                    'rgba(255, 193, 7, 0.7)',
+                    'rgba(220, 53, 69, 0.7)'
+                ],
+                borderColor: [
+                    'rgba(40, 167, 69, 1)',
+                    'rgba(40, 167, 69, 1)',
+                    'rgba(255, 193, 7, 1)',
+                    'rgba(255, 193, 7, 1)',
+                    'rgba(220, 53, 69, 1)'
+                ],
+                borderWidth: 1
+            }]
+        };
+    });
+</script>
+{% endblock %}
