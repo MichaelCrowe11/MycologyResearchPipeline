@@ -6,169 +6,108 @@
     <title>{% block title %}Mycology Research Pipeline{% endblock %}</title>
     
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
+    <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
     
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/hero.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     
-    <!-- D3.js for advanced visualizations -->
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-    
-    <!-- Chart.js for charts -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
-    
-    <!-- 3Dmol.js for molecular visualization -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
-    <script src="https://3Dmol.org/build/3Dmol-min.js"></script>
-    <script src="https://3Dmol.org/build/3Dmol.ui-min.js"></script>
-    
-    {% block head %}{% endblock %}
+    {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
-            <div class="container-fluid">
-                <a class="navbar-brand d-flex align-items-center" href="{{ url_for('web.index') }}">
-                    <img src="{{ url_for('static', filename='images/official-logo.png') }}" width="45" alt="Mycology Research Logo" class="me-2">
-                    <span class="fw-bold" style="color: #000000;">Mycology Research Pipeline</span>
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarMain">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li class="nav-item">
-                            <a class="nav-link rounded-pill px-3 mx-1 {% if request.path == url_for('web.index') %}active bg-light{% endif %}" href="{{ url_for('web.index') }}">
-                                <i class="fas fa-home me-1"></i> Home
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link rounded-pill px-3 mx-1 {% if request.path == url_for('web.dashboard') %}active bg-light{% endif %}" href="{{ url_for('web.dashboard') }}">
-                                <i class="fas fa-chart-line me-1"></i> Dashboard
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link rounded-pill px-3 mx-1 {% if '/samples' in request.path %}active bg-light{% endif %}" href="{{ url_for('web.list_samples') }}">
-                                <i class="fas fa-flask me-1"></i> Samples
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link rounded-pill px-3 mx-1 {% if '/analysis' in request.path %}active bg-light{% endif %}" href="{{ url_for('web.new_analysis') }}">
-                                <i class="fas fa-vial me-1"></i> Analysis
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link rounded-pill px-3 mx-1 {% if '/batch' in request.path %}active bg-light{% endif %}" href="{{ url_for('web.new_batch_job') }}">
-                                <i class="fas fa-tasks me-1"></i> Batch
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link rounded-pill px-3 mx-1 {% if '/results' in request.path %}active bg-light{% endif %}" href="{{ url_for('web.view_results') }}">
-                                <i class="fas fa-poll me-1"></i> Results
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link rounded-pill px-3 mx-1 {% if '/logs' in request.path %}active bg-light{% endif %}" href="{{ url_for('web.list_research_logs') }}">
-                                <i class="fas fa-clipboard-list me-1"></i> Logs
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link rounded-pill px-3 mx-1 {% if '/literature' in request.path %}active bg-light{% endif %}" href="{{ url_for('web.literature') }}">
-                                <i class="fas fa-book me-1"></i> Literature
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link rounded-pill px-3 mx-1 {% if '/api-testing' in request.path %}active bg-light{% endif %}" href="{{ url_for('web.api_testing') }}">
-                                <i class="fas fa-code me-1"></i> API Testing
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link rounded-pill px-3 mx-1 {% if '/molecular-viewer' in request.path %}active bg-light{% endif %}" href="{{ url_for('web.molecular_viewer') }}">
-                                <i class="fas fa-atom me-1"></i> 3D Viewer
-                            </a>
-                        </li>
-                    </ul>
-                    <ul class="navbar-nav">
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle btn btn-light rounded-pill" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-info-circle me-1"></i> Info
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="navbarDropdown">
-                                <li><a class="dropdown-item" href="{{ url_for('web.about') }}">About</a></li>
-                                <li><a class="dropdown-item" href="{{ url_for('web.documentation') }}">Documentation</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="/api/health" target="_blank">API Health Check</a></li>
-                                <li><a class="dropdown-item" href="/docs" target="_blank">API Documentation</a></li>
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    </header>
+    <!-- Navigation Bar -->
+    {% include 'includes/navbar.html' %}
     
-    <main class="container py-4">
+    <!-- Flash Messages -->
+    <div class="container mt-3">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <div class="alert alert-{{ category if category != 'message' else 'info' }} alert-dismissible fade show" role="alert">
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
                         {{ message }}
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 {% endfor %}
             {% endif %}
         {% endwith %}
-        
+    </div>
+    
+    <!-- Main Content -->
+    <main class="py-3">
         {% block content %}{% endblock %}
     </main>
     
-    <footer class="py-4 mt-5 border-top" style="background-color: white;">
+    <!-- Footer -->
+    <footer class="footer mt-auto py-3 bg-dark text-light">
         <div class="container">
             <div class="row">
-                <div class="col-md-6">
-                    <div class="d-flex align-items-center mb-3">
-                        <img src="{{ url_for('static', filename='images/official-logo.png') }}" width="120" alt="Mycology Research Logo" class="me-3">
-                    </div>
-                    <p style="color: #333;">A platform for analyzing medicinal compound bioactivity patterns in mycology research.</p>
+                <div class="col-md-4">
+                    <h5>Mycology Research Pipeline</h5>
+                    <p class="small">A comprehensive platform for mycological research and analysis.</p>
                 </div>
-                <div class="col-md-3">
-                    <h5 style="color: #333;">Links</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="{{ url_for('web.index') }}" class="text-decoration-none" style="color: #34836e;">Home</a></li>
-                        <li><a href="{{ url_for('web.dashboard') }}" class="text-decoration-none" style="color: #34836e;">Dashboard</a></li>
-                        <li><a href="{{ url_for('web.documentation') }}" class="text-decoration-none" style="color: #34836e;">Documentation</a></li>
-                        <li><a href="{{ url_for('web.about') }}" class="text-decoration-none" style="color: #34836e;">About</a></li>
+                <div class="col-md-4">
+                    <h5>Quick Links</h5>
+                    <ul class="list-unstyled small">
+                        <li><a href="{{ url_for('web.index') }}" class="text-decoration-none">Home</a></li>
+                        <li><a href="{{ url_for('web.dashboard') }}" class="text-decoration-none">Dashboard</a></li>
+                        <li><a href="{{ url_for('web.documentation') }}" class="text-decoration-none">Documentation</a></li>
+                        <li><a href="{{ url_for('api.docs') }}" class="text-decoration-none">API</a></li>
                     </ul>
                 </div>
-                <div class="col-md-3">
-                    <h5 style="color: #333;">API</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="/docs" class="text-decoration-none" style="color: #34836e;">API Documentation</a></li>
-                        <li><a href="/api/health" class="text-decoration-none" style="color: #34836e;">Health Check</a></li>
+                <div class="col-md-4">
+                    <h5>Resources</h5>
+                    <ul class="list-unstyled small">
+                        <li><a href="#" class="text-decoration-none">Knowledge Base</a></li>
+                        <li><a href="#" class="text-decoration-none">FAQ</a></li>
+                        <li><a href="#" class="text-decoration-none">Support</a></li>
+                        <li><a href="#" class="text-decoration-none">Contact Us</a></li>
                     </ul>
                 </div>
             </div>
             <hr>
-            <div class="row">
-                <div class="col-12 text-center">
-                    <p class="mb-0" style="color: #666;">&copy; 2025 Mycology Research Pipeline. Version 0.1.0</p>
-                </div>
+            <div class="text-center small">
+                <p>&copy; 2025 Mycology Research Pipeline. All rights reserved.</p>
             </div>
         </div>
     </footer>
     
-    <!-- Bootstrap JS with Popper -->
+    <!-- Bootstrap JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
-    <!-- Custom Scripts -->
-    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/charts.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/visualizations.js') }}"></script>
+    <!-- jQuery (optional, but required for some Bootstrap features) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     
-    {% block scripts %}{% endblock %}
+    <!-- Custom JavaScript -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    
+    <!-- Theme Toggle Script -->
+    <script>
+        $(document).ready(function() {
+            // Theme toggle functionality
+            $('#theme-toggle').click(function() {
+                $('body').toggleClass('light-theme');
+                
+                // Change icon based on theme
+                if ($('body').hasClass('light-theme')) {
+                    $('#theme-toggle i').removeClass('fa-sun').addClass('fa-moon');
+                } else {
+                    $('#theme-toggle i').removeClass('fa-moon').addClass('fa-sun');
+                }
+                
+                // Store preference in localStorage
+                localStorage.setItem('theme', $('body').hasClass('light-theme') ? 'light' : 'dark');
+            });
+            
+            // Check saved theme preference
+            if (localStorage.getItem('theme') === 'light') {
+                $('body').addClass('light-theme');
+                $('#theme-toggle i').removeClass('fa-sun').addClass('fa-moon');
+            }
+        });
+    </script>
+    
+    {% block extra_js %}{% endblock %}
 </body>
 </html>
