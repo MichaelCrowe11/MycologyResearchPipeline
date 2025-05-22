@@ -1,29 +1,30 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
         <a class="navbar-brand" href="{{ url_for('web.index') }}">
-            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Mycology Research Pipeline" class="d-inline-block align-text-top me-2" height="40">
+            <img src="{{ url_for('static', filename='images/logo-light.svg') }}" alt="Mycology Research" height="30">
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
-        
         <div class="collapse navbar-collapse" id="navbarMain">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
-                    <a class="nav-link {% if request.endpoint == 'web.index' %}active{% endif %}" href="{{ url_for('web.index') }}">Home</a>
+                    <a class="nav-link {% if request.endpoint == 'web.index' %}active{% endif %}" aria-current="page" href="{{ url_for('web.index') }}">Home</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {% if request.endpoint == 'web.dashboard' %}active{% endif %}" href="{{ url_for('web.dashboard') }}">Dashboard</a>
                 </li>
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="literatureDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Literature
+                    <a class="nav-link dropdown-toggle" href="#" id="researchDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Research Tools
                     </a>
-                    <ul class="dropdown-menu" aria-labelledby="literatureDropdown">
-                        <li><a class="dropdown-item" href="{{ url_for('web.literature_search') }}">Search Literature</a></li>
-                        <li><a class="dropdown-item" href="{{ url_for('web.saved_searches') }}">Saved Searches</a></li>
+                    <ul class="dropdown-menu" aria-labelledby="researchDropdown">
+                        <li><a class="dropdown-item" href="{{ url_for('web.literature_search') }}">Literature Search</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('web.image_analysis') }}">Image Analysis</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('web.network_visualization') }}">Network Visualization</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('web.molecular_viewer') }}">Molecular Viewer</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="{{ url_for('web.export_references') }}">Export References</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('web.prediction_dashboard') }}">Compound Prediction</a></li>
                     </ul>
                 </li>
                 <li class="nav-item dropdown">
@@ -37,69 +38,59 @@
                         <li><a class="dropdown-item" href="{{ url_for('web.dashboard') }}">Batch Processing</a></li>
                     </ul>
                 </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="docsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Documentation
-                    </a>
-                    <ul class="dropdown-menu" aria-labelledby="docsDropdown">
-                        <li><a class="dropdown-item" href="{{ url_for('web.documentation') }}">User Guide</a></li>
-                        <li><a class="dropdown-item" href="{{ url_for('web.documentation') }}">API Reference</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="{{ url_for('web.documentation') }}">Tutorials</a></li>
-                    </ul>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'web.documentation' %}active{% endif %}" href="{{ url_for('web.documentation') }}">Documentation</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {% if request.endpoint == 'web.image_analysis' %}active{% endif %}" href="{{ url_for('web.image_analysis') }}">Image Analysis</a>
+                    <a class="nav-link" href="{{ url_for('api.docs') }}">API</a>
                 </li>
             </ul>
             
-            <ul class="navbar-nav">
-                <!-- Theme Toggle Button -->
-                <li class="nav-item">
-                    <button id="theme-toggle" class="btn btn-sm btn-outline-light me-2">
-                        <i class="fas fa-sun"></i>
-                    </button>
-                </li>
+            <div class="d-flex align-items-center">
+                <!-- Theme toggle button -->
+                <button class="btn btn-link text-light me-3 p-0" id="theme-toggle">
+                    <i class="fas fa-moon"></i>
+                </button>
                 
-                <!-- User Menu -->
+                <!-- Search form -->
+                <form class="d-flex me-3" action="{{ url_for('web.search') }}" method="get">
+                    <div class="input-group">
+                        <input class="form-control form-control-sm" type="search" name="q" placeholder="Search" aria-label="Search">
+                        <button class="btn btn-sm btn-outline-light" type="submit">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </form>
+                
                 {% if current_user.is_authenticated %}
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            {% if current_user.profile_image_url %}
-                                <img src="{{ current_user.profile_image_url }}" alt="Profile" class="rounded-circle me-1" width="24" height="24">
-                            {% else %}
-                                <i class="fas fa-user-circle me-1"></i>
-                            {% endif %}
-                            {{ current_user.username }}
-                            {% if current_user.membership_tier != 'free' %}
-                                <span class="badge bg-primary ms-1">{{ current_user.membership_tier|capitalize }}</span>
-                            {% endif %}
+                    <!-- User dropdown when logged in -->
+                    <div class="dropdown">
+                        <a class="btn btn-outline-light dropdown-toggle" href="#" role="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-user-circle me-1"></i>
+                            {{ current_user.first_name or current_user.email.split('@')[0] }}
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                            <li><a class="dropdown-item" href="{{ url_for('web.dashboard') }}">
-                                <i class="fas fa-user me-2"></i>Profile
+                            <li><a class="dropdown-item" href="{{ url_for('auth.profile') }}">
+                                <i class="fas fa-user me-2"></i> Profile
                             </a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('web.dashboard') }}">
-                                <i class="fas fa-id-card me-2"></i>Membership
+                            <li><a class="dropdown-item" href="{{ url_for('auth.membership') }}">
+                                <i class="fas fa-id-card me-2"></i> Membership
                             </a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('web.dashboard') }}">
-                                <i class="fas fa-key me-2"></i>API Keys
+                            <li><a class="dropdown-item" href="{{ url_for('auth.api_keys') }}">
+                                <i class="fas fa-key me-2"></i> API Keys
                             </a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{{ url_for('web.index') }}">
-                                <i class="fas fa-sign-out-alt me-2"></i>Logout
+                            <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">
+                                <i class="fas fa-sign-out-alt me-2"></i> Logout
                             </a></li>
                         </ul>
-                    </li>
+                    </div>
                 {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('web.dashboard') }}">Login</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="btn btn-primary" href="{{ url_for('web.dashboard') }}">Sign Up</a>
-                    </li>
+                    <!-- Login and Register buttons when not logged in -->
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-outline-light me-2">Log In</a>
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-primary">Register</a>
                 {% endif %}
-            </ul>
+            </div>
         </div>
     </div>
 </nav>

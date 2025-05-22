@@ -1,63 +1,76 @@
 {% extends "base.html" %}
 
-{% block title %}Login - Mycology Research Pipeline{% endblock %}
+{% block title %}Log In - Mycology Research Pipeline{% endblock %}
 
 {% block content %}
 <div class="container py-5">
     <div class="row justify-content-center">
-        <div class="col-md-6 col-lg-5">
-            <div class="auth-container">
-                <div class="auth-header">
-                    <h2 class="mb-4">Welcome Back</h2>
-                    <p class="text-muted">Sign in to your account to continue</p>
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary bg-opacity-10">
+                    <h2 class="card-title h4 mb-0">Log In</h2>
                 </div>
-                
-                {% with messages = get_flashed_messages(with_categories=true) %}
-                    {% if messages %}
-                        {% for category, message in messages %}
-                            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                                {{ message }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        {% endfor %}
-                    {% endif %}
-                {% endwith %}
-                
-                <div class="auth-form">
+                <div class="card-body">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }}">{{ message }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                    
                     <form method="post" action="{{ url_for('auth.login') }}">
                         <div class="mb-3">
                             <label for="email" class="form-label">Email Address</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-                                <input type="email" class="form-control" id="email" name="email" required>
-                            </div>
+                            <input type="email" class="form-control" id="email" name="email" required>
                         </div>
                         
                         <div class="mb-3">
                             <label for="password" class="form-label">Password</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                                <input type="password" class="form-control" id="password" name="password" required>
-                            </div>
+                            <input type="password" class="form-control" id="password" name="password" required>
                         </div>
                         
                         <div class="mb-3 form-check">
-                            <input type="checkbox" class="form-check-input" id="remember" name="remember">
-                            <label class="form-check-label" for="remember">Remember me</label>
+                            <input type="checkbox" class="form-check-input" id="remember_me" name="remember_me">
+                            <label class="form-check-label" for="remember_me">Remember Me</label>
                         </div>
                         
                         <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary">Sign In</button>
+                            <button type="submit" class="btn btn-primary">Log In</button>
                         </div>
                     </form>
                     
-                    <div class="text-center mt-3">
-                        <a href="{{ url_for('auth.forgot_password') }}" class="text-decoration-none">Forgot your password?</a>
+                    <div class="mt-4 text-center">
+                        <p>Don't have an account? <a href="{{ url_for('auth.register') }}">Register</a></p>
                     </div>
                 </div>
-                
-                <div class="auth-footer">
-                    <p>Don't have an account? <a href="{{ url_for('auth.register') }}" class="text-decoration-none">Sign up</a></p>
+            </div>
+            
+            <div class="card mt-4 shadow">
+                <div class="card-body">
+                    <h5>Benefits of Membership</h5>
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <i class="fas fa-search text-primary me-2"></i>
+                                <span>Advanced search capabilities</span>
+                            </div>
+                            <div class="mb-3">
+                                <i class="fas fa-chart-line text-primary me-2"></i>
+                                <span>Customizable analytics</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <i class="fas fa-database text-primary me-2"></i>
+                                <span>Access to more data</span>
+                            </div>
+                            <div class="mb-3">
+                                <i class="fas fa-code text-primary me-2"></i>
+                                <span>API access for research</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
