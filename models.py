@@ -184,6 +184,7 @@ class User(UserMixin, db.Model):
     memberships = relationship("Membership", back_populates="user", cascade="all, delete-orphan")
     samples = relationship("Sample", back_populates="user")
     api_tokens = relationship("OAuthToken", back_populates="user", cascade="all, delete-orphan")
+    ai_queries = relationship("AIAssistantQuery", back_populates="user", cascade="all, delete-orphan")
     
     def __repr__(self):
         return f"<User {self.id}: {self.email}>"
@@ -292,9 +293,9 @@ class AIAssistantQuery(db.Model):
     user_id = Column(Integer, ForeignKey('users.id'), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     
-    # Relationships
-    sample = relationship("Sample", back_populates="ai_queries")
-    user = relationship("User", back_populates="ai_queries")
+    # Relationships - using foreign_keys to avoid circular dependencies
+    sample = relationship("Sample", foreign_keys=[sample_id])
+    user = relationship("User", foreign_keys=[user_id])
     
     def __repr__(self):
         return f"<AIAssistantQuery {self.id}: {self.query_type}>"
