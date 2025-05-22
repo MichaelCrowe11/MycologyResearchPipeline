@@ -25,6 +25,8 @@
                         <li><a class="dropdown-item" href="{{ url_for('web.molecular_viewer') }}">Molecular Viewer</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item" href="{{ url_for('web.prediction_dashboard') }}">Compound Prediction</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="{{ url_for('ai.ai_dashboard') }}"><i class="fas fa-robot me-2"></i>AI Assistant</a></li>
                     </ul>
                 </li>
                 <li class="nav-item dropdown">
@@ -53,7 +55,7 @@
                 </button>
                 
                 <!-- Search form -->
-                <form class="d-flex me-3" action="{{ url_for('web.search') }}" method="get">
+                <form class="d-flex me-3" action="{{ url_for('web.index') }}" method="get">
                     <div class="input-group">
                         <input class="form-control form-control-sm" type="search" name="q" placeholder="Search" aria-label="Search">
                         <button class="btn btn-sm btn-outline-light" type="submit">

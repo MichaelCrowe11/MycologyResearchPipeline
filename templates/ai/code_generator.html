@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}AI Code Generator{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="display-5 mb-3">
+                <i class="fas fa-code text-warning me-2"></i>
+                AI Code Generator
+            </h1>
+            <p class="lead">
+                Generate code snippets for common mycology research tasks with AI assistance.
+            </p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Generate Code</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{{ url_for('ai.code_generator') }}">
+                        <div class="mb-3">
+                            <label for="task_description" class="form-label">Task Description</label>
+                            <textarea class="form-control" id="task_description" name="task_description" 
+                                      rows="6" placeholder="Describe the coding task in detail..." required></textarea>
+                            <div class="form-text">
+                                Be as specific as possible about what the code should do, including input/output formats, algorithms, or libraries to use.
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="language" class="form-label">Programming Language</label>
+                            <select class="form-select" id="language" name="language">
+                                <option value="python" selected>Python</option>
+                                <option value="r">R</option>
+                                <option value="sql">SQL</option>
+                                <option value="javascript">JavaScript</option>
+                                <option value="bash">Bash</option>
+                            </select>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-warning">
+                                <i class="fas fa-code me-2"></i>Generate Code
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Example Tasks</h5>
+                </div>
+                <div class="card-body">
+                    <div class="examples">
+                        <div class="example-item mb-3">
+                            <h6>Data Analysis</h6>
+                            <p class="small text-muted">Write a function to analyze growth rates of different fungal species under varying temperature conditions from a CSV file with columns: species, temperature, growth_rate.</p>
+                            <button class="btn btn-sm btn-outline-primary example-btn">Use This Example</button>
+                        </div>
+                        
+                        <div class="example-item mb-3">
+                            <h6>Visualization</h6>
+                            <p class="small text-muted">Create a script to visualize the concentration of different compounds in mycological samples using a grouped bar chart with error bars.</p>
+                            <button class="btn btn-sm btn-outline-primary example-btn">Use This Example</button>
+                        </div>
+                        
+                        <div class="example-item mb-3">
+                            <h6>Database Integration</h6>
+                            <p class="small text-muted">Write code to connect to a PostgreSQL database, query samples collected in the last month, and export the results to a CSV file.</p>
+                            <button class="btn btn-sm btn-outline-primary example-btn">Use This Example</button>
+                        </div>
+                        
+                        <div class="example-item mb-3">
+                            <h6>Statistical Analysis</h6>
+                            <p class="small text-muted">Create a function to perform ANOVA and post-hoc tests on bioactivity data from different mushroom extracts, generating a summary report.</p>
+                            <button class="btn btn-sm btn-outline-primary example-btn">Use This Example</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Tips for Better Results</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="small">
+                        <li>Provide sample data formats when relevant</li>
+                        <li>Specify any libraries or dependencies you prefer</li>
+                        <li>Include error handling requirements if needed</li>
+                        <li>Mention any performance constraints</li>
+                        <li>Ask for comments and documentation in the code</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add functionality to example buttons
+        const exampleBtns = document.querySelectorAll('.example-btn');
+        const taskDescription = document.getElementById('task_description');
+        
+        exampleBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const example = this.previousElementSibling.textContent;
+                taskDescription.value = example;
+                // Scroll back to form
+                document.querySelector('.card-header').scrollIntoView({behavior: 'smooth'});
+            });
+        });
+    });
+</script>
+{% endblock %}
