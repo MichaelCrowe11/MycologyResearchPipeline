@@ -1148,6 +1148,7 @@ dependencies = [
     { name = "scikit-learn" },
     { name = "spyprot" },
     { name = "sqlalchemy" },
+    { name = "stripe" },
     { name = "trafilatura" },
     { name = "werkzeug" },
 ]
@@ -1176,6 +1177,7 @@ requires-dist = [
     { name = "scikit-learn", specifier = ">=1.6.1" },
     { name = "spyprot", specifier = ">=0.9.6" },
     { name = "sqlalchemy", specifier = ">=2.0.41" },
+    { name = "stripe", specifier = ">=12.1.0" },
     { name = "trafilatura", specifier = ">=2.0.0" },
     { name = "werkzeug", specifier = ">=3.1.3" },
 ]
@@ -1439,6 +1441,19 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/fa/2e/677c17c5d6a004c3c45334ab1dbe7b7deb834430b282b8a0f75ae220c8eb/sqlalchemy-2.0.41-cp313-cp313-win32.whl", hash = "sha256:bfc9064f6658a3d1cadeaa0ba07570b83ce6801a1314985bf98ec9b95d74e15f", size = 2082420 },
     { url = "https://files.pythonhosted.org/packages/e9/61/e8c1b9b6307c57157d328dd8b8348ddc4c47ffdf1279365a13b2b98b8049/sqlalchemy-2.0.41-cp313-cp313-win_amd64.whl", hash = "sha256:82ca366a844eb551daff9d2e6e7a9e5e76d2612c8564f58db6c19a726869c1df", size = 2108329 },
     { url = "https://files.pythonhosted.org/packages/1c/fc/9ba22f01b5cdacc8f5ed0d22304718d2c758fce3fd49a5372b886a86f37c/sqlalchemy-2.0.41-py3-none-any.whl", hash = "sha256:57df5dc6fdb5ed1a88a1ed2195fd31927e705cad62dedd86b46972752a80f576", size = 1911224 },
+]
+
+[[package]]
+name = "stripe"
+version = "12.1.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "requests" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/62/c4/4cbc0d81f44d0fd2a991b393597266347082a820df432c9f61df6cb0f80d/stripe-12.1.0.tar.gz", hash = "sha256:4a4b8516952cf5095e982257f0d47c45c1d2bbf7743e2cb12d6685f55da8b8d4", size = 1379855 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/cd/4f/1efeebb7fdc8f1317821006f5830a56e9f030ffbf9369856a0ced16ee252/stripe-12.1.0-py2.py3-none-any.whl", hash = "sha256:1a3c9c0647c46da152efbd3b49f3494a32472b222857758e43df99759e790f29", size = 1622491 },
 ]
 
 [[package]]
