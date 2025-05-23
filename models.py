@@ -6,6 +6,22 @@ from sqlalchemy.orm import relationship
 import enum
 
 
+class MembershipTier(enum.Enum):
+    """Enumeration for membership tiers."""
+    FREE = "free"
+    BASIC = "basic"
+    PRO = "pro"
+    ENTERPRISE = "enterprise"
+
+
+class SubscriptionStatus(enum.Enum):
+    """Enumeration for subscription status."""
+    ACTIVE = "active"
+    CANCELLED = "cancelled"
+    PAST_DUE = "past_due"
+    INCOMPLETE = "incomplete"
+
+
 class Sample(db.Model):
     """Model representing a mycological sample."""
     __tablename__ = 'samples'
@@ -233,11 +249,53 @@ class Membership(db.Model):
         """Check if the membership is valid (active and not expired)."""
         if not self.is_active:
             return False
-        
         if self.end_date and self.end_date < datetime.utcnow():
             return False
-        
         return True
+
+
+class Subscription(db.Model):
+    """Model representing a Stripe subscription."""
+    __tablename__ = 'subscriptions'
+    
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    stripe_subscription_id = Column(String(255), unique=True, nullable=False)
+    stripe_customer_id = Column(String(255), nullable=True)
+    tier = Column(Enum(MembershipTier), nullable=False, default=MembershipTier.FREE)
+    status = Column(Enum(SubscriptionStatus), nullable=False, default=SubscriptionStatus.ACTIVE)
+    current_period_start = Column(DateTime, nullable=True)
+    current_period_end = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    user = relationship("User", backref="subscriptions")
+    
+    def __repr__(self):
+        return f"<Subscription {self.id}: {self.tier.value} for User {self.user_id}>"
+
+
+class Payment(db.Model):
+    """Model representing payment transactions."""
+    __tablename__ = 'payments'
+    
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    subscription_id = Column(Integer, ForeignKey('subscriptions.id'), nullable=True)
+    stripe_payment_intent_id = Column(String(255), unique=True, nullable=False)
+    amount = Column(Float, nullable=False)
+    currency = Column(String(3), default='usd')
+    status = Column(String(50), nullable=False)  # succeeded, pending, failed
+    description = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    user = relationship("User", backref="payments")
+    subscription = relationship("Subscription", backref="payments")
+    
+    def __repr__(self):
+        return f"<Payment {self.id}: ${self.amount} for User {self.user_id}>"
     
     @property
     def days_remaining(self):
