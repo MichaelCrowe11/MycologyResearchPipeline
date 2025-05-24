@@ -10,7 +10,7 @@ import stripe
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify
 from flask_login import login_required, current_user
 from app import db
-from models import User, Subscription, Payment
+from models import User, Subscription, Payment, MembershipTier, SubscriptionStatus
 from datetime import datetime, timedelta
 
 payment_bp = Blueprint('payment', __name__, url_prefix='/payment')
@@ -312,7 +312,7 @@ def payment_cancel():
 
 @payment_bp.route('/webhook', methods=['POST'])
 def stripe_webhook():
-    """Handle Stripe webhooks for subscription updates."""
+    """Handle Stripe webhook events."""
     payload = request.get_data(as_text=True)
     sig_header = request.headers.get('Stripe-Signature')
     
@@ -320,65 +320,154 @@ def stripe_webhook():
         event = stripe.Webhook.construct_event(
             payload, sig_header, os.environ.get('STRIPE_WEBHOOK_SECRET')
         )
-    except ValueError:
-        return 'Invalid payload', 400
-    except stripe.error.SignatureVerificationError:
-        return 'Invalid signature', 400
+    except ValueError as e:
+        # Invalid payload
+        return jsonify({'error': 'Invalid payload'}), 400
+    except stripe.error.SignatureVerificationError as e:
+        # Invalid signature
+        return jsonify({'error': 'Invalid signature'}), 400
     
     # Handle the event
-    if event['type'] == 'customer.subscription.updated':
-        subscription = event['data']['object']
-        # Update subscription in database
+    if event.type == 'customer.subscription.created':
+        subscription = event.data.object
         update_subscription_from_stripe(subscription)
-    elif event['type'] == 'customer.subscription.deleted':
-        subscription = event['data']['object']
-        # Cancel subscription in database
+    elif event.type == 'customer.subscription.updated':
+        subscription = event.data.object
+        update_subscription_from_stripe(subscription)
+    elif event.type == 'customer.subscription.deleted':
+        subscription = event.data.object
         cancel_subscription_from_stripe(subscription)
+    elif event.type == 'invoice.payment_succeeded':
+        invoice = event.data.object
+        handle_successful_payment(invoice)
+    elif event.type == 'invoice.payment_failed':
+        invoice = event.data.object
+        handle_failed_payment(invoice)
     
-    return 'Success', 200
+    return jsonify({'status': 'success'})
+
+def handle_successful_payment(invoice):
+    """Handle successful invoice payment."""
+    try:
+        subscription = stripe.Subscription.retrieve(invoice.subscription)
+        user_id = subscription.metadata.get('user_id')
+        
+        if user_id:
+            payment = Payment(
+                user_id=user_id,
+                stripe_payment_intent_id=invoice.payment_intent,
+                amount=invoice.amount_paid / 100,  # Convert from cents
+                currency=invoice.currency,
+                status='succeeded',
+                description=f'Subscription payment for {invoice.subscription}'
+            )
+            
+            db.session.add(payment)
+            db.session.commit()
+            
+            # Update subscription status
+            update_subscription_from_stripe(subscription)
+    except Exception as e:
+        # Log the error but don't expose it to the client
+        print(f"Error handling successful payment: {str(e)}")
+
+def handle_failed_payment(invoice):
+    """Handle failed invoice payment."""
+    try:
+        subscription = stripe.Subscription.retrieve(invoice.subscription)
+        user_id = subscription.metadata.get('user_id')
+        
+        if user_id:
+            # Update subscription status to past_due
+            db_subscription = Subscription.query.filter_by(
+                stripe_subscription_id=invoice.subscription
+            ).first()
+            
+            if db_subscription:
+                db_subscription.status = SubscriptionStatus.PAST_DUE
+                db.session.commit()
+                
+                # Notify user (implement your notification system)
+                user = User.query.get(user_id)
+                if user:
+                    # Add notification logic here
+                    pass
+    except Exception as e:
+        print(f"Error handling failed payment: {str(e)}")
+
+def update_subscription_from_stripe(stripe_subscription):
+    """Update local subscription record from Stripe data."""
+    try:
+        subscription = Subscription.query.filter_by(
+            stripe_subscription_id=stripe_subscription.id
+        ).first()
+        
+        if not subscription:
+            # Create new subscription
+            subscription = Subscription(
+                user_id=stripe_subscription.metadata.get('user_id'),
+                stripe_subscription_id=stripe_subscription.id,
+                stripe_customer_id=stripe_subscription.customer,
+                tier=MembershipTier(stripe_subscription.metadata.get('tier', 'free')),
+                status=SubscriptionStatus(stripe_subscription.status),
+                current_period_start=datetime.fromtimestamp(stripe_subscription.current_period_start),
+                current_period_end=datetime.fromtimestamp(stripe_subscription.current_period_end)
+            )
+            db.session.add(subscription)
+        else:
+            # Update existing subscription
+            subscription.status = SubscriptionStatus(stripe_subscription.status)
+            subscription.current_period_start = datetime.fromtimestamp(stripe_subscription.current_period_start)
+            subscription.current_period_end = datetime.fromtimestamp(stripe_subscription.current_period_end)
+        
+        db.session.commit()
+    except Exception as e:
+        print(f"Error updating subscription: {str(e)}")
+        db.session.rollback()
+
+def cancel_subscription_from_stripe(stripe_subscription):
+    """Handle subscription cancellation from Stripe."""
+    try:
+        subscription = Subscription.query.filter_by(
+            stripe_subscription_id=stripe_subscription.id
+        ).first()
+        
+        if subscription:
+            subscription.status = SubscriptionStatus.CANCELLED
+            subscription.current_period_end = datetime.fromtimestamp(stripe_subscription.current_period_end)
+            db.session.commit()
+            
+            # Notify user (implement your notification system)
+            user = User.query.get(subscription.user_id)
+            if user:
+                # Add notification logic here
+                pass
+    except Exception as e:
+        print(f"Error cancelling subscription: {str(e)}")
+        db.session.rollback()
 
 @payment_bp.route('/portal')
 @login_required
 def customer_portal():
-    """Redirect to Stripe customer portal for subscription management."""
+    """Create a Stripe customer portal session."""
     try:
-        # Get user's Stripe customer ID
-        if hasattr(current_user, 'stripe_customer_id') and current_user.stripe_customer_id:
-            portal_session = stripe.billing_portal.Session.create(
-                customer=current_user.stripe_customer_id,
-                return_url=f'https://{YOUR_DOMAIN}/auth/membership'
+        # Get or create Stripe customer
+        if not current_user.stripe_customer_id:
+            customer = stripe.Customer.create(
+                email=current_user.email,
+                metadata={'user_id': current_user.id}
             )
-            return redirect(portal_session.url, code=303)
-        else:
-            flash('No active subscription found.', 'warning')
-            return redirect(url_for('payment.membership'))
+            current_user.stripe_customer_id = customer.id
+            db.session.commit()
+        
+        # Create portal session
+        portal_session = stripe.billing_portal.Session.create(
+            customer=current_user.stripe_customer_id,
+            return_url=url_for('payment.membership', _external=True)
+        )
+        
+        return redirect(portal_session.url)
+        
     except Exception as e:
         flash(f'Error accessing customer portal: {str(e)}', 'error')
-        return redirect(url_for('auth.membership'))
-
-def update_subscription_from_stripe(stripe_subscription):
-    """Update local subscription from Stripe webhook data."""
-    subscription = Subscription.query.filter_by(
-        stripe_subscription_id=stripe_subscription['id']
-    ).first()
-    
-    if subscription:
-        subscription.status = stripe_subscription['status']
-        subscription.current_period_start = datetime.fromtimestamp(
-            stripe_subscription['current_period_start']
-        )
-        subscription.current_period_end = datetime.fromtimestamp(
-            stripe_subscription['current_period_end']
-        )
-        db.session.commit()
-
-def cancel_subscription_from_stripe(stripe_subscription):
-    """Cancel local subscription from Stripe webhook data."""
-    subscription = Subscription.query.filter_by(
-        stripe_subscription_id=stripe_subscription['id']
-    ).first()
-    
-    if subscription:
-        subscription.status = 'cancelled'
-        subscription.user.subscription_active = False
-        db.session.commit()
+        return redirect(url_for('payment.membership'))
