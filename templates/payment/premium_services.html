@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+
+{% block title %}Premium Analysis Services{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Hero Section -->
+            <div class="jumbotron bg-gradient text-white mb-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <div class="container text-center py-5">
+                    <h1 class="display-4 fw-bold">Premium Analysis Services</h1>
+                    <p class="lead">Professional-grade mycology analysis with expert validation and detailed scientific reports</p>
+                    <div class="mt-4">
+                        <span class="badge bg-light text-dark fs-6 me-3">48-Hour Turnaround</span>
+                        <span class="badge bg-light text-dark fs-6 me-3">Expert Review Included</span>
+                        <span class="badge bg-light text-dark fs-6">30,000+ Authentic Records</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        {% for service_id, service in services.items() %}
+        <div class="col-lg-4 mb-4">
+            <div class="card h-100 shadow-lg border-0 {% if service_id == 'dried_specimen_analysis' %}border-warning{% endif %}">
+                {% if service_id == 'dried_specimen_analysis' %}
+                <div class="card-header bg-warning text-dark text-center">
+                    <i class="fas fa-star"></i> <strong>MOST POPULAR</strong>
+                </div>
+                {% endif %}
+                
+                <div class="card-body d-flex flex-column">
+                    <div class="text-center mb-4">
+                        {% if service_id == 'dried_specimen_analysis' %}
+                            <i class="fas fa-microscope fa-3x text-warning mb-3"></i>
+                        {% elif service_id == 'bioactivity_report' %}
+                            <i class="fas fa-chart-line fa-3x text-primary mb-3"></i>
+                        {% else %}
+                            <i class="fas fa-layer-group fa-3x text-success mb-3"></i>
+                        {% endif %}
+                        
+                        <h3 class="card-title">{{ service.name }}</h3>
+                        <div class="display-6 fw-bold text-primary">${{ "%.2f"|format(service.price) }}</div>
+                        <p class="text-muted">One-time payment</p>
+                    </div>
+                    
+                    <p class="card-text mb-4">{{ service.description }}</p>
+                    
+                    <div class="features-list mb-4 flex-grow-1">
+                        <h6 class="fw-bold mb-3">What's Included:</h6>
+                        <ul class="list-unstyled">
+                            {% for feature in service.features %}
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success me-2"></i>
+                                {{ feature }}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    
+                    <div class="mt-auto">
+                        <a href="{{ url_for('payment.buy_premium_service', service_id=service_id) }}" 
+                           class="btn {% if service_id == 'dried_specimen_analysis' %}btn-warning{% elif service_id == 'bioactivity_report' %}btn-primary{% else %}btn-success{% endif %} btn-lg w-100">
+                            <i class="fas fa-shopping-cart me-2"></i>
+                            Purchase Now
+                        </a>
+                        
+                        {% if service_id == 'dried_specimen_analysis' %}
+                        <div class="text-center mt-3">
+                            <small class="text-muted">
+                                <i class="fas fa-shield-alt me-1"></i>
+                                Professional accuracy guarantee
+                            </small>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Why Choose Our Premium Services -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-dark text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-award me-2"></i>
+                        Why Choose Our Premium Services?
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 text-center mb-4">
+                            <i class="fas fa-database fa-3x text-primary mb-3"></i>
+                            <h5>Authentic Data</h5>
+                            <p class="text-muted">Analysis based on 30,000+ real bioactivity records from scientific literature</p>
+                        </div>
+                        <div class="col-md-3 text-center mb-4">
+                            <i class="fas fa-search fa-3x text-success mb-3"></i>
+                            <h5>Multi-Database Validation</h5>
+                            <p class="text-muted">Cross-referenced with iNaturalist, GBIF, and specialized mycology databases</p>
+                        </div>
+                        <div class="col-md-3 text-center mb-4">
+                            <i class="fas fa-user-graduate fa-3x text-warning mb-3"></i>
+                            <h5>Expert Review</h5>
+                            <p class="text-muted">All reports reviewed by qualified mycology professionals</p>
+                        </div>
+                        <div class="col-md-3 text-center mb-4">
+                            <i class="fas fa-clock fa-3x text-info mb-3"></i>
+                            <h5>Fast Turnaround</h5>
+                            <p class="text-muted">Professional reports delivered within 48 hours</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Specialized Focus Section -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="alert alert-info border-0 shadow-sm">
+                <div class="row align-items-center">
+                    <div class="col-md-2 text-center">
+                        <i class="fas fa-leaf fa-4x text-info"></i>
+                    </div>
+                    <div class="col-md-10">
+                        <h5 class="alert-heading">
+                            <i class="fas fa-star text-warning me-2"></i>
+                            Specialized in Dried Specimen Analysis
+                        </h5>
+                        <p class="mb-2">
+                            Our platform excels at analyzing dried mushroom specimens, where traditional computer vision often fails. 
+                            We've developed specialized algorithms that account for morphological changes during the drying process.
+                        </p>
+                        <ul class="mb-0">
+                            <li>Shrinkage compensation algorithms</li>
+                            <li>Color degradation analysis</li>
+                            <li>Texture pattern recognition optimized for dried specimens</li>
+                            <li>Cross-validation with authentic scientific databases</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Security and Guarantee -->
+    <div class="row mt-4 mb-5">
+        <div class="col-md-6">
+            <div class="card border-success">
+                <div class="card-body text-center">
+                    <i class="fas fa-lock fa-3x text-success mb-3"></i>
+                    <h5>Secure Payment</h5>
+                    <p class="text-muted">All payments processed securely through Stripe. Your data is protected with enterprise-grade security.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card border-primary">
+                <div class="card-body text-center">
+                    <i class="fas fa-certificate fa-3x text-primary mb-3"></i>
+                    <h5>Quality Guarantee</h5>
+                    <p class="text-muted">If you're not satisfied with your analysis results, we'll refund your payment or provide additional analysis.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.features-list ul li {
+    font-size: 0.9rem;
+}
+
+.card {
+    transition: transform 0.2s ease-in-out;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.bg-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.border-warning .card-body {
+    border-left: 4px solid #ffc107;
+}
+</style>
+{% endblock %}

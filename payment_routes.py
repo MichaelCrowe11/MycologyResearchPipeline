@@ -25,18 +25,19 @@ YOUR_DOMAIN = os.environ.get('REPLIT_DEV_DOMAIN') if os.environ.get('REPLIT_DEPL
 MEMBERSHIP_TIERS = {
     'basic': {
         'name': 'Basic Researcher',
-        'price_id': os.environ.get('STRIPE_PRICE_BASIC', 'price_1OXyZ2ABC123DEF456GHI7J'),  # Set in Stripe dashboard
+        'price_id': os.environ.get('STRIPE_PRICE_BASIC', 'price_1OXyZ2ABC123DEF456GHI7J'),
         'price': 29.99,
         'features': [
             'Access to basic analysis tools',
             'Up to 100 samples per month',
             'Community support',
-            'Basic AI assistance (10 queries/month)'
+            'Basic AI assistance (10 queries/month)',
+            'Standard computer vision analysis'
         ]
     },
     'pro': {
         'name': 'Professional Researcher',
-        'price_id': os.environ.get('STRIPE_PRICE_PRO', 'price_1OXyZABC123DEF456GHI7JK'),  # Set in Stripe dashboard
+        'price_id': os.environ.get('STRIPE_PRICE_PRO', 'price_1OXyZABC123DEF456GHI7JK'),
         'price': 79.99,
         'features': [
             'All Basic features',
@@ -46,12 +47,13 @@ MEMBERSHIP_TIERS = {
             'Full AI assistance (unlimited)',
             'Batch processing',
             'API access',
-            'Literature search integration'
+            'Literature search integration',
+            'Enhanced identification system'
         ]
     },
     'enterprise': {
         'name': 'Enterprise Institution',
-        'price_id': os.environ.get('STRIPE_PRICE_ENTERPRISE', 'price_1OXyZMABC123DEF456GHI7J'),  # Set in Stripe dashboard
+        'price_id': os.environ.get('STRIPE_PRICE_ENTERPRISE', 'price_1OXyZMABC123DEF456GHI7J'),
         'price': 199.99,
         'features': [
             'All Professional features',
@@ -60,7 +62,58 @@ MEMBERSHIP_TIERS = {
             'Dedicated support',
             'Advanced security features',
             'Custom reporting',
-            'Data export capabilities'
+            'Data export capabilities',
+            'White-label solutions'
+        ]
+    }
+}
+
+# Premium Services - Individual purchases
+PREMIUM_SERVICES = {
+    'dried_specimen_analysis': {
+        'name': 'Professional Dried Specimen Analysis',
+        'price_id': os.environ.get('STRIPE_PRICE_DRIED_ANALYSIS', 'price_dried_analysis_premium'),
+        'price': 199.99,
+        'description': 'Comprehensive analysis of dried mushroom specimens with expert-level identification, bioactivity assessment, and detailed scientific report',
+        'features': [
+            'Multi-database cross-validation (iNaturalist, GBIF, MycoBank)',
+            'Specialized dried specimen morphology analysis',
+            'Bioactivity prediction based on 30,000+ authentic records',
+            'Scientific literature correlation',
+            'Professional PDF report with citations',
+            'Quality assessment and authenticity verification',
+            '48-hour turnaround time',
+            'Expert review included'
+        ]
+    },
+    'bioactivity_report': {
+        'name': 'Advanced Bioactivity Analysis',
+        'price_id': os.environ.get('STRIPE_PRICE_BIOACTIVITY', 'price_bioactivity_analysis'),
+        'price': 149.99,
+        'description': 'Detailed bioactivity analysis using machine learning trained on authentic mycology datasets',
+        'features': [
+            'ML predictions based on 30,000 authentic bioactivity records',
+            'Compound identification and classification',
+            'Target pathway analysis',
+            'Potential applications assessment',
+            'Confidence scoring and validation',
+            'Research recommendations',
+            'Comparative analysis with similar species'
+        ]
+    },
+    'batch_analysis_premium': {
+        'name': 'Premium Batch Processing',
+        'price_id': os.environ.get('STRIPE_PRICE_BATCH_PREMIUM', 'price_batch_premium'),
+        'price': 299.99,
+        'description': 'Professional batch processing service for large datasets with priority queue and enhanced accuracy',
+        'features': [
+            'Up to 10,000 samples processed',
+            'Priority processing queue',
+            'Enhanced accuracy algorithms',
+            'Comprehensive results export',
+            'Statistical analysis included',
+            'Custom parameter optimization',
+            'Dedicated support during processing'
         ]
     }
 }
@@ -105,6 +158,110 @@ def create_checkout_session():
     except Exception as e:
         flash(f'Error creating payment session: {str(e)}', 'error')
         return redirect(url_for('payment.membership'))
+
+@payment_bp.route('/premium-services')
+@login_required
+def premium_services():
+    """Display premium services available for purchase."""
+    return render_template('payment/premium_services.html', 
+                         services=PREMIUM_SERVICES)
+
+@payment_bp.route('/buy-service/<service_id>')
+@login_required
+def buy_premium_service(service_id):
+    """Create checkout session for premium service."""
+    if service_id not in PREMIUM_SERVICES:
+        flash('Invalid service selected.', 'error')
+        return redirect(url_for('payment.premium_services'))
+    
+    service = PREMIUM_SERVICES[service_id]
+    
+    try:
+        checkout_session = stripe.checkout.Session.create(
+            line_items=[{
+                'price_data': {
+                    'currency': 'usd',
+                    'product_data': {
+                        'name': service['name'],
+                        'description': service['description'],
+                    },
+                    'unit_amount': int(service['price'] * 100),  # Convert to cents
+                },
+                'quantity': 1,
+            }],
+            mode='payment',
+            success_url=f'https://{YOUR_DOMAIN}/payment/service-success?session_id={{CHECKOUT_SESSION_ID}}',
+            cancel_url=f'https://{YOUR_DOMAIN}/payment/premium-services',
+            metadata={
+                'user_id': current_user.id,
+                'service_id': service_id,
+                'service_type': 'premium_analysis'
+            }
+        )
+        
+        return redirect(checkout_session.url, code=303)
+        
+    except Exception as e:
+        flash(f'Error creating payment session: {str(e)}', 'error')
+        return redirect(url_for('payment.premium_services'))
+
+@payment_bp.route('/service-success')
+@login_required
+def service_payment_success():
+    """Handle successful premium service payment."""
+    session_id = request.args.get('session_id')
+    
+    if session_id:
+        try:
+            session = stripe.checkout.Session.retrieve(session_id)
+            
+            if session.payment_status == 'paid':
+                service_id = session.metadata.get('service_id')
+                service = PREMIUM_SERVICES.get(service_id)
+                
+                if service:
+                    # Create payment record
+                    payment = Payment(
+                        user_id=current_user.id,
+                        stripe_payment_intent_id=session.payment_intent,
+                        amount=service['price'],
+                        currency='usd',
+                        status='completed',
+                        service_type=service_id,
+                        metadata={
+                            'service_name': service['name'],
+                            'session_id': session_id
+                        }
+                    )
+                    
+                    db.session.add(payment)
+                    db.session.commit()
+                    
+                    # Store service access in session for processing
+                    session['purchased_service'] = {
+                        'service_id': service_id,
+                        'payment_id': payment.id,
+                        'expires_at': (datetime.utcnow() + timedelta(days=30)).isoformat()
+                    }
+                    
+                    flash(f'Payment successful! You now have access to {service["name"]}. Upload your specimens to begin analysis.', 'success')
+                    
+                    # Redirect to appropriate analysis page
+                    if service_id == 'dried_specimen_analysis':
+                        return redirect(url_for('web.premium_dried_analysis'))
+                    elif service_id == 'bioactivity_report':
+                        return redirect(url_for('web.premium_bioactivity'))
+                    else:
+                        return redirect(url_for('web.dashboard'))
+                else:
+                    flash('Invalid service in payment metadata.', 'error')
+            else:
+                flash('Payment was not completed. Please try again.', 'warning')
+                
+        except Exception as e:
+            flash(f'Error processing payment: {str(e)}', 'error')
+    
+    return redirect(url_for('payment.premium_services'))
 
 @payment_bp.route('/success')
 @login_required
