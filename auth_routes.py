@@ -6,6 +6,7 @@ This module handles user authentication, registration, and membership management
 
 import os
 from datetime import datetime, timedelta
+from urllib.parse import urlparse, urljoin
 from flask import (
     Blueprint, render_template, request, redirect, url_for, 
     flash, current_app, session, jsonify
@@ -21,6 +22,26 @@ from models import User, Membership, OAuthToken
 
 # Create the blueprint
 auth_bp = Blueprint('auth', __name__)
+
+
+def is_safe_url(target):
+    """
+    Check if the target URL is safe for redirecting.
+    Only allows relative URLs or URLs from the same host.
+    """
+    if not target:
+        return False
+    
+    # Parse the target URL
+    parsed = urlparse(target)
+    
+    # Allow relative URLs (no netloc)
+    if not parsed.netloc:
+        return True
+    
+    # For absolute URLs, check if they're from the same host
+    ref_url = urlparse(request.host_url)
+    return parsed.netloc == ref_url.netloc
 
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
@@ -52,7 +73,7 @@ def login():
             
             # Redirect to the page they were trying to access
             next_page = request.args.get('next')
-            if not next_page or next_page.startswith('/auth'):
+            if not next_page or next_page.startswith('/auth') or not is_safe_url(next_page):
                 next_page = url_for('web.dashboard')
             
             flash(f'Welcome back, {user.first_name}!', 'success')
