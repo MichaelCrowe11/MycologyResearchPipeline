@@ -17,6 +17,7 @@ import numpy as np
 import pandas as pd
 from typing import Dict, List, Tuple, Union, Optional, Any
 import logging
+from scientific_databases import ScientificDataIntegrator, search_all_databases
 
 # Setup logging
 logger = logging.getLogger(__name__)

@@ -10,6 +10,7 @@ from models import Sample, Compound, Analysis, BatchJob, Version, ResearchLog, L
 from literature import initialize_entrez, fetch_pubmed_articles, fetch_species_literature, update_sample_literature
 from model import load_model
 from batch_processor import process_batch
+from enhanced_identification import identify_dried_specimen
 from data_validation import (
     validate_all, validate_all_samples, validate_all_compounds,
     validate_all_literature_references, validate_database_integrity,

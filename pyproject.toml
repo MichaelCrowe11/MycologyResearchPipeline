@@ -29,4 +29,7 @@ dependencies = [
     "pyjwt>=2.10.1",
     "opencv-python>=4.11.0.86",
     "stripe>=12.1.0",
+    "xmltodict>=0.14.2",
+    "lxml>=5.4.0",
+    "beautifulsoup4>=4.13.4",
 ]

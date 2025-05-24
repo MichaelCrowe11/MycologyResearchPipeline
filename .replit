@@ -2,7 +2,7 @@ modules = ["python-3.11", "postgresql-16"]
 
 [nix]
 channel = "stable-24_05"
-packages = ["glibcLocales", "jq", "libGL", "libGLU", "openssl", "postgresql", "unzip", "imagemagick"]
+packages = ["glibcLocales", "imagemagick", "jq", "libGL", "libGLU", "openssl", "postgresql", "unzip", "xcodebuild", "zlib"]
 
 [deployment]
 deploymentTarget = "autoscale"
