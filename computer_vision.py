@@ -381,7 +381,7 @@ class MorphologicalAnalyzer(ImageProcessor):
             # Get rotated bounding rectangle
             rect = cv2.minAreaRect(contour)
             box = cv2.boxPoints(rect)
-            box = np.int0(box)
+            box = np.int32(box)
             rect_width, rect_height = rect[1]
             
             # Calculate elongation
