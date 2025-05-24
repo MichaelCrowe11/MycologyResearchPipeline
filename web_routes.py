@@ -906,15 +906,43 @@ def process_image():
     os.makedirs(analysis_dir, exist_ok=True)
     
     try:
-        # Process the image
-        results = computer_vision.process_sample_image(
-            image_path=filepath,
-            output_dir=analysis_dir,
-            analyze_species=analyze_species,
-            analyze_morphology=analyze_morphology,
-            analyze_color=analyze_color,
-            analyze_growth=analyze_growth
-        )
+        # Use enhanced identification system with scientific databases
+        if analyze_species:
+            # Create context for better identification
+            context = {
+                'sample_type': 'dried_specimen',
+                'user_notes': request.form.get('sample_description', ''),
+                'location': request.form.get('location', ''),
+                'season': request.form.get('season', '')
+            }
+            
+            # Use enhanced identification with scientific database validation
+            enhanced_results = identify_dried_specimen(filepath, context)
+            
+            # Also run standard computer vision for comparison
+            cv_results = computer_vision.process_sample_image(
+                image_path=filepath,
+                output_dir=analysis_dir,
+                analyze_species=analyze_species,
+                analyze_morphology=analyze_morphology,
+                analyze_color=analyze_color,
+                analyze_growth=analyze_growth
+            )
+            
+            # Combine enhanced results with standard analysis
+            results = cv_results.copy()
+            results['enhanced_identification'] = enhanced_results
+            
+        else:
+            # Standard analysis without enhanced identification
+            results = computer_vision.process_sample_image(
+                image_path=filepath,
+                output_dir=analysis_dir,
+                analyze_species=analyze_species,
+                analyze_morphology=analyze_morphology,
+                analyze_color=analyze_color,
+                analyze_growth=analyze_growth
+            )
         
         # Add sample metadata
         results['sample_name'] = sample_name
