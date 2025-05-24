@@ -11,6 +11,7 @@ from literature import initialize_entrez, fetch_pubmed_articles, fetch_species_l
 from model import load_model
 from batch_processor import process_batch
 from enhanced_identification import identify_dried_specimen
+from parameter_generator import SmartParameterGenerator, generate_smart_parameters
 from data_validation import (
     validate_all, validate_all_samples, validate_all_compounds,
     validate_all_literature_references, validate_database_integrity,
@@ -205,6 +206,66 @@ def view_analysis(analysis_id):
     """View a specific analysis."""
     analysis = Analysis.query.get_or_404(analysis_id)
     return render_template('analysis_details.html', analysis=analysis)
+
+
+@web_bp.route('/generate-parameters', methods=['GET', 'POST'])
+def generate_parameters():
+    """Smart parameter generator for users with limited technical knowledge."""
+    if request.method == 'GET':
+        # Show the parameter generator interface
+        generator = SmartParameterGenerator()
+        examples = generator.generate_example_descriptions()
+        return render_template('parameter_generator.html', examples=examples)
+    
+    elif request.method == 'POST':
+        # Generate parameters from user description
+        try:
+            description = request.form.get('description', '')
+            analysis_goals = request.form.getlist('analysis_goals')
+            
+            if not description.strip():
+                return jsonify({'error': 'Please provide a description of what you want to accomplish'}), 400
+            
+            # Generate parameters using the smart generator
+            parameters_json = generate_smart_parameters(description, analysis_goals)
+            
+            # Parse back to dict for additional processing if needed
+            parameters_dict = json.loads(parameters_json)
+            
+            return jsonify({
+                'success': True,
+                'description': description,
+                'generated_parameters': parameters_json,
+                'parameters_dict': parameters_dict,
+                'explanation': _generate_parameter_explanation(parameters_dict)
+            })
+            
+        except Exception as e:
+            logger.error(f"Error generating parameters: {str(e)}")
+            return jsonify({'error': f'Error generating parameters: {str(e)}'}), 500
+
+
+def _generate_parameter_explanation(parameters):
+    """Generate a human-readable explanation of the generated parameters."""
+    explanations = []
+    
+    if parameters.get('specimen_type') == 'dried':
+        explanations.append("Optimized for dried specimen analysis with shrinkage adjustments")
+    
+    if parameters.get('enhanced_identification'):
+        explanations.append("Using enhanced identification with scientific database validation")
+    
+    if parameters.get('confidence_level') == 'high':
+        explanations.append("High accuracy mode with detailed feature extraction")
+    
+    if parameters.get('research_context'):
+        context = parameters['research_context']
+        explanations.append(f"Configured for {context} purposes")
+    
+    if parameters.get('parallel_processing'):
+        explanations.append("Batch processing enabled for multiple samples")
+    
+    return ". ".join(explanations) if explanations else "Standard analysis configuration generated"
 
 
 @web_bp.route('/batch/new', methods=['GET', 'POST'])
