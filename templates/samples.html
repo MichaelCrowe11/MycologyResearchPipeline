@@ -1,0 +1,354 @@
+{% extends "base.html" %}
+
+{% block title %}Samples - Mycology Research Pipeline{% endblock %}
+
+{% block content %}
+<div class="hero-section hero-samples mb-4">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <h1>Sample Management</h1>
+                <p>Create, organize, and analyze your mycological samples. Track specimen details, compounds, and analysis results in one centralized location.</p>
+            </div>
+            <div class="col-lg-4 d-flex align-items-center justify-content-lg-end">
+                <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#addSampleModal">
+                    <i class="fas fa-plus me-1"></i> Add Sample
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-header">
+        <ul class="nav nav-tabs card-header-tabs" id="samplesTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="list-tab" data-bs-toggle="tab" data-bs-target="#list-view" type="button" role="tab" aria-controls="list-view" aria-selected="true">
+                    <i class="fas fa-list me-1"></i> List View
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="grid-tab" data-bs-toggle="tab" data-bs-target="#grid-view" type="button" role="tab" aria-controls="grid-view" aria-selected="false">
+                    <i class="fas fa-th-large me-1"></i> Grid View
+                </button>
+            </li>
+            <li class="nav-item ms-auto">
+                <div class="input-group">
+                    <input type="text" class="form-control form-control-sm" id="sampleSearch" placeholder="Search samples...">
+                    <button class="btn btn-outline-secondary btn-sm" type="button" id="searchButton">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </li>
+        </ul>
+    </div>
+    <div class="card-body">
+        <div class="tab-content" id="samplesTabsContent">
+            <!-- List View -->
+            <div class="tab-pane fade show active" id="list-view" role="tabpanel" aria-labelledby="list-tab">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Species</th>
+                                <th>Location</th>
+                                <th>Collection Date</th>
+                                <th>Compounds</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if samples %}
+                                {% for sample in samples %}
+                                <tr>
+                                    <td>{{ sample.name }}</td>
+                                    <td>{{ sample.species or "-" }}</td>
+                                    <td>{{ sample.location or "-" }}</td>
+                                    <td>{{ sample.collection_date.strftime('%Y-%m-%d') if sample.collection_date else "-" }}</td>
+                                    <td>{{ sample.compounds|length }}</td>
+                                    <td>{{ sample.created_at.strftime('%Y-%m-%d') }}</td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a href="{{ url_for('web.view_sample', sample_id=sample.id) }}" class="btn btn-sm btn-outline-info">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="{{ url_for('web.new_analysis') }}?sample_id={{ sample.id }}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-vial"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="7" class="text-center py-4">
+                                        <p class="text-muted mb-2">No samples found</p>
+                                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addSampleModal">
+                                            <i class="fas fa-plus me-1"></i> Add Sample
+                                        </button>
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Grid View -->
+            <div class="tab-pane fade" id="grid-view" role="tabpanel" aria-labelledby="grid-tab">
+                <div class="row row-cols-1 row-cols-md-3 g-4">
+                    {% if samples %}
+                        {% for sample in samples %}
+                        <div class="col">
+                            <div class="card h-100">
+                                {% if sample.species %}
+                                    {% if sample.species|lower == "agaricus bisporus" %}
+                                    <img src="https://pixabay.com/get/gc89351855045e408ee4648c704bf0a8c5e2e0fbfc83bee239529d2d8bc55cea7bfbfd1c3c27a35ff541437be53e072d6ebdcb35118964c3da16ec267cc32be8c_1280.jpg" class="card-img-top" alt="{{ sample.species }}">
+                                    {% elif sample.species|lower == "lentinula edodes" %}
+                                    <img src="https://pixabay.com/get/gd0672998d760d8f41a4c61ca7a465fb9a0a001407f6b2f45ef439325833298c053aa7b0db8a3cec5d890ffa97b2feaf1d1b634e46a5b175341217261837fbaf3_1280.jpg" class="card-img-top" alt="{{ sample.species }}">
+                                    {% elif sample.species|lower == "ganoderma lucidum" %}
+                                    <img src="https://pixabay.com/get/gbb607b1de03b41f94909d909af8788e6c3e4bd89791bc6b22462d94243df629b91a2450d44a04d1710b17ec9dd5300f46339822672172ffea9f98a9cc3857532_1280.jpg" class="card-img-top" alt="{{ sample.species }}">
+                                    {% else %}
+                                    <img src="https://pixabay.com/get/g65fb16a41a9f2d0f0b3c294c24eedb22cb308778265bba55b6306c6f2ec74107f7478744a65a57ed2056dec59904190c9548167d5982c13f8a3e2132bc7a2a7f_1280.jpg" class="card-img-top" alt="Mushroom">
+                                    {% endif %}
+                                {% else %}
+                                <img src="https://pixabay.com/get/g67cac6616b489bcb04021ead67a77ac34e209f44e02bec7fe9d0d50e31d43f75a64236a3417a11c1de1250f805a8571c84626742ead66ae622c760a0012bea33_1280.jpg" class="card-img-top" alt="Mushroom">
+                                {% endif %}
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ sample.name }}</h5>
+                                    <h6 class="card-subtitle mb-2 text-muted">{{ sample.species or "Unknown Species" }}</h6>
+                                    <p class="card-text">
+                                        {% if sample.description %}
+                                        {{ sample.description|truncate(100) }}
+                                        {% else %}
+                                        <span class="text-muted">No description available</span>
+                                        {% endif %}
+                                    </p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">
+                                            Collected: {{ sample.collection_date.strftime('%Y-%m-%d') if sample.collection_date else "Unknown" }}
+                                        </small>
+                                        <span class="badge bg-info">{{ sample.compounds|length }} compounds</span>
+                                    </div>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="d-flex justify-content-between">
+                                        <a href="{{ url_for('web.view_sample', sample_id=sample.id) }}" class="btn btn-sm btn-outline-info">
+                                            <i class="fas fa-eye me-1"></i> Details
+                                        </a>
+                                        <a href="{{ url_for('web.new_analysis') }}?sample_id={{ sample.id }}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-vial me-1"></i> Analyze
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="col-12 text-center py-5">
+                            <p class="text-muted mb-3">No samples found</p>
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addSampleModal">
+                                <i class="fas fa-plus me-1"></i> Add Sample
+                            </button>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-header">
+                <h5 class="mb-0">Species Distribution</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="speciesDistribution" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-header">
+                <h5 class="mb-0">Collection Timeline</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="collectionTimeline" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Sample Modal -->
+<div class="modal fade" id="addSampleModal" tabindex="-1" aria-labelledby="addSampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="{{ url_for('web.list_samples') }}">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addSampleModalLabel">Add New Sample</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Name *</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="species" class="form-label">Species</label>
+                        <input type="text" class="form-control" id="species" name="species">
+                    </div>
+                    <div class="mb-3">
+                        <label for="collection_date" class="form-label">Collection Date</label>
+                        <input type="date" class="form-control" id="collection_date" name="collection_date">
+                    </div>
+                    <div class="mb-3">
+                        <label for="location" class="form-label">Location</label>
+                        <input type="text" class="form-control" id="location" name="location">
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Sample</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/form_validation.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize search functionality
+        const searchInput = document.getElementById('sampleSearch');
+        const searchButton = document.getElementById('searchButton');
+        
+        if (searchInput && searchButton) {
+            searchButton.addEventListener('click', function() {
+                const searchTerm = searchInput.value.toLowerCase();
+                filterSamples(searchTerm);
+            });
+            
+            searchInput.addEventListener('keyup', function(event) {
+                if (event.key === 'Enter') {
+                    const searchTerm = searchInput.value.toLowerCase();
+                    filterSamples(searchTerm);
+                }
+            });
+        }
+        
+        function filterSamples(searchTerm) {
+            // In a real app, this would send a request to the server or filter on the client side
+            // For now, we'll just show an alert
+            alert(`Searching for: ${searchTerm}`);
+        }
+        
+        // Initialize charts
+        {% if samples %}
+        
+        // Species Distribution Chart
+        const speciesCtx = document.getElementById('speciesDistribution');
+        if (speciesCtx) {
+            // Count species occurrences
+            const speciesCounts = {};
+            {% for sample in samples %}
+                const species = "{{ sample.species or 'Unknown' }}";
+                speciesCounts[species] = (speciesCounts[species] || 0) + 1;
+            {% endfor %}
+            
+            // Convert to arrays for Chart.js
+            const species = Object.keys(speciesCounts);
+            const counts = Object.values(speciesCounts);
+            
+            // Generate colors
+            const colors = [
+                'rgba(74, 143, 110, 0.7)',
+                'rgba(23, 162, 184, 0.7)',
+                'rgba(255, 193, 7, 0.7)',
+                'rgba(220, 53, 69, 0.7)',
+                'rgba(108, 117, 125, 0.7)'
+            ];
+            
+            new Chart(speciesCtx, {
+                type: 'pie',
+                data: {
+                    labels: species,
+                    datasets: [{
+                        data: counts,
+                        backgroundColor: colors.slice(0, species.length),
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Collection Timeline Chart
+        const timelineCtx = document.getElementById('collectionTimeline');
+        if (timelineCtx) {
+            // Prepare data for timeline
+            const dates = [];
+            const counts = {};
+            
+            {% for sample in samples %}
+                {% if sample.collection_date %}
+                const date = "{{ sample.collection_date.strftime('%Y-%m') }}";
+                dates.push(date);
+                counts[date] = (counts[date] || 0) + 1;
+                {% endif %}
+            {% endfor %}
+            
+            // Get unique dates and sort them
+            const uniqueDates = Array.from(new Set(dates)).sort();
+            const dateCountsList = uniqueDates.map(date => counts[date]);
+            
+            new Chart(timelineCtx, {
+                type: 'line',
+                data: {
+                    labels: uniqueDates,
+                    datasets: [{
+                        label: 'Samples Collected',
+                        data: dateCountsList,
+                        borderColor: 'rgba(74, 143, 110, 1)',
+                        backgroundColor: 'rgba(74, 143, 110, 0.2)',
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        {% endif %}
+    });
+</script>
+{% endblock %}

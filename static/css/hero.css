@@ -1,0 +1,173 @@
+/* Hero Sections CSS for Mycology Research Pipeline */
+
+.hero-section {
+  position: relative;
+  padding: 3rem 0;
+  background-color: var(--dark-color);
+  color: #fff;
+  overflow: hidden;
+  border-radius: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+.hero-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('../images/hero-bg.jpg');
+  background-size: cover;
+  background-position: center;
+  opacity: 0.2;
+  z-index: 0;
+}
+
+.hero-section .container {
+  position: relative;
+  z-index: 1;
+}
+
+.hero-section h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.hero-section p {
+  font-size: 1.2rem;
+  max-width: 700px;
+  margin-bottom: 1.5rem;
+  opacity: 0.9;
+}
+
+.hero-section .btn {
+  padding: 0.6rem 1.5rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+}
+
+.hero-section .btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Hero variations */
+.hero-dashboard {
+  background-color: #1e3a5f;
+}
+
+.hero-samples {
+  background-color: #2c7873;
+}
+
+.hero-analysis {
+  background-color: #512b58;
+}
+
+.hero-molecular {
+  background-color: #264653;
+}
+
+.hero-results {
+  background-color: #5a3d55;
+}
+
+/* Hero with image */
+.hero-with-image {
+  display: flex;
+  align-items: center;
+}
+
+.hero-content {
+  flex: 1;
+}
+
+.hero-image {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.hero-image img {
+  max-width: 100%;
+  max-height: 300px;
+  border-radius: 0.3rem;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* Stats in hero section */
+.hero-stats {
+  display: flex;
+  margin-top: 2rem;
+}
+
+.stat-item {
+  flex: 1;
+  text-align: center;
+  padding: 1rem;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  margin-right: 1rem;
+}
+
+.stat-item:last-child {
+  margin-right: 0;
+}
+
+.stat-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--accent-color, #81c784);
+}
+
+.stat-label {
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.8;
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+  .hero-with-image {
+    flex-direction: column;
+  }
+  
+  .hero-content, .hero-image {
+    width: 100%;
+  }
+  
+  .hero-image {
+    margin-top: 2rem;
+  }
+  
+  .hero-stats {
+    flex-wrap: wrap;
+  }
+  
+  .stat-item {
+    flex: 0 0 calc(50% - 0.5rem);
+    margin-bottom: 1rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .hero-section h1 {
+    font-size: 2rem;
+  }
+  
+  .hero-section p {
+    font-size: 1rem;
+  }
+  
+  .stat-item {
+    flex: 0 0 100%;
+    margin-right: 0;
+  }
+}

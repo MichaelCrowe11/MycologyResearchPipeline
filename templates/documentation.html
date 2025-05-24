@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+
+{% block title %}Documentation - Mycology Research Pipeline{% endblock %}
+
+{% block content %}
+<div class="hero-section mb-4">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <h1>Documentation</h1>
+                <p>Comprehensive guides and reference materials for the Mycology Research Pipeline</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mb-5">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Documentation</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        <a href="{{ url_for('web.documentation') }}" class="list-group-item list-group-item-action active">Overview</a>
+                        <a href="{{ url_for('web.pubmed_documentation') }}" class="list-group-item list-group-item-action">PubMed Integration</a>
+                        <a href="{{ url_for('web.cmid_documentation') }}" class="list-group-item list-group-item-action">CMID Research Kit</a>
+                        <a href="#" class="list-group-item list-group-item-action">Sample Management</a>
+                        <a href="#" class="list-group-item list-group-item-action">Compound Analysis</a>
+                        <a href="#" class="list-group-item list-group-item-action">Batch Processing</a>
+                        <a href="#" class="list-group-item list-group-item-action">API Reference</a>
+                        <a href="#" class="list-group-item list-group-item-action">Deployment Guide</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-9">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Documentation Overview</h5>
+                </div>
+                <div class="card-body">
+                    <h2>Mycology Research Pipeline Documentation</h2>
+                    <p class="lead">
+                        Welcome to the official documentation for the Mycology Research Pipeline, a comprehensive platform 
+                        for advanced mycological research, data processing, and scientific exploration.
+                    </p>
+                    
+                    <p>
+                        This documentation provides detailed information on how to use the various features of the platform,
+                        from sample management to advanced data analysis and integration with external resources like PubMed.
+                    </p>
+                    
+                    <div class="alert alert-primary">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Version:</strong> 1.0 (MVP Release)
+                    </div>
+                    
+                    <h3>Key Components</h3>
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5><i class="fas fa-flask me-2 text-primary"></i> Sample Management</h5>
+                                    <p>
+                                        Tools for cataloging, tracking, and managing mycological samples, including species 
+                                        information, collection data, and custom metadata.
+                                    </p>
+                                    <a href="#" class="btn btn-sm btn-outline-primary">Learn More</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5><i class="fas fa-vial me-2 text-primary"></i> Compound Analysis</h5>
+                                    <p>
+                                        Tools for analyzing and visualizing compounds found in mycological samples, including
+                                        chemical properties, bioactivity indices, and molecular structures.
+                                    </p>
+                                    <a href="#" class="btn btn-sm btn-outline-primary">Learn More</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5><i class="fas fa-book me-2 text-primary"></i> PubMed Integration</h5>
+                                    <p>
+                                        Integration with the PubMed database for accessing and managing scientific literature
+                                        related to mycological research and medicinal mushrooms.
+                                    </p>
+                                    <a href="{{ url_for('web.pubmed_documentation') }}" class="btn btn-sm btn-outline-primary">Learn More</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5><i class="fas fa-tasks me-2 text-primary"></i> Batch Processing</h5>
+                                    <p>
+                                        Tools for processing large datasets of mycological samples and compounds, with
+                                        support for automated analysis and reporting.
+                                    </p>
+                                    <a href="#" class="btn btn-sm btn-outline-primary">Learn More</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5><i class="fas fa-chart-line me-2 text-primary"></i> Data Visualization</h5>
+                                    <p>
+                                        Tools for visualizing research data, including interactive charts, graphs, and
+                                        molecular structure viewers.
+                                    </p>
+                                    <a href="#" class="btn btn-sm btn-outline-primary">Learn More</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5><i class="fas fa-code me-2 text-primary"></i> API Reference</h5>
+                                    <p>
+                                        Comprehensive API documentation for developers integrating with the Mycology Research
+                                        Pipeline programmatically.
+                                    </p>
+                                    <a href="#" class="btn btn-sm btn-outline-primary">Learn More</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3>Getting Started</h3>
+                    <p>
+                        To get started with the Mycology Research Pipeline, we recommend these initial steps:
+                    </p>
+                    <ol>
+                        <li>Explore the <a href="{{ url_for('web.dashboard') }}">Dashboard</a> to get an overview of the system</li>
+                        <li>Add your first mycological <a href="{{ url_for('web.new_sample') }}">Sample</a></li>
+                        <li>Run an <a href="{{ url_for('web.new_analysis') }}">Analysis</a> on your sample</li>
+                        <li>Explore scientific literature using the <a href="{{ url_for('web.literature') }}">Literature</a> page</li>
+                        <li>Set up <a href="{{ url_for('web.new_batch_job') }}">Batch Processing</a> for larger datasets</li>
+                    </ol>
+                    
+                    <h3>System Requirements</h3>
+                    <ul>
+                        <li>Web browser: Chrome, Firefox, Safari, or Edge (latest versions)</li>
+                        <li>Internet connection: Required for PubMed integration and external data access</li>
+                        <li>Screen resolution: Minimum 1280x720 recommended</li>
+                    </ul>
+                    
+                    <h3>Support</h3>
+                    <p>
+                        For technical support, please contact:
+                    </p>
+                    <ul>
+                        <li>Email: <a href="mailto:support@mycology-research-pipeline.org">support@mycology-research-pipeline.org</a></li>
+                        <li>GitHub Issues: <a href="https://github.com/mycology-research-pipeline/issues" target="_blank">Report a Bug</a></li>
+                    </ul>
+                    
+                    <h3>Developer Resources</h3>
+                    <p>
+                        For developers interested in extending or integrating with the Mycology Research Pipeline:
+                    </p>
+                    <ul>
+                        <li><a href="#">API Documentation</a></li>
+                        <li><a href="#">Deployment Guide</a></li>
+                        <li><a href="#">GitHub Repository</a></li>
+                        <li><a href="#">Contributing Guidelines</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

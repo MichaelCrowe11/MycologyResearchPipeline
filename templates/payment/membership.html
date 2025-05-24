@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+
+{% block title %}Membership Plans - Mycology Research Pipeline{% endblock %}
+
+{% block extra_css %}
+<style>
+    .pricing-card {
+        background: var(--surface-dark);
+        border-radius: 16px;
+        padding: 2rem;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        height: 100%;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .pricing-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    }
+    
+    .pricing-card.popular {
+        border: 2px solid var(--primary-color);
+        position: relative;
+    }
+    
+    .popular-badge {
+        position: absolute;
+        top: -12px;
+        right: 20px;
+        background: var(--primary-color);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    
+    .price {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin: 1rem 0;
+    }
+    
+    .price-period {
+        font-size: 1rem;
+        color: var(--text-secondary);
+    }
+    
+    .feature-list {
+        list-style: none;
+        padding: 0;
+        margin: 1.5rem 0;
+    }
+    
+    .feature-list li {
+        padding: 0.5rem 0;
+        color: var(--text-secondary);
+        display: flex;
+        align-items: center;
+    }
+    
+    .feature-list li i {
+        color: var(--primary-color);
+        margin-right: 0.75rem;
+        font-size: 0.875rem;
+    }
+    
+    .current-plan {
+        background: rgba(76, 175, 80, 0.1);
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        color: var(--primary-color);
+        font-weight: 500;
+        display: inline-block;
+        margin-bottom: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h1 class="display-4 mb-3">Choose Your Research Plan</h1>
+        <p class="lead text-secondary">Select the perfect plan for your mycological research needs</p>
+    </div>
+    
+    {% if current_user.membership_tier %}
+    <div class="text-center mb-4">
+        <span class="current-plan">
+            <i class="fas fa-check-circle me-2"></i>Current Plan: {{ membership_tiers[current_user.membership_tier]['name'] }}
+        </span>
+    </div>
+    {% endif %}
+    
+    <div class="row g-4">
+        {% for tier_id, tier in membership_tiers.items() %}
+        <div class="col-md-4">
+            <div class="pricing-card {% if tier_id == 'pro' %}popular{% endif %}">
+                {% if tier_id == 'pro' %}
+                <span class="popular-badge">Most Popular</span>
+                {% endif %}
+                
+                <h3 class="h4 mb-3">{{ tier.name }}</h3>
+                <div class="price">
+                    ${{ tier.price }}<span class="price-period">/month</span>
+                </div>
+                
+                <ul class="feature-list">
+                    {% for feature in tier.features %}
+                    <li>
+                        <i class="fas fa-check"></i>
+                        {{ feature }}
+                    </li>
+                    {% endfor %}
+                </ul>
+                
+                <form action="{{ url_for('payment.create_checkout_session') }}" method="POST" class="mt-4">
+                    <input type="hidden" name="tier" value="{{ tier_id }}">
+                    <button type="submit" class="btn btn-primary w-100 py-2">
+                        {% if current_user.membership_tier == tier_id %}
+                        Current Plan
+                        {% else %}
+                        Select Plan
+                        {% endif %}
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <div class="row mt-5">
+        <div class="col-lg-8 mx-auto">
+            <div class="card bg-transparent border-0">
+                <div class="card-body text-center">
+                    <h3 class="h4 mb-3">Need a Custom Solution?</h3>
+                    <p class="text-secondary mb-4">Contact us for enterprise-level solutions and custom integrations tailored to your research needs.</p>
+                    <a href="#" class="btn btn-outline-primary">Contact Sales</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-5">
+        <div class="col-lg-8 mx-auto">
+            <div class="card bg-transparent border-0">
+                <div class="card-body">
+                    <h3 class="h4 mb-4">Frequently Asked Questions</h3>
+                    
+                    <div class="accordion" id="pricingFAQ">
+                        <div class="accordion-item bg-transparent border-0 mb-3">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed bg-transparent" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                                    Can I upgrade or downgrade my plan?
+                                </button>
+                            </h2>
+                            <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#pricingFAQ">
+                                <div class="accordion-body text-secondary">
+                                    Yes, you can change your plan at any time. When upgrading, you'll be prorated for the remainder of your billing cycle. When downgrading, the new rate will apply at the start of your next billing cycle.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="accordion-item bg-transparent border-0 mb-3">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed bg-transparent" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                                    What payment methods do you accept?
+                                </button>
+                            </h2>
+                            <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#pricingFAQ">
+                                <div class="accordion-body text-secondary">
+                                    We accept all major credit cards (Visa, MasterCard, American Express) and PayPal. For enterprise customers, we also offer invoice-based billing.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="accordion-item bg-transparent border-0">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed bg-transparent" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                                    Is there a free trial available?
+                                </button>
+                            </h2>
+                            <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#pricingFAQ">
+                                <div class="accordion-body text-secondary">
+                                    Yes, we offer a 14-day free trial for all paid plans. No credit card required to start your trial.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% endblock %}

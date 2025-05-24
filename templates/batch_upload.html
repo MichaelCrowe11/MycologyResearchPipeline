@@ -1,0 +1,229 @@
+{% extends "base.html" %}
+
+{% block title %}Batch Processing - Mycology Research Pipeline{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Batch Processing</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{{ url_for('web.view_results') }}" class="btn btn-sm btn-outline-secondary">
+            <i class="fas fa-poll me-1"></i> View Results
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4 order-md-2 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header">
+                <h5 class="mb-0">Batch Processing Information</h5>
+            </div>
+            <div class="card-body">
+                <p><i class="fas fa-info-circle text-primary me-2"></i>Upload a CSV file containing multiple samples for batch analysis.</p>
+                
+                <h6 class="mt-4">CSV Format Requirements:</h6>
+                <ul class="list-unstyled">
+                    <li class="mb-2">
+                        <strong><i class="fas fa-file-csv text-info me-2"></i>Header Row Required</strong>
+                        <p class="text-muted small mb-0">The first row should contain column headers.</p>
+                    </li>
+                    <li class="mb-2">
+                        <strong><i class="fas fa-table text-info me-2"></i>Data Structure</strong>
+                        <p class="text-muted small mb-0">Each row represents a single sample for analysis.</p>
+                    </li>
+                    <li>
+                        <strong><i class="fas fa-columns text-info me-2"></i>Required Columns</strong>
+                        <p class="text-muted small mb-0">The system will auto-detect numeric columns as features.</p>
+                    </li>
+                </ul>
+                
+                <h6 class="mt-4">Sample CSV Format:</h6>
+                <pre class="small bg-dark text-light p-2 rounded"><code>name,species,molecular_weight,pH,concentration
+sample1,Agaricus bisporus,125.2,6.5,0.8
+sample2,Lentinula edodes,135.3,6.7,0.7
+sample3,Ganoderma lucidum,142.1,6.3,0.9</code></pre>
+                
+                <div class="alert alert-info mt-4" role="alert">
+                    <i class="fas fa-lightbulb me-2"></i>
+                    <strong>Tip:</strong> For large files, batch processing may take several minutes to complete.
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8 order-md-1">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0">Upload Batch File</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" action="{{ url_for('web.new_batch_job') }}" enctype="multipart/form-data" id="batchUploadForm">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Batch Job Name</label>
+                        <input type="text" class="form-control" id="name" name="name" placeholder="Enter a descriptive name for this batch job">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="3" placeholder="Optional description of this batch job"></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="file" class="form-label">CSV File</label>
+                        <input type="file" class="form-control" id="file" name="file" accept=".csv" required>
+                        <div class="form-text text-muted">Upload a CSV file with sample data.</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="parameters" class="form-label">Processing Parameters (JSON)</label>
+                        <textarea class="form-control" id="parameters" name="parameters" rows="4" placeholder='{"model_type": "regressor", "normalization": true, "drop_na": true}'></textarea>
+                        <div class="form-text text-muted">Optional JSON parameters for controlling batch processing.</div>
+                    </div>
+                    
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="skipHeader" name="skip_header" checked>
+                        <label class="form-check-label" for="skipHeader">First row is header</label>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <button type="reset" class="btn btn-outline-secondary">Reset</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-upload me-1"></i> Upload and Process
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card shadow-sm mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">Recent Batch Jobs</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Status</th>
+                                <th>Created</th>
+                                <th>Records</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% set recent_jobs = [] %}
+                            {% for job in recent_jobs %}
+                            <tr>
+                                <td>{{ job.name }}</td>
+                                <td>
+                                    <span class="badge {% if job.status == 'completed' %}bg-success{% elif job.status == 'processing' %}bg-warning{% elif job.status == 'failed' %}bg-danger{% else %}bg-secondary{% endif %}">
+                                        {{ job.status }}
+                                    </span>
+                                </td>
+                                <td>{{ job.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td>{{ job.total_records }}/{{ job.processed_records }}</td>
+                                <td>
+                                    <a href="{{ url_for('web.view_batch_job', job_id=job.id) }}" class="btn btn-sm btn-outline-info">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center py-3">No recent batch jobs</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0">Batch Processing Workflow</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 text-center mb-4 mb-md-0">
+                        <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center" style="width: 100px; height: 100px;">
+                            <i class="fas fa-file-upload fa-3x text-primary"></i>
+                        </div>
+                        <h5 class="mt-3">1. Upload CSV</h5>
+                        <p class="small text-muted">Upload a properly formatted CSV file with sample data.</p>
+                    </div>
+                    <div class="col-md-3 text-center mb-4 mb-md-0">
+                        <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center" style="width: 100px; height: 100px;">
+                            <i class="fas fa-cogs fa-3x text-primary"></i>
+                        </div>
+                        <h5 class="mt-3">2. Configuration</h5>
+                        <p class="small text-muted">Set processing parameters and options for your batch job.</p>
+                    </div>
+                    <div class="col-md-3 text-center mb-4 mb-md-0">
+                        <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center" style="width: 100px; height: 100px;">
+                            <i class="fas fa-tasks fa-3x text-primary"></i>
+                        </div>
+                        <h5 class="mt-3">3. Processing</h5>
+                        <p class="small text-muted">System processes all samples in the uploaded file.</p>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center" style="width: 100px; height: 100px;">
+                            <i class="fas fa-file-download fa-3x text-primary"></i>
+                        </div>
+                        <h5 class="mt-3">4. Results</h5>
+                        <p class="small text-muted">Download and visualize batch processing results.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/form_validation.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize form validation
+        const batchUploadForm = document.getElementById('batchUploadForm');
+        if (batchUploadForm) {
+            validateBatchUploadForm(batchUploadForm);
+        }
+        
+        // Parameters JSON validation
+        const parametersField = document.getElementById('parameters');
+        if (parametersField) {
+            parametersField.addEventListener('blur', function() {
+                const value = this.value.trim();
+                if (value) {
+                    try {
+                        JSON.parse(value);
+                        this.classList.remove('is-invalid');
+                        this.classList.add('is-valid');
+                    } catch (e) {
+                        this.classList.remove('is-valid');
+                        this.classList.add('is-invalid');
+                        // Add error message
+                        let errorMsg = document.getElementById('parameters-error');
+                        if (!errorMsg) {
+                            errorMsg = document.createElement('div');
+                            errorMsg.id = 'parameters-error';
+                            errorMsg.className = 'invalid-feedback';
+                            this.parentNode.appendChild(errorMsg);
+                        }
+                        errorMsg.textContent = 'Invalid JSON format';
+                    }
+                } else {
+                    this.classList.remove('is-invalid');
+                    this.classList.remove('is-valid');
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

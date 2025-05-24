@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <!-- Main Circle Container -->
+  <circle cx="200" cy="120" r="80" fill="#000" stroke="#000" stroke-width="8"/>
+  
+  <!-- Inner Circle (representing the soil line) -->
+  <circle cx="200" cy="120" r="72" fill="#f0f0f0"/>
+  
+  <!-- Mushroom Cap -->
+  <path d="M 160 110 Q 200 90 240 110 Q 235 120 200 125 Q 165 120 160 110 Z" fill="#000"/>
+  
+  <!-- Mushroom Gills -->
+  <path d="M 165 115 Q 200 120 235 115" fill="none" stroke="#f0f0f0" stroke-width="2"/>
+  <path d="M 170 118 Q 200 122 230 118" fill="none" stroke="#f0f0f0" stroke-width="1"/>
+  
+  <!-- Mushroom Stem -->
+  <rect x="195" y="125" width="10" height="30" fill="#000"/>
+  
+  <!-- Underground Root System -->
+  <g transform="translate(200,155)" fill="none" stroke="#000" stroke-width="2">
+    <path d="M 0 0 L -20 15 M 0 0 L 20 15"/>
+    <path d="M 0 0 L -30 8 M 0 0 L 30 8"/>
+    <path d="M 0 0 L -15 25 M 0 0 L 15 25"/>
+    <path d="M -20 15 L -25 20 M 20 15 L 25 20"/>
+    <path d="M -30 8 L -35 12 M 30 8 L 35 12"/>
+  </g>
+  
+  <!-- Molecular Structure (DNA/Research element) -->
+  <g transform="translate(250,105)">
+    <circle cx="0" cy="0" r="4" fill="#000"/>
+    <circle cx="15" cy="10" r="4" fill="#000"/>
+    <circle cx="8" cy="-15" r="4" fill="#000"/>
+    <circle cx="25" cy="-5" r="4" fill="#000"/>
+    <line x1="0" y1="0" x2="15" y2="10" stroke="#000" stroke-width="2"/>
+    <line x1="0" y1="0" x2="8" y2="-15" stroke="#000" stroke-width="2"/>
+    <line x1="15" y1="10" x2="25" y2="-5" stroke="#000" stroke-width="2"/>
+  </g>
+  
+  <!-- Main Text -->
+  <text x="200" y="280" text-anchor="middle" font-family="Arial, sans-serif" font-size="48" font-weight="900" fill="#000">
+    MYCOLOGY
+  </text>
+  
+  <!-- Subtitle -->
+  <text x="200" y="310" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#000" letter-spacing="3px">
+    RESEARCH PIPELINE
+  </text>
+</svg>

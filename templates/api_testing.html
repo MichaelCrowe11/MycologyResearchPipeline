@@ -1,0 +1,400 @@
+{% extends "base.html" %}
+
+{% block title %}API Testing - Mycology Research Pipeline{% endblock %}
+
+{% block content %}
+<div class="hero-section hero-molecular mb-4">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <h1>API Testing Guide</h1>
+                <p>Learn how to test and interact with the Mycology Research Pipeline API using Postman or similar tools.</p>
+            </div>
+            <div class="col-lg-4 d-flex align-items-center justify-content-lg-end">
+                <a href="{{ url_for('web.documentation') }}" class="btn btn-light">
+                    <i class="fas fa-book me-1"></i> Documentation
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">API Testing Tools</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <a href="https://www.postman.com/" target="_blank" class="list-group-item list-group-item-action d-flex align-items-center">
+                        <img src="https://www.vectorlogo.zone/logos/getpostman/getpostman-icon.svg" alt="Postman" width="24" class="me-3">
+                        Postman
+                        <span class="ms-auto"><i class="fas fa-external-link-alt"></i></span>
+                    </a>
+                    <a href="https://insomnia.rest/" target="_blank" class="list-group-item list-group-item-action d-flex align-items-center">
+                        <img src="https://raw.githubusercontent.com/Kong/insomnia/develop/packages/insomnia/src/icons/insomnia.iconset/icon_32x32.png" alt="Insomnia" width="24" class="me-3">
+                        Insomnia
+                        <span class="ms-auto"><i class="fas fa-external-link-alt"></i></span>
+                    </a>
+                    <a href="https://curl.se/" target="_blank" class="list-group-item list-group-item-action d-flex align-items-center">
+                        <i class="fas fa-terminal me-3"></i>
+                        cURL (Command Line)
+                        <span class="ms-auto"><i class="fas fa-external-link-alt"></i></span>
+                    </a>
+                    <a href="https://httpie.io/" target="_blank" class="list-group-item list-group-item-action d-flex align-items-center">
+                        <i class="fas fa-terminal me-3"></i>
+                        HTTPie (Command Line)
+                        <span class="ms-auto"><i class="fas fa-external-link-alt"></i></span>
+                    </a>
+                    <a href="https://www.thunderclient.com/" target="_blank" class="list-group-item list-group-item-action d-flex align-items-center">
+                        <i class="fas fa-bolt me-3"></i>
+                        Thunder Client (VS Code)
+                        <span class="ms-auto"><i class="fas fa-external-link-alt"></i></span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Getting Started with Postman</h5>
+            </div>
+            <div class="card-body">
+                <p>Postman is a popular API client that makes it easy to test and document APIs. Follow these steps to get started testing the Mycology Research Pipeline API:</p>
+                
+                <ol>
+                    <li>
+                        <strong>Download and install Postman</strong>
+                        <p>Visit <a href="https://www.postman.com/downloads/" target="_blank">https://www.postman.com/downloads/</a> to download and install Postman for your operating system.</p>
+                    </li>
+                    <li>
+                        <strong>Create a new Collection</strong>
+                        <p>In Postman, create a new Collection called "Mycology Research Pipeline API".</p>
+                    </li>
+                    <li>
+                        <strong>Set up your environment</strong>
+                        <p>Create a new Environment with the following variables:</p>
+                        <ul>
+                            <li><code>base_url</code>: <code>http://localhost:8000</code> (or your deployed API URL)</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <strong>Create your first request</strong>
+                        <p>Create a new GET request to check the API health status:</p>
+                        <ul>
+                            <li>URL: <code>{{base_url}}/api/health</code></li>
+                            <li>Method: GET</li>
+                        </ul>
+                    </li>
+                </ol>
+                
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Tip:</strong> You can import the complete Postman Collection using the button below.
+                </div>
+                
+                <div class="text-center mt-4">
+                    <a href="{{ url_for('static', filename='files/mycology_api_collection.json') }}" class="btn btn-primary" download>
+                        <i class="fas fa-download me-2"></i> Download Postman Collection
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card shadow-sm mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">API Endpoints</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Endpoint</th>
+                                <th>Method</th>
+                                <th>Description</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>/api/health</code></td>
+                                <td><span class="badge bg-success">GET</span></td>
+                                <td>Check API health status</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-secondary copy-endpoint" data-endpoint="{{request.host_url}}api/health" data-method="GET">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>/api/samples</code></td>
+                                <td><span class="badge bg-success">GET</span></td>
+                                <td>Get a list of samples</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-secondary copy-endpoint" data-endpoint="{{request.host_url}}api/samples" data-method="GET">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>/api/samples/{id}</code></td>
+                                <td><span class="badge bg-success">GET</span></td>
+                                <td>Get a specific sample by ID</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-secondary copy-endpoint" data-endpoint="{{request.host_url}}api/samples/1" data-method="GET">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>/api/samples</code></td>
+                                <td><span class="badge bg-primary">POST</span></td>
+                                <td>Create a new sample</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-secondary copy-endpoint" data-endpoint="{{request.host_url}}api/samples" data-method="POST">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>/api/analysis</code></td>
+                                <td><span class="badge bg-success">GET</span></td>
+                                <td>Get a list of analyses</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-secondary copy-endpoint" data-endpoint="{{request.host_url}}api/analysis" data-method="GET">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>/api/analysis/{id}</code></td>
+                                <td><span class="badge bg-success">GET</span></td>
+                                <td>Get a specific analysis by ID</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-secondary copy-endpoint" data-endpoint="{{request.host_url}}api/analysis/1" data-method="GET">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>/api/process</code></td>
+                                <td><span class="badge bg-primary">POST</span></td>
+                                <td>Process data for analysis</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-secondary copy-endpoint" data-endpoint="{{request.host_url}}api/process" data-method="POST">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>/api/batch</code></td>
+                                <td><span class="badge bg-success">GET</span></td>
+                                <td>Get a list of batch jobs</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-secondary copy-endpoint" data-endpoint="{{request.host_url}}api/batch" data-method="GET">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>/api/batch/{id}</code></td>
+                                <td><span class="badge bg-success">GET</span></td>
+                                <td>Get a specific batch job by ID</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-secondary copy-endpoint" data-endpoint="{{request.host_url}}api/batch/1" data-method="GET">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>/api/batch</code></td>
+                                <td><span class="badge bg-primary">POST</span></td>
+                                <td>Create a new batch job</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-secondary copy-endpoint" data-endpoint="{{request.host_url}}api/batch" data-method="POST">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0">Example API Requests</h5>
+            </div>
+            <div class="card-body">
+                <div class="accordion" id="apiExamples">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingOne">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                Create a New Sample (POST /api/samples)
+                            </button>
+                        </h2>
+                        <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#apiExamples">
+                            <div class="accordion-body">
+                                <p>Request headers:</p>
+                                <pre class="bg-dark text-light p-3 rounded"><code>Content-Type: application/json</code></pre>
+                                
+                                <p>Request body:</p>
+                                <pre class="bg-dark text-light p-3 rounded"><code>{
+  "name": "Turkey-Tail-001",
+  "species": "Trametes versicolor",
+  "description": "Wild-harvested Turkey Tail specimen from mixed forest",
+  "location": "Oregon, Mixed Conifer Forest",
+  "collection_date": "2025-05-01T10:00:00Z",
+  "sample_metadata": {
+    "substrate": "Dead oak log",
+    "weather_conditions": "Partly cloudy, high humidity",
+    "forest_type": "Mixed conifer-deciduous",
+    "collector": "M. Crowe"
+  }
+}</code></pre>
+                                
+                                <p>cURL example:</p>
+                                <pre class="bg-dark text-light p-3 rounded"><code>curl -X POST "{{request.host_url}}api/samples" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "name": "Turkey-Tail-001",
+       "species": "Trametes versicolor",
+       "description": "Wild-harvested Turkey Tail specimen from mixed forest",
+       "location": "Oregon, Mixed Conifer Forest",
+       "collection_date": "2025-05-01T10:00:00Z",
+       "sample_metadata": {
+         "substrate": "Dead oak log",
+         "weather_conditions": "Partly cloudy, high humidity",
+         "forest_type": "Mixed conifer-deciduous",
+         "collector": "M. Crowe"
+       }
+     }'</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingTwo">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                Run an Analysis (POST /api/process)
+                            </button>
+                        </h2>
+                        <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#apiExamples">
+                            <div class="accordion-body">
+                                <p>Request headers:</p>
+                                <pre class="bg-dark text-light p-3 rounded"><code>Content-Type: application/json</code></pre>
+                                
+                                <p>Request body:</p>
+                                <pre class="bg-dark text-light p-3 rounded"><code>{
+  "input_data": "sample:1",
+  "parameters": {
+    "analysis_type": "bioactivity_analysis",
+    "target_compounds": ["Ganoderic Acid A", "Beta-D-Glucan"],
+    "reference_threshold": 0.75
+  }
+}</code></pre>
+                                
+                                <p>cURL example:</p>
+                                <pre class="bg-dark text-light p-3 rounded"><code>curl -X POST "{{request.host_url}}api/process" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "input_data": "sample:1",
+       "parameters": {
+         "analysis_type": "bioactivity_analysis",
+         "target_compounds": ["Ganoderic Acid A", "Beta-D-Glucan"],
+         "reference_threshold": 0.75
+       }
+     }'</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingThree">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                Create a Batch Job (POST /api/batch)
+                            </button>
+                        </h2>
+                        <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#apiExamples">
+                            <div class="accordion-body">
+                                <p>Request headers:</p>
+                                <pre class="bg-dark text-light p-3 rounded"><code>Content-Type: application/json</code></pre>
+                                
+                                <p>Request body:</p>
+                                <pre class="bg-dark text-light p-3 rounded"><code>{
+  "name": "May 2025 Batch Analysis",
+  "description": "Bioactivity analysis for all samples collected in May 2025",
+  "input_file": "samples/may_2025.csv",
+  "parameters": {
+    "analysis_type": "bioactivity_analysis",
+    "include_molecular_weight": true,
+    "target_threshold": 0.7
+  }
+}</code></pre>
+                                
+                                <p>cURL example:</p>
+                                <pre class="bg-dark text-light p-3 rounded"><code>curl -X POST "{{request.host_url}}api/batch" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "name": "May 2025 Batch Analysis",
+       "description": "Bioactivity analysis for all samples collected in May 2025",
+       "input_file": "samples/may_2025.csv",
+       "parameters": {
+         "analysis_type": "bioactivity_analysis",
+         "include_molecular_weight": true,
+         "target_threshold": 0.7
+       }
+     }'</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Copy endpoint to clipboard
+        const copyButtons = document.querySelectorAll('.copy-endpoint');
+        
+        copyButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const endpoint = this.getAttribute('data-endpoint');
+                const method = this.getAttribute('data-method');
+                
+                // Create temporary textarea to copy the text
+                const textarea = document.createElement('textarea');
+                textarea.value = endpoint;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                
+                // Change button appearance temporarily to indicate successful copy
+                const originalHTML = this.innerHTML;
+                this.innerHTML = '<i class="fas fa-check"></i>';
+                this.classList.add('btn-success');
+                this.classList.remove('btn-outline-secondary');
+                
+                setTimeout(() => {
+                    this.innerHTML = originalHTML;
+                    this.classList.remove('btn-success');
+                    this.classList.add('btn-outline-secondary');
+                }, 1500);
+                
+                // Show toast or alert
+                alert(`${method} ${endpoint} copied to clipboard!`);
+            });
+        });
+    });
+</script>
+{% endblock %}

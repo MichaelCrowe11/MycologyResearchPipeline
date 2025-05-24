@@ -1,0 +1,252 @@
+/* Custom CSS for Mycology Research Pipeline */
+
+/* Override Bootstrap variables */
+:root {
+  --primary-color: #34836e;        /* Darker teal for better contrast */
+  --secondary-color: #546e7a;      /* Blue-gray secondary */
+  --success-color: #2e7d32;        /* Darker green for better contrast */
+  --info-color: #0277bd;           /* Brighter blue for better visibility */
+  --warning-color: #ef6c00;        /* Darker orange for better contrast */
+  --danger-color: #c62828;         /* Darker red for better contrast */
+  --light-color: #f5f5f5;          /* Slightly warmer light background */
+  --dark-color: #263238;           /* Slightly lighter dark for better readability */
+  --text-primary: #212121;         /* Nearly black for primary text */
+  --text-secondary: #424242;       /* Dark gray for secondary text */
+  --text-on-dark: #ffffff;         /* White text for dark backgrounds */
+  --text-on-primary: #ffffff;      /* White text for primary color backgrounds */
+  --accent-color: #81c784;         /* Light green accent */
+  --highlight-color: #b2dfdb;      /* Pale teal for highlighting */
+  --font-family-sans-serif: 'Roboto', -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-family-monospace: 'Roboto Mono', SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+/* General Styles */
+body {
+  font-family: var(--font-family-sans-serif);
+  background-color: #f9f9f9;
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+
+.navbar-brand {
+  font-weight: 700;
+  color: var(--primary-color) !important;
+}
+
+/* Ensure text readability on dark backgrounds */
+.bg-dark {
+  color: #ffffff !important;
+}
+
+.bg-dark a, .bg-dark h1, .bg-dark h2, .bg-dark h3, .bg-dark h4, .bg-dark h5, .bg-dark h6, .bg-dark p, .bg-dark span {
+  color: #ffffff !important;
+}
+
+.bg-primary, .bg-secondary, .bg-success, .bg-danger, .bg-warning, .bg-info {
+  color: #ffffff !important;
+}
+
+.text-on-dark-bg {
+  color: #ffffff !important;
+}
+
+.card-header {
+  color: var(--text-primary) !important;
+}
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 100;
+  padding: 48px 0 0;
+  box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+}
+
+.sidebar-sticky {
+  position: relative;
+  top: 0;
+  height: calc(100vh - 48px);
+  padding-top: .5rem;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* Dashboard Cards */
+.card {
+  border-radius: 10px;
+  transition: transform 0.3s ease;
+  border: none;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+.card-header {
+  background-color: #f8f9fa;
+  color: var(--text-primary);
+  border-bottom: 2px solid var(--primary-color);
+  border-radius: 10px 10px 0 0 !important;
+  font-weight: 500;
+}
+
+.stats-card {
+  text-align: center;
+  padding: 1.5rem;
+}
+
+.stats-card .value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+.stats-card .label {
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 1px;
+  color: var(--secondary-color);
+}
+
+/* Buttons and Controls */
+.btn-primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+  background-color: #3d7a5d;
+  border-color: #3d7a5d;
+}
+
+.btn-outline-primary {
+  color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+/* Chart Containers */
+.chart-container {
+  height: 300px;
+  margin-bottom: 2rem;
+  position: relative;
+}
+
+/* Data Tables */
+.data-table {
+  width: 100%;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 3px rgba(0,0,0,0.1);
+}
+
+.data-table thead th {
+  border-top: none;
+  border-bottom: 2px solid var(--primary-color);
+  background-color: #f9f9f9;
+  font-weight: 600;
+}
+
+.data-table td {
+  vertical-align: middle;
+}
+
+/* Forms */
+.form-control:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.2rem rgba(74, 143, 110, 0.25);
+}
+
+.form-group label {
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+/* Footer */
+footer {
+  padding: 1rem 0;
+  border-top: 1px solid #eee;
+  margin-top: 2rem;
+  color: var(--secondary-color);
+}
+
+/* Analysis Results */
+.result-section {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Badges and Tags */
+.badge-bioactivity {
+  background-color: #4a8f6e;
+  color: white;
+}
+
+.badge-experiment {
+  background-color: #6c757d;
+  color: white;
+}
+
+/* Loading Spinner */
+.spinner-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.7);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+  color: var(--primary-color);
+}
+
+/* Custom Progress Bar */
+.bioactivity-progress {
+  height: 20px;
+  border-radius: 10px;
+  background-color: #f1f1f1;
+}
+
+.bioactivity-progress .progress-bar {
+  background-color: var(--primary-color);
+  border-radius: 10px;
+  transition: width 0.6s ease;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .sidebar {
+    position: static;
+    height: auto;
+    padding: 0;
+    box-shadow: none;
+  }
+  
+  .sidebar-sticky {
+    height: auto;
+  }
+  
+  .stats-card .value {
+    font-size: 2rem;
+  }
+  
+  .chart-container {
+    height: 250px;
+  }
+}

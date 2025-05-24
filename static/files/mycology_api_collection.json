@@ -1,0 +1,230 @@
+{
+  "info": {
+    "_postman_id": "a6e2f1d0-cb4d-4bf2-b5e5-f7eabe42b1c8",
+    "name": "Mycology Research Pipeline API",
+    "description": "API Collection for the Mycology Research Pipeline",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/health",
+          "host": ["{{base_url}}"],
+          "path": ["api", "health"]
+        },
+        "description": "Check if the API is operational"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Samples",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/samples?limit=10&offset=0",
+          "host": ["{{base_url}}"],
+          "path": ["api", "samples"],
+          "query": [
+            {
+              "key": "limit",
+              "value": "10"
+            },
+            {
+              "key": "offset",
+              "value": "0"
+            }
+          ]
+        },
+        "description": "Get a list of samples with pagination"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Sample by ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/samples/1",
+          "host": ["{{base_url}}"],
+          "path": ["api", "samples", "1"]
+        },
+        "description": "Get details for a specific sample by ID"
+      },
+      "response": []
+    },
+    {
+      "name": "Create Sample",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Turkey-Tail-001\",\n  \"species\": \"Trametes versicolor\",\n  \"description\": \"Wild-harvested Turkey Tail specimen from mixed forest\",\n  \"location\": \"Oregon, Mixed Conifer Forest\",\n  \"collection_date\": \"2025-05-01T10:00:00Z\",\n  \"sample_metadata\": {\n    \"substrate\": \"Dead oak log\",\n    \"weather_conditions\": \"Partly cloudy, high humidity\",\n    \"forest_type\": \"Mixed conifer-deciduous\",\n    \"collector\": \"M. Crowe\"\n  }\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/samples",
+          "host": ["{{base_url}}"],
+          "path": ["api", "samples"]
+        },
+        "description": "Create a new sample"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Analyses",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/analysis?limit=10&offset=0",
+          "host": ["{{base_url}}"],
+          "path": ["api", "analysis"],
+          "query": [
+            {
+              "key": "limit",
+              "value": "10"
+            },
+            {
+              "key": "offset",
+              "value": "0"
+            }
+          ]
+        },
+        "description": "Get a list of analyses with pagination"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Analysis by ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/analysis/1",
+          "host": ["{{base_url}}"],
+          "path": ["api", "analysis", "1"]
+        },
+        "description": "Get details for a specific analysis by ID"
+      },
+      "response": []
+    },
+    {
+      "name": "Process Sample",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"input_data\": \"sample:1\",\n  \"parameters\": {\n    \"analysis_type\": \"bioactivity_analysis\",\n    \"target_compounds\": [\"Ganoderic Acid A\", \"Beta-D-Glucan\"],\n    \"reference_threshold\": 0.75\n  }\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/process",
+          "host": ["{{base_url}}"],
+          "path": ["api", "process"]
+        },
+        "description": "Process a sample for analysis"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Batch Jobs",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/batch?limit=10&offset=0",
+          "host": ["{{base_url}}"],
+          "path": ["api", "batch"],
+          "query": [
+            {
+              "key": "limit",
+              "value": "10"
+            },
+            {
+              "key": "offset",
+              "value": "0"
+            }
+          ]
+        },
+        "description": "Get a list of batch jobs with pagination"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Batch Job by ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/batch/1",
+          "host": ["{{base_url}}"],
+          "path": ["api", "batch", "1"]
+        },
+        "description": "Get details for a specific batch job by ID"
+      },
+      "response": []
+    },
+    {
+      "name": "Create Batch Job",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"May 2025 Batch Analysis\",\n  \"description\": \"Bioactivity analysis for all samples collected in May 2025\",\n  \"input_file\": \"samples/may_2025.csv\",\n  \"parameters\": {\n    \"analysis_type\": \"bioactivity_analysis\",\n    \"include_molecular_weight\": true,\n    \"target_threshold\": 0.7\n  }\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/batch",
+          "host": ["{{base_url}}"],
+          "path": ["api", "batch"]
+        },
+        "description": "Create a new batch processing job"
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string"
+    }
+  ]
+}

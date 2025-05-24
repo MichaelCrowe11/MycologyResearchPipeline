@@ -1,0 +1,315 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Mycology Research Pipeline{% endblock %}
+
+{% block content %}
+<div class="hero-section hero-dashboard mb-4">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <h1>Dashboard</h1>
+                <p>Access key metrics and visualizations for your mycology research. Monitor sample analysis, track bioactivity patterns, and view realtime research insights.</p>
+            </div>
+            <div class="col-lg-4 d-flex align-items-center">
+                <div class="btn-toolbar w-100 justify-content-lg-end">
+                    <div class="btn-group me-2">
+                        <button type="button" class="btn btn-light" id="exportResults">
+                            <i class="fas fa-file-export me-1"></i> Export
+                        </button>
+                        <button type="button" class="btn btn-light" id="refreshDashboard">
+                            <i class="fas fa-sync-alt me-1"></i> Refresh
+                        </button>
+                    </div>
+                    <select class="form-select bg-transparent text-white border-light" id="analysisDateRange" style="max-width: 140px;">
+                        <option value="7">Last 7 Days</option>
+                        <option value="30" selected>Last 30 Days</option>
+                        <option value="90">Last 90 Days</option>
+                        <option value="365">Last Year</option>
+                        <option value="all">All Time</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row row-cols-1 row-cols-md-4 g-4 mb-4">
+    <div class="col">
+        <div class="card stats-card shadow-sm">
+            <div class="card-body">
+                <div class="value">{{ sample_count }}</div>
+                <div class="label">Total Samples</div>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card stats-card shadow-sm">
+            <div class="card-body">
+                <div class="value">{{ analysis_count }}</div>
+                <div class="label">Analyses Run</div>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card stats-card shadow-sm">
+            <div class="card-body">
+                <div class="value">{{ compound_count }}</div>
+                <div class="label">Compounds</div>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card stats-card shadow-sm">
+            <div class="card-body">
+                <div class="value">{{ batch_job_count }}</div>
+                <div class="label">Batch Jobs</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6 dashboard-section">
+        <div class="card shadow-sm h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Sample Distribution</h5>
+                <button class="btn btn-sm btn-outline-secondary">
+                    <i class="fas fa-expand-alt"></i>
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="sampleDistributionChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 dashboard-section">
+        <div class="card shadow-sm h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Analysis Success Rate</h5>
+                <button class="btn btn-sm btn-outline-secondary">
+                    <i class="fas fa-expand-alt"></i>
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="analysisSuccessChart" data-success-rate="{{ success_rate }}"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-8 dashboard-section">
+        <div class="card shadow-sm h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Bioactivity Distribution</h5>
+                <button class="btn btn-sm btn-outline-secondary">
+                    <i class="fas fa-expand-alt"></i>
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="bioactivityHistogram"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 dashboard-section">
+        <div class="card shadow-sm h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Feature Importance</h5>
+                <button class="btn btn-sm btn-outline-secondary">
+                    <i class="fas fa-expand-alt"></i>
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="featureImportanceChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h2 class="mb-3">Recent Activities</h2>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0">Recent Analyses</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Sample</th>
+                                <th>Analysis Type</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Duration</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for analysis in recent_analyses %}
+                            <tr>
+                                <td>{{ analysis.id }}</td>
+                                <td>
+                                    <a href="{{ url_for('web.view_sample', sample_id=analysis.sample_id) }}">
+                                        {{ analysis.sample.name }}
+                                    </a>
+                                </td>
+                                <td>{{ analysis.analysis_type }}</td>
+                                <td>
+                                    <span class="badge {% if analysis.status == 'completed' %}bg-success{% elif analysis.status == 'processing' %}bg-warning{% elif analysis.status == 'failed' %}bg-danger{% else %}bg-secondary{% endif %}">
+                                        {{ analysis.status }}
+                                    </span>
+                                </td>
+                                <td>{{ analysis.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td>
+                                    {% if analysis.start_time and analysis.end_time %}
+                                        {{ (analysis.end_time - analysis.start_time).total_seconds()|round(2) }} s
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('web.view_analysis', analysis_id=analysis.id) }}" class="btn btn-sm btn-outline-info">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card-footer">
+                <a href="{{ url_for('web.view_results') }}" class="btn btn-outline-primary btn-sm">View All Results</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4 dashboard-section">
+    <div class="col-md-12">
+        <div class="card shadow-sm">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Visualization Demo</h5>
+                <div class="btn-group">
+                    <button class="btn btn-sm btn-outline-secondary active" data-bs-toggle="tab" data-bs-target="#heatmapDemo">Heatmap</button>
+                    <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="tab" data-bs-target="#networkDemo">Network</button>
+                    <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="tab" data-bs-target="#scatterDemo">Scatter</button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" id="heatmapDemo">
+                        <div id="bioactivityHeatmap" style="height: 400px;"></div>
+                    </div>
+                    <div class="tab-pane fade" id="networkDemo">
+                        <div id="compoundNetworkGraph" style="height: 400px;"></div>
+                    </div>
+                    <div class="tab-pane fade" id="scatterDemo">
+                        <div id="bioactivityScatterPlot" style="height: 400px;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer text-muted">
+                <small>Note: These visualizations use simulated data for demonstration purposes.</small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Sample data for visualizations (in a real app this would come from the server)
+    document.addEventListener('DOMContentLoaded', function() {
+        // Sample data for heatmap
+        const heatmapContainer = document.getElementById('bioactivityHeatmap');
+        if (heatmapContainer) {
+            const heatmapData = {
+                compounds: ['Compound A', 'Compound B', 'Compound C', 'Compound D', 'Compound E'],
+                targets: ['Target 1', 'Target 2', 'Target 3', 'Target 4'],
+                values: []
+            };
+            
+            // Generate values
+            for (let compound of heatmapData.compounds) {
+                for (let target of heatmapData.targets) {
+                    heatmapData.values.push({
+                        compound: compound,
+                        target: target,
+                        value: Math.random()
+                    });
+                }
+            }
+            
+            // Store data in data attribute
+            heatmapContainer.dataset.heatmapData = JSON.stringify(heatmapData);
+        }
+        
+        // Sample data for network graph
+        const networkContainer = document.getElementById('compoundNetworkGraph');
+        if (networkContainer) {
+            const networkData = {
+                nodes: [
+                    {id: 'c1', name: 'Compound A', type: 'compound', size: 15},
+                    {id: 'c2', name: 'Compound B', type: 'compound', size: 15},
+                    {id: 'c3', name: 'Compound C', type: 'compound', size: 15},
+                    {id: 'e1', name: 'Anti-inflammatory', type: 'effect', size: 12},
+                    {id: 'e2', name: 'Antioxidant', type: 'effect', size: 12},
+                    {id: 'e3', name: 'Immune Boosting', type: 'effect', size: 12},
+                    {id: 'p1', name: 'Solubility', type: 'property', size: 10},
+                    {id: 'p2', name: 'Stability', type: 'property', size: 10}
+                ],
+                links: [
+                    {source: 'c1', target: 'e1', value: 5},
+                    {source: 'c1', target: 'e2', value: 3},
+                    {source: 'c1', target: 'p1', value: 2},
+                    {source: 'c2', target: 'e2', value: 5},
+                    {source: 'c2', target: 'e3', value: 4},
+                    {source: 'c2', target: 'p2', value: 3},
+                    {source: 'c3', target: 'e1', value: 2},
+                    {source: 'c3', target: 'e3', value: 5},
+                    {source: 'c3', target: 'p1', value: 4},
+                    {source: 'c3', target: 'p2', value: 3}
+                ]
+            };
+            
+            // Store data in data attribute
+            networkContainer.dataset.networkData = JSON.stringify(networkData);
+        }
+        
+        // Sample data for scatter plot
+        const scatterContainer = document.getElementById('bioactivityScatterPlot');
+        if (scatterContainer) {
+            const scatterData = {
+                compounds: []
+            };
+            
+            // Generate compounds
+            const species = ['Agaricus bisporus', 'Lentinula edodes', 'Ganoderma lucidum'];
+            for (let i = 0; i < 30; i++) {
+                scatterData.compounds.push({
+                    name: `Compound ${i+1}`,
+                    molecular_weight: 100 + Math.random() * 500,
+                    bioactivity_index: Math.random(),
+                    species: species[Math.floor(Math.random() * species.length)]
+                });
+            }
+            
+            // Store data in data attribute
+            scatterContainer.dataset.scatterData = JSON.stringify(scatterData);
+        }
+    });
+</script>
+{% endblock %}

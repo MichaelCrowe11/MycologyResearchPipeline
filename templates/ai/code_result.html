@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}AI Code Generation Result - Mycology Research Pipeline{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3><i class="fas fa-code me-2"></i>AI Generated Code</h3>
+                </div>
+                <div class="card-body">
+                    {% if result %}
+                        <div class="mb-4">
+                            <h5>Task Description:</h5>
+                            <p class="text-muted">{{ task_description }}</p>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h5>Generated Code:</h5>
+                            <pre class="bg-dark text-light p-3 rounded"><code>{{ result.code }}</code></pre>
+                        </div>
+                        
+                        {% if result.explanation %}
+                        <div class="mb-4">
+                            <h5>Explanation:</h5>
+                            <div class="alert alert-info">{{ result.explanation }}</div>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-outline-primary" onclick="copyToClipboard()">
+                                <i class="fas fa-copy me-2"></i>Copy Code
+                            </button>
+                            <a href="{{ url_for('ai.code_generator') }}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Generate More Code
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-warning">
+                            <h5>No result available</h5>
+                            <p>Please try generating code again.</p>
+                            <a href="{{ url_for('ai.code_generator') }}" class="btn btn-primary">
+                                <i class="fas fa-code me-2"></i>Generate Code
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function copyToClipboard() {
+    const codeElement = document.querySelector('pre code');
+    if (codeElement) {
+        navigator.clipboard.writeText(codeElement.textContent).then(function() {
+            alert('Code copied to clipboard!');
+        });
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,348 @@
+{% extends "base.html" %}
+
+{% block title %}Structured Literature Search - Mycology Research Pipeline{% endblock %}
+
+{% block content %}
+<div class="hero-section mb-4">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <h1>Structured Literature Search</h1>
+                <p>Search multiple scientific databases for research on medicinal mushrooms</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mb-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Search Parameters</h5>
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('web.run_literature_search') }}" method="post">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="search_type" class="form-label">Search Type</label>
+                                    <select class="form-select" id="search_type" name="search_type">
+                                        <option value="quick">Quick Search (1-2 focused queries)</option>
+                                        <option value="comprehensive">Comprehensive Search (Multiple query combinations)</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="species" class="form-label">Mushroom Species</label>
+                                    <select class="form-select" id="species" name="species" multiple size="4">
+                                        <option value="Hericium erinaceus" selected>Hericium erinaceus (Lion's Mane)</option>
+                                        <option value="Ganoderma lucidum">Ganoderma lucidum (Reishi)</option>
+                                        <option value="Trametes versicolor">Trametes versicolor (Turkey Tail)</option>
+                                        <option value="Cordyceps militaris">Cordyceps militaris</option>
+                                        <option value="Lentinula edodes">Lentinula edodes (Shiitake)</option>
+                                        <option value="Inonotus obliquus">Inonotus obliquus (Chaga)</option>
+                                    </select>
+                                    <div class="form-text">Hold Ctrl/Cmd to select multiple species</div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="compounds" class="form-label">Compounds</label>
+                                    <select class="form-select" id="compounds" name="compounds" multiple size="4">
+                                        <option value="polysaccharide">Polysaccharides</option>
+                                        <option value="beta-glucan">Beta-glucans</option>
+                                        <option value="hericenone" selected>Hericenones</option>
+                                        <option value="erinacine" selected>Erinacines</option>
+                                        <option value="terpenoid">Terpenoids</option>
+                                        <option value="ganoderic acid">Ganoderic Acids</option>
+                                        <option value="triterpene">Triterpenes</option>
+                                        <option value="ergosterol">Ergosterol</option>
+                                        <option value="lectin">Lectins</option>
+                                    </select>
+                                    <div class="form-text">Hold Ctrl/Cmd to select multiple compounds</div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="biological_effects" class="form-label">Biological Effects</label>
+                                    <select class="form-select" id="biological_effects" name="biological_effects" multiple size="4">
+                                        <option value="antioxidant" selected>Antioxidant</option>
+                                        <option value="antimicrobial" selected>Antimicrobial</option>
+                                        <option value="neuroprotective">Neuroprotective</option>
+                                        <option value="immunomodulatory">Immunomodulatory</option>
+                                        <option value="anti-inflammatory">Anti-inflammatory</option>
+                                        <option value="anticancer">Anticancer</option>
+                                        <option value="neurotrophic">Neurotrophic</option>
+                                        <option value="cognitive">Cognitive Enhancement</option>
+                                    </select>
+                                    <div class="form-text">Hold Ctrl/Cmd to select multiple effects</div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="date_range" class="form-label">Date Range</label>
+                                    <select class="form-select" id="date_range" name="date_range">
+                                        <option value="last_year">Last Year</option>
+                                        <option value="last_5_years" selected>Last 5 Years</option>
+                                        <option value="last_10_years">Last 10 Years</option>
+                                        <option value="last_20_years">Last 20 Years</option>
+                                        <option value="all_time">All Time</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="databases" class="form-label">Databases</label>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="pubmed" id="db_pubmed" name="databases" checked>
+                                        <label class="form-check-label" for="db_pubmed">
+                                            PubMed
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="scopus" id="db_scopus" name="databases">
+                                        <label class="form-check-label" for="db_scopus">
+                                            Scopus (requires API key)
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="sciencedirect" id="db_sciencedirect" name="databases">
+                                        <label class="form-check-label" for="db_sciencedirect">
+                                            Science Direct (requires API key)
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="webofscience" id="db_webofscience" name="databases">
+                                        <label class="form-check-label" for="db_webofscience">
+                                            Web of Science (requires API key)
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="googlescholar" id="db_googlescholar" name="databases">
+                                        <label class="form-check-label" for="db_googlescholar">
+                                            Google Scholar
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="max_results" class="form-label">Maximum Results Per Database</label>
+                                    <input type="number" class="form-control" id="max_results" name="max_results" value="50" min="10" max="500">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="output_format" class="form-label">Output Format</label>
+                                    <select class="form-select" id="output_format" name="output_format">
+                                        <option value="csv">CSV</option>
+                                        <option value="json">JSON</option>
+                                        <option value="xlsx">Excel</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="additional_terms" class="form-label">Additional Terms (optional)</label>
+                            <input type="text" class="form-control" id="additional_terms" name="additional_terms" placeholder="Enter comma-separated terms">
+                            <div class="form-text">Examples: extraction method, clinical trial, therapeutic application</div>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search me-2"></i> Run Literature Search
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% if search_results %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Search Results</h5>
+                    <div>
+                        <a href="{{ url_for('web.download_search_results', filename=result_filename) }}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-download me-2"></i> Download Results
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle me-2"></i>
+                        Search completed successfully! Found {{ search_results|length }} relevant papers.
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Authors</th>
+                                    <th>Journal</th>
+                                    <th>Year</th>
+                                    <th>Source</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for paper in search_results %}
+                                <tr>
+                                    <td>{{ paper.title }}</td>
+                                    <td>{{ paper.authors|join(", ") }}</td>
+                                    <td>{{ paper.journal }}</td>
+                                    <td>{{ paper.year }}</td>
+                                    <td>{{ paper.source_db }}</td>
+                                    <td>
+                                        {% if paper.url %}
+                                        <a href="{{ paper.url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-external-link-alt"></i>
+                                        </a>
+                                        {% endif %}
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#paperModal{{ loop.index }}">
+                                            <i class="fas fa-info-circle"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                
+                                <!-- Paper Details Modal -->
+                                <div class="modal fade" id="paperModal{{ loop.index }}" tabindex="-1" aria-labelledby="paperModalLabel{{ loop.index }}" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="paperModalLabel{{ loop.index }}">{{ paper.title }}</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="mb-3">
+                                                    <h6>Authors</h6>
+                                                    <p>{{ paper.authors|join(", ") }}</p>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <h6>Publication</h6>
+                                                    <p>{{ paper.journal }}, {{ paper.year }}</p>
+                                                </div>
+                                                {% if paper.doi %}
+                                                <div class="mb-3">
+                                                    <h6>DOI</h6>
+                                                    <p>{{ paper.doi }}</p>
+                                                </div>
+                                                {% endif %}
+                                                {% if paper.abstract %}
+                                                <div class="mb-3">
+                                                    <h6>Abstract</h6>
+                                                    <p>{{ paper.abstract }}</p>
+                                                </div>
+                                                {% endif %}
+                                                {% if paper.keywords %}
+                                                <div class="mb-3">
+                                                    <h6>Keywords</h6>
+                                                    <p>{{ paper.keywords|join(", ") }}</p>
+                                                </div>
+                                                {% endif %}
+                                                <div class="mb-3">
+                                                    <h6>Source</h6>
+                                                    <p>{{ paper.source_db }}</p>
+                                                </div>
+                                                {% if paper.cited_by %}
+                                                <div class="mb-3">
+                                                    <h6>Citations</h6>
+                                                    <p>Cited by {{ paper.cited_by }} papers</p>
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="modal-footer">
+                                                {% if paper.url %}
+                                                <a href="{{ paper.url }}" target="_blank" class="btn btn-primary">
+                                                    <i class="fas fa-external-link-alt me-2"></i> View Original
+                                                </a>
+                                                {% endif %}
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0">About Structured Literature Search</h5>
+                </div>
+                <div class="card-body">
+                    <h5>Multi-Database Scientific Literature Search</h5>
+                    <p>
+                        The Structured Literature Search tool allows you to search multiple scientific databases
+                        for research papers related to medicinal mushrooms. This feature helps you stay up-to-date
+                        with the latest research and discoveries in the field of mycology.
+                    </p>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h6><i class="fas fa-database me-2 text-primary"></i> Supported Databases</h6>
+                                    <ul class="mb-0">
+                                        <li><strong>PubMed</strong>: Biomedical literature from MEDLINE and life science journals</li>
+                                        <li><strong>Scopus</strong>: Abstract and citation database of peer-reviewed literature</li>
+                                        <li><strong>Science Direct</strong>: Full-text scientific database by Elsevier</li>
+                                        <li><strong>Web of Science</strong>: Scientific citation indexing service</li>
+                                        <li><strong>Google Scholar</strong>: Freely accessible web search engine for scholarly literature</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h6><i class="fas fa-cogs me-2 text-primary"></i> Key Features</h6>
+                                    <ul class="mb-0">
+                                        <li><strong>Multi-Database Search</strong>: Search across multiple scientific databases simultaneously</li>
+                                        <li><strong>Smart Query Generation</strong>: Automatically creates optimized search queries</li>
+                                        <li><strong>Deduplication</strong>: Removes duplicate papers across different databases</li>
+                                        <li><strong>Flexible Output</strong>: Export results in CSV, JSON, or Excel formats</li>
+                                        <li><strong>Scheduled Searches</strong>: Set up daily or weekly automated searches</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h5>Scheduled Literature Searches</h5>
+                    <p>
+                        In addition to manual searches, you can set up scheduled searches to automatically run
+                        on a daily or weekly basis. This ensures you never miss important new research.
+                    </p>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Note:</strong> Accessing Scopus, Science Direct, and Web of Science requires valid API keys.
+                        Please contact your administrator to set up these integrations.
+                    </div>
+                    
+                    <h5>Command-Line Interface</h5>
+                    <p>
+                        For advanced users, the structured literature search feature is also available as a command-line tool:
+                    </p>
+                    <pre class="bg-dark text-light p-3 rounded"><code>python scheduled_literature_search.py --frequency weekly --species "Hericium erinaceus" --effects "antioxidant" "antimicrobial" --databases pubmed</code></pre>
+                    
+                    <p>
+                        Run <code>python scheduled_literature_search.py --help</code> for more information on available options.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

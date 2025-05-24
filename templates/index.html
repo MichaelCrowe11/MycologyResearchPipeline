@@ -1,0 +1,496 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Mycology Research Pipeline{% endblock %}
+
+{% block extra_css %}
+<style>
+    .feature-card {
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    }
+    
+    .progress-ring {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .progress-ring circle {
+        fill: transparent;
+        stroke: #e9ecef;
+        stroke-width: 4;
+    }
+    
+    .progress-ring .progress {
+        stroke: #0d6efd;
+        stroke-linecap: round;
+        transition: stroke-dasharray 0.5s ease;
+    }
+    
+    .quick-action-btn {
+        background: linear-gradient(135deg, #6f42c1, #e83e8c);
+        border: none;
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(111, 66, 193, 0.3);
+    }
+    
+    .quick-action-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(111, 66, 193, 0.4);
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="hero-section hero-dashboard mb-5 fade-in-up">
+    <div class="container">
+        <div class="row hero-with-image">
+            <div class="hero-content col-lg-7">
+                <h1>Mycology Research Pipeline</h1>
+                <p>A comprehensive platform for analyzing medicinal compound bioactivity patterns in mycology research. Discover, analyze, and visualize compounds with potential medicinal applications.</p>
+                <div class="d-flex gap-3 mt-4">
+                    <a href="{{ url_for('web.dashboard') }}" class="btn btn-light btn-lg">
+                        <i class="fas fa-chart-line me-2"></i>View Dashboard
+                    </a>
+                    <a href="{{ url_for('web.new_analysis') }}" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-vial me-2"></i>Start Analysis
+                    </a>
+                </div>
+                
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <div class="stat-value">{{ recent_samples|length }}</div>
+                        <div class="stat-label">Active Samples</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">{{ recent_analyses|length }}</div>
+                        <div class="stat-label">Recent Analyses</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">{{ current_version.version }}</div>
+                        <div class="stat-label">Pipeline Version</div>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-image col-lg-5">
+                <img src="{{ url_for('static', filename='images/logo/mycology-logo-dark.png') }}" alt="Mycology Research" class="img-fluid">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions Section -->
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="card shadow-sm fade-in-up-delay-1">
+            <div class="card-header">
+                <h4 class="my-0 fw-normal">
+                    <i class="fas fa-bolt me-2"></i>Quick Actions
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-3 mb-3">
+                        <button class="quick-action-btn w-100" onclick="window.location.href='{{ url_for('ai.ai_dashboard') }}'">
+                            <i class="fas fa-brain fa-2x mb-2"></i>
+                            <div>AI Assistant</div>
+                        </button>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <button class="quick-action-btn w-100" onclick="window.location.href='{{ url_for('web.new_analysis') }}'">
+                            <i class="fas fa-microscope fa-2x mb-2"></i>
+                            <div>New Analysis</div>
+                        </button>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <button class="quick-action-btn w-100" onclick="window.location.href='{{ url_for('web.literature') }}'">
+                            <i class="fas fa-book-open fa-2x mb-2"></i>
+                            <div>Literature Search</div>
+                        </button>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <button class="quick-action-btn w-100" onclick="window.location.href='{{ url_for('web.new_batch_job') }}'">
+                            <i class="fas fa-layer-group fa-2x mb-2"></i>
+                            <div>Batch Processing</div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="card shadow-sm h-100 fade-in-up-delay-2">
+            <div class="card-header">
+                <h4 class="my-0 fw-normal">Overview</h4>
+            </div>
+            <div class="card-body">
+                <p>The Mycology Research Pipeline provides tools for analyzing bioactivity patterns in medicinal mushroom compounds. With our platform, researchers can:</p>
+                <ul>
+                    <li>Analyze compound bioactivity with advanced machine learning models</li>
+                    <li>Process data in bulk through batch processing</li>
+                    <li>Visualize complex relationships between compounds and their effects</li>
+                    <li>Track research progress with comprehensive logging</li>
+                    <li>Access API endpoints for programmatic integration</li>
+                </ul>
+                <p>Current platform version: <span class="badge bg-info">{{ current_version.version }}</span></p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm h-100 fade-in-up-delay-3">
+            <div class="card-header">
+                <h4 class="my-0 fw-normal">
+                    <i class="fas fa-chart-bar me-2"></i>Quick Stats
+                </h4>
+            </div>
+            <div class="card-body d-flex flex-column justify-content-center">
+                <div class="stats-card mb-3" style="background: linear-gradient(135deg, #28a745, #20c997);">
+                    <div class="value" id="samples-count">{{ recent_samples|length }}</div>
+                    <div class="label">Active Samples</div>
+                    <div class="progress mt-2" style="height: 4px;">
+                        <div class="progress-bar bg-light" role="progressbar" style="width: 75%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                </div>
+                <div class="stats-card" style="background: linear-gradient(135deg, #007bff, #6610f2);">
+                    <div class="value" id="analyses-count">{{ recent_analyses|length }}</div>
+                    <div class="label">Recent Analyses</div>
+                    <div class="progress mt-2" style="height: 4px;">
+                        <div class="progress-bar bg-light" role="progressbar" style="width: 60%" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h2 class="mb-4">Research Areas</h2>
+
+<div class="row row-cols-1 row-cols-md-3 mb-4 g-4">
+    <div class="col fade-in-up-delay-1">
+        <div class="card h-100 shadow-sm feature-card" onclick="window.location.href='{{ url_for('web.list_samples') }}'">
+            <div class="position-relative">
+                <img src="{{ url_for('static', filename='images/research/medicinal-compounds.svg') }}" class="card-img-top" alt="Medicinal Compounds">
+                <div class="position-absolute top-0 end-0 m-3">
+                    <span class="badge bg-success">
+                        <i class="fas fa-leaf me-1"></i>Active
+                    </span>
+                </div>
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i class="fas fa-flask me-2 text-primary"></i>Medicinal Compounds
+                </h5>
+                <p class="card-text">Research on bioactive compounds found in medicinal mushrooms and their potential applications.</p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <a href="{{ url_for('web.list_samples') }}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-search me-1"></i>Browse Samples
+                    </a>
+                    <small class="text-muted">{{ recent_samples|length }} samples</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col fade-in-up-delay-2">
+        <div class="card h-100 shadow-sm feature-card" onclick="window.location.href='{{ url_for('web.new_analysis') }}'">
+            <div class="position-relative">
+                <img src="{{ url_for('static', filename='images/research/bioactivity-analysis.svg') }}" class="card-img-top" alt="Bioactivity Analysis">
+                <div class="position-absolute top-0 end-0 m-3">
+                    <span class="badge bg-info">
+                        <i class="fas fa-chart-line me-1"></i>Analytics
+                    </span>
+                </div>
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i class="fas fa-microscope me-2 text-info"></i>Bioactivity Analysis
+                </h5>
+                <p class="card-text">Advanced techniques for analyzing and predicting bioactivity patterns in fungal compounds.</p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <a href="{{ url_for('web.new_analysis') }}" class="btn btn-sm btn-info">
+                        <i class="fas fa-play me-1"></i>Run Analysis
+                    </a>
+                    <small class="text-muted">{{ recent_analyses|length }} recent</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col fade-in-up-delay-3">
+        <div class="card h-100 shadow-sm feature-card" onclick="window.location.href='{{ url_for('web.new_batch_job') }}'">
+            <div class="position-relative">
+                <img src="{{ url_for('static', filename='images/research/batch-processing.svg') }}" class="card-img-top" alt="Batch Processing">
+                <div class="position-absolute top-0 end-0 m-3">
+                    <span class="badge bg-warning text-dark">
+                        <i class="fas fa-layer-group me-1"></i>Batch
+                    </span>
+                </div>
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i class="fas fa-server me-2 text-warning"></i>Batch Processing
+                </h5>
+                <p class="card-text">Process large datasets efficiently with our batch processing tools for high-throughput research.</p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <a href="{{ url_for('web.new_batch_job') }}" class="btn btn-sm btn-warning">
+                        <i class="fas fa-rocket me-1"></i>Start Batch Job
+                    </a>
+                    <small class="text-muted">High-throughput</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h4 class="my-0 fw-normal">Recent Samples</h4>
+            </div>
+            <div class="card-body">
+                {% if recent_samples %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Species</th>
+                                <th>Date Added</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for sample in recent_samples %}
+                            <tr>
+                                <td>{{ sample.name }}</td>
+                                <td>{{ sample.species or "Unknown" }}</td>
+                                <td>{{ sample.created_at.strftime('%Y-%m-%d') }}</td>
+                                <td>
+                                    <a href="{{ url_for('web.view_sample', sample_id=sample.id) }}" class="btn btn-sm btn-outline-info">View</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-center py-3">No samples found. <a href="{{ url_for('web.list_samples') }}">Add samples</a> to get started.</p>
+                {% endif %}
+            </div>
+            <div class="card-footer">
+                <a href="{{ url_for('web.list_samples') }}" class="btn btn-outline-primary btn-sm">View All Samples</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h4 class="my-0 fw-normal">Recent Analyses</h4>
+            </div>
+            <div class="card-body">
+                {% if recent_analyses %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for analysis in recent_analyses %}
+                            <tr>
+                                <td>{{ analysis.analysis_type }}</td>
+                                <td>
+                                    <span class="badge {% if analysis.status == 'completed' %}bg-success{% elif analysis.status == 'processing' %}bg-warning{% elif analysis.status == 'failed' %}bg-danger{% else %}bg-secondary{% endif %}">
+                                        {{ analysis.status }}
+                                    </span>
+                                </td>
+                                <td>{{ analysis.created_at.strftime('%Y-%m-%d') }}</td>
+                                <td>
+                                    <a href="{{ url_for('web.view_analysis', analysis_id=analysis.id) }}" class="btn btn-sm btn-outline-info">View</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-center py-3">No analyses found. <a href="{{ url_for('web.new_analysis') }}">Run an analysis</a> to get started.</p>
+                {% endif %}
+            </div>
+            <div class="card-footer">
+                <a href="{{ url_for('web.view_results') }}" class="btn btn-outline-primary btn-sm">View All Results</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h4 class="my-0 fw-normal">Getting Started</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-4 mb-md-0">
+                        <div class="text-center mb-3">
+                            <i class="fas fa-flask fa-4x text-primary"></i>
+                        </div>
+                        <h5 class="text-center">1. Add Samples</h5>
+                        <p>Start by adding mycological samples to the system, including species information and collection data.</p>
+                        <div class="text-center">
+                            <a href="{{ url_for('web.list_samples') }}" class="btn btn-outline-primary btn-sm">Manage Samples</a>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-4 mb-md-0">
+                        <div class="text-center mb-3">
+                            <i class="fas fa-vial fa-4x text-primary"></i>
+                        </div>
+                        <h5 class="text-center">2. Run Analysis</h5>
+                        <p>Analyze your samples to identify bioactivity patterns and medicinal compound properties.</p>
+                        <div class="text-center">
+                            <a href="{{ url_for('web.new_analysis') }}" class="btn btn-outline-primary btn-sm">Start Analysis</a>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-center mb-3">
+                            <i class="fas fa-chart-line fa-4x text-primary"></i>
+                        </div>
+                        <h5 class="text-center">3. Explore Results</h5>
+                        <p>Visualize and interpret results to gain insights into medicinal compound bioactivity.</p>
+                        <div class="text-center">
+                            <a href="{{ url_for('web.view_results') }}" class="btn btn-outline-primary btn-sm">View Results</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Animate stats counters
+    function animateCounter(element, target) {
+        let current = 0;
+        const increment = target / 50;
+        const timer = setInterval(() => {
+            current += increment;
+            if (current >= target) {
+                current = target;
+                clearInterval(timer);
+            }
+            $(element).text(Math.floor(current));
+        }, 30);
+    }
+    
+    // Initialize counter animations
+    setTimeout(() => {
+        animateCounter('#samples-count', {{ recent_samples|length }});
+        animateCounter('#analyses-count', {{ recent_analyses|length }});
+    }, 500);
+    
+    // Add hover effects to quick action buttons
+    $('.quick-action-btn').hover(
+        function() {
+            $(this).find('i').addClass('fa-spin');
+        },
+        function() {
+            $(this).find('i').removeClass('fa-spin');
+        }
+    );
+    
+    // Feature card click animations
+    $('.feature-card').click(function(e) {
+        if (!$(e.target).is('a')) {
+            $(this).addClass('animate__animated animate__pulse');
+            setTimeout(() => {
+                $(this).removeClass('animate__animated animate__pulse');
+            }, 600);
+        }
+    });
+    
+    // Add real-time status indicators
+    function updateSystemStatus() {
+        // Simulate real-time status updates
+        const statusIndicators = [
+            { selector: '.badge:contains("Active")', status: 'active' },
+            { selector: '.badge:contains("Analytics")', status: 'processing' },
+            { selector: '.badge:contains("Batch")', status: 'ready' }
+        ];
+        
+        statusIndicators.forEach(indicator => {
+            $(indicator.selector).addClass('pulse-animation');
+        });
+    }
+    
+    // Initialize status updates
+    updateSystemStatus();
+    
+    // Add loading states for navigation
+    $('.btn, .quick-action-btn').click(function() {
+        const $btn = $(this);
+        const originalText = $btn.html();
+        
+        if (!$btn.hasClass('loading')) {
+            $btn.addClass('loading');
+            $btn.html('<i class="fas fa-spinner fa-spin"></i> Loading...');
+            
+            // Reset after 2 seconds if page hasn't changed
+            setTimeout(() => {
+                $btn.removeClass('loading');
+                $btn.html(originalText);
+            }, 2000);
+        }
+    });
+});
+
+// Add CSS animations
+const style = document.createElement('style');
+style.textContent = `
+    .pulse-animation {
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+    
+    .loading {
+        pointer-events: none;
+        opacity: 0.7;
+    }
+    
+    .feature-card {
+        cursor: pointer;
+    }
+    
+    .feature-card:hover .card-img-top {
+        filter: brightness(1.1);
+    }
+    
+    .quick-action-btn i.fa-spin {
+        color: #fff !important;
+    }
+`;
+document.head.appendChild(style);
+</script>
+{% endblock %}
+{% endblock %}

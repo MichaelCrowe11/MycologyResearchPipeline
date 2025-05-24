@@ -1,0 +1,578 @@
+/* Main Styles for Mycology Research Pipeline */
+
+/* ====== Base Styles ====== */
+:root {
+    /* Dark theme colors (default) */
+    --bg-primary: #212529;
+    --bg-secondary: #343a40;
+    --bg-tertiary: #495057;
+    --text-primary: #f8f9fa;
+    --text-secondary: #e9ecef;
+    --text-muted: #adb5bd;
+    --border-color: #495057;
+    --highlight: #0d6efd;
+    --highlight-hover: #0b5ed7;
+    --success: #198754;
+    --warning: #ffc107;
+    --danger: #dc3545;
+    --info: #0dcaf0;
+}
+
+/* Light theme colors */
+body.light-theme {
+    --bg-primary: #f8f9fa;
+    --bg-secondary: #e9ecef;
+    --bg-tertiary: #dee2e6;
+    --text-primary: #212529;
+    --text-secondary: #343a40;
+    --text-muted: #6c757d;
+    --border-color: #ced4da;
+    --highlight: #0d6efd;
+    --highlight-hover: #0b5ed7;
+}
+
+body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ====== Typography ====== */
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+/* ====== Navigation ====== */
+.navbar {
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+}
+
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.5rem;
+    background: linear-gradient(45deg, #0d6efd, #198754);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* ====== Cards & Components ====== */
+.card {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    background: linear-gradient(135deg, var(--bg-tertiary), var(--bg-secondary));
+    border-bottom: 1px solid var(--border-color);
+    font-weight: 600;
+}
+
+/* ====== Hero Section Enhancement ====== */
+.hero-section {
+    background: linear-gradient(135deg, #0d6efd 0%, #198754 100%);
+    padding: 4rem 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    opacity: 0.3;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+}
+
+.hero-stats {
+    display: flex;
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.stat-item {
+    text-align: center;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 1rem;
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: white;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* ====== Button Enhancements ====== */
+.btn {
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+}
+
+.btn:hover::before {
+    left: 100%;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #0d6efd, #0b5ed7);
+    border: none;
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #198754, #157347);
+    border: none;
+}
+
+/* ====== Stats Cards ====== */
+.stats-card {
+    text-align: center;
+    padding: 1.5rem;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--highlight), var(--highlight-hover));
+    color: white;
+    margin-bottom: 1rem;
+}
+
+.stats-card .value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.stats-card .label {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+/* ====== Research Cards ====== */
+.card-img-top {
+    height: 200px;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.card:hover .card-img-top {
+    transform: scale(1.05);
+}
+
+/* ====== Table Enhancements ====== */
+.table {
+    background-color: transparent;
+    color: var(--text-primary);
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(var(--highlight), 0.1);
+    color: var(--text-primary);
+}
+
+.table th {
+    border-bottom: 2px solid var(--border-color);
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.table td {
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* ====== Badge Enhancements ====== */
+.badge {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+    border-radius: 6px;
+}
+
+/* ====== Animation Utilities ====== */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in-up {
+    animation: fadeInUp 0.6s ease;
+}
+
+.fade-in-up-delay-1 {
+    animation: fadeInUp 0.6s ease 0.1s both;
+}
+
+.fade-in-up-delay-2 {
+    animation: fadeInUp 0.6s ease 0.2s both;
+}
+
+.fade-in-up-delay-3 {
+    animation: fadeInUp 0.6s ease 0.3s both;
+}
+
+.navbar-brand img {
+    height: 30px;
+}
+
+.nav-item {
+    margin: 0 0.25rem;
+}
+
+/* ====== Hero Section ====== */
+.hero-section {
+    padding: 3rem 0;
+    background-color: var(--bg-secondary);
+    border-radius: 0.5rem;
+    margin-bottom: 2rem;
+}
+
+.hero-section h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.hero-section p {
+    font-size: 1.2rem;
+    opacity: 0.8;
+}
+
+/* ====== Cards ====== */
+.card {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    margin-bottom: 1.5rem;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    background-color: rgba(0, 0, 0, 0.05);
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* ====== Membership Cards ====== */
+.membership-card {
+    height: 100%;
+    text-align: center;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.membership-card .price {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 1rem 0;
+}
+
+.membership-card .period {
+    font-size: 0.9rem;
+    opacity: 0.7;
+}
+
+.membership-card .feature-list {
+    margin: 1.5rem 0;
+    text-align: left;
+}
+
+.membership-card .feature-item {
+    margin-bottom: 0.75rem;
+}
+
+.membership-card .feature-included {
+    color: var(--success);
+}
+
+.membership-card .feature-excluded {
+    color: var(--text-muted);
+    text-decoration: line-through;
+}
+
+.membership-card.featured {
+    transform: scale(1.05);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+    border: 2px solid var(--highlight);
+    position: relative;
+}
+
+.membership-card.featured::before {
+    content: "Most Popular";
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--highlight);
+    color: white;
+    padding: 0.25rem 1rem;
+    border-radius: 100px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+/* ====== Auth Pages ====== */
+.auth-container {
+    max-width: 450px;
+    margin: 2rem auto;
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.auth-form {
+    background-color: var(--bg-secondary);
+    padding: 2rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.auth-footer {
+    text-align: center;
+    margin-top: 1.5rem;
+}
+
+/* ====== Dashboard Components ====== */
+.dashboard-stat-card {
+    padding: 1.25rem;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.dashboard-stat-card .stat-icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.dashboard-stat-card .stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.dashboard-stat-card .stat-label {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.8;
+}
+
+/* ====== Profile & Membership ====== */
+.avatar-placeholder {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto;
+    border-radius: 50%;
+    background-color: var(--bg-tertiary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+}
+
+.score-circle {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: white;
+}
+
+.high-score {
+    background-color: var(--success);
+}
+
+.medium-score {
+    background-color: var(--warning);
+    color: #212529;
+}
+
+.low-score {
+    background-color: var(--danger);
+}
+
+.prediction-card {
+    transition: all 0.3s ease;
+}
+
+.prediction-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+.prediction-progress {
+    height: 8px;
+    border-radius: 4px;
+}
+
+.feature-importance {
+    height: 10px;
+    border-radius: 5px;
+}
+
+/* ====== Network Visualization ====== */
+.network-visualization {
+    width: 100%;
+    height: 600px;
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.node {
+    fill: var(--highlight);
+    stroke: white;
+    stroke-width: 1.5px;
+}
+
+.link {
+    stroke: var(--border-color);
+    stroke-opacity: 0.6;
+}
+
+/* ====== Image Analysis ====== */
+.image-preview-container {
+    width: 100%;
+    height: 300px;
+    border: 2px dashed var(--border-color);
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.image-preview {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    background-color: var(--bg-tertiary);
+}
+
+.image-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    height: 100%;
+    width: 100%;
+}
+
+/* ====== Literature Search ====== */
+.search-results-table {
+    font-size: 0.9rem;
+}
+
+.search-results-table th {
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.8rem;
+}
+
+.search-query-badge {
+    display: inline-block;
+    padding: 0.35rem 0.5rem;
+    background-color: var(--bg-tertiary);
+    border-radius: 0.25rem;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+}
+
+/* ====== Responsive Adjustments ====== */
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 2rem 0;
+    }
+    
+    .hero-section h1 {
+        font-size: 2rem;
+    }
+    
+    .membership-card.featured {
+        transform: scale(1);
+    }
+}
+
+/* Animation for loading states */
+@keyframes pulse {
+    0% {
+        opacity: 0.6;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0.6;
+    }
+}
+
+.loading-pulse {
+    animation: pulse 1.5s infinite ease-in-out;
+}
+
+/* ====== Footer ====== */
+.footer {
+    margin-top: 3rem;
+    padding: 2rem 0;
+    background-color: var(--bg-secondary);
+}
+
+.footer a {
+    color: var(--text-secondary);
+    text-decoration: none;
+}
+
+.footer a:hover {
+    color: var(--highlight);
+    text-decoration: underline;
+}

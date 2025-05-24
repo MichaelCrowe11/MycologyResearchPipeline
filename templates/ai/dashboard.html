@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}AI Assistant{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="display-5 mb-3">
+                <i class="fas fa-robot text-primary me-2"></i>
+                Mycology AI Assistant
+            </h1>
+            <p class="lead">
+                Leverage AI to enhance your mycological research with advanced data analysis, literature insights, and hypothesis generation.
+            </p>
+        </div>
+    </div>
+
+    <!-- Feature cards -->
+    <div class="row row-cols-1 row-cols-md-3 g-4 mb-5">
+        <!-- Sample Analysis -->
+        <div class="col">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="feature-icon bg-primary bg-gradient text-white rounded-3 me-3">
+                            <i class="fas fa-microscope"></i>
+                        </div>
+                        <h5 class="card-title mb-0">Sample Analysis</h5>
+                    </div>
+                    <p class="card-text">
+                        Analyze mycological samples with AI to uncover insights, identify notable characteristics, and discover potential applications.
+                    </p>
+                    <a href="{{ url_for('web.list_samples') }}" class="btn btn-outline-primary">Browse Samples</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hypothesis Generation -->
+        <div class="col">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="feature-icon bg-success bg-gradient text-white rounded-3 me-3">
+                            <i class="fas fa-lightbulb"></i>
+                        </div>
+                        <h5 class="card-title mb-0">Hypothesis Generation</h5>
+                    </div>
+                    <p class="card-text">
+                        Generate novel research hypotheses based on existing findings, research goals, and available methodologies.
+                    </p>
+                    <a href="{{ url_for('ai.generate_hypothesis_route') }}" class="btn btn-outline-success">Generate Hypotheses</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Code Generation -->
+        <div class="col">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="feature-icon bg-warning bg-gradient text-white rounded-3 me-3">
+                            <i class="fas fa-code"></i>
+                        </div>
+                        <h5 class="card-title mb-0">Code Generator</h5>
+                    </div>
+                    <p class="card-text">
+                        Generate code snippets for common research tasks including data analysis, visualization, and automation.
+                    </p>
+                    <a href="{{ url_for('ai.code_generator') }}" class="btn btn-outline-warning">Generate Code</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats overview -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Research Overview</h5>
+                    <div class="row g-4">
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-center">
+                                <div class="stats-icon bg-primary text-white rounded-circle me-3">
+                                    <i class="fas fa-vial"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-0">Total Samples</h6>
+                                    <h3 class="mb-0">{{ sample_count }}</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-center">
+                                <div class="stats-icon bg-success text-white rounded-circle me-3">
+                                    <i class="fas fa-flask"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-0">Total Compounds</h6>
+                                    <h3 class="mb-0">{{ compound_count }}</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-center">
+                                <div class="stats-icon bg-info text-white rounded-circle me-3">
+                                    <i class="fas fa-robot"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-0">AI-Powered Analysis</h6>
+                                    <p class="mb-0">Unlock insights with advanced AI</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+{{ super() }}
+<style>
+    .feature-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 3rem;
+        height: 3rem;
+        font-size: 1.5rem;
+        border-radius: 0.5rem;
+    }
+    .stats-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 3rem;
+        height: 3rem;
+        font-size: 1.25rem;
+    }
+</style>
+{% endblock %}

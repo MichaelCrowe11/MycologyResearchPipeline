@@ -1,0 +1,284 @@
+{% if tip is defined and tip %}
+<div class="research-tip-widget" id="tipWidget">
+    <div class="tip-container">
+        <div class="tip-header">
+            <div class="fungi-illustration">
+                <img src="{{ url_for('static', filename='images/' + tip.fungi_illustration) }}" 
+                     alt="{{ tip.fungi_name }}" 
+                     class="fungi-image"
+                     onerror="this.src='{{ url_for('static', filename='images/fungi/chanterelle.svg') }}'">
+            </div>
+            <div class="tip-title">
+                <h5>{{ tip.fungi_name }}</h5>
+                <span class="tip-category badge">{{ tip.category.replace('_', ' ').title() }}</span>
+            </div>
+            <button class="tip-close" onclick="closeTipWidget()">&times;</button>
+        </div>
+        
+        <div class="tip-content">
+            <p class="tip-text">{{ tip.tip_text }}</p>
+            <div class="whimsical-fact">
+                <i class="fas fa-magic"></i>
+                <em>{{ tip.whimsical_fact }}</em>
+            </div>
+        </div>
+        
+        <div class="tip-actions">
+            <button class="btn btn-sm btn-outline-primary" onclick="getNewTip()">
+                <i class="fas fa-refresh"></i> New Tip
+            </button>
+            <button class="btn btn-sm btn-outline-success" onclick="saveTip()">
+                <i class="fas fa-bookmark"></i> Save
+            </button>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<style>
+.research-tip-widget {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 320px;
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    z-index: 1050;
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    border: 2px solid {% if tip is defined and tip %}{{ tip.color_scheme }}{% else %}#6c757d{% endif %};
+    animation: slideIn 0.8s ease-out forwards;
+}
+
+@keyframes slideIn {
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.tip-container {
+    padding: 15px;
+}
+
+.tip-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.fungi-illustration {
+    width: 50px;
+    height: 50px;
+    margin-right: 12px;
+    background: radial-gradient(circle, {% if tip is defined and tip %}{{ tip.color_scheme }}20{% else %}#6c757d20{% endif %}, transparent);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: glow 3s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+    from { box-shadow: 0 0 10px {% if tip is defined and tip %}{{ tip.color_scheme }}40{% else %}#6c757d40{% endif %}; }
+    to { box-shadow: 0 0 20px {% if tip is defined and tip %}{{ tip.color_scheme }}60{% else %}#6c757d60{% endif %}, 0 0 30px {% if tip is defined and tip %}{{ tip.color_scheme }}40{% else %}#6c757d40{% endif %}; }
+}
+
+.fungi-image {
+    width: 40px;
+    height: 40px;
+    filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.1));
+}
+
+.tip-title {
+    flex: 1;
+}
+
+.tip-title h5 {
+    margin: 0;
+    color: #2c3e50;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.tip-category {
+    background: {% if tip is defined and tip %}{{ tip.color_scheme }}{% else %}#6c757d{% endif %};
+    color: white;
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 12px;
+}
+
+.tip-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #6c757d;
+    cursor: pointer;
+    padding: 0;
+    width: 25px;
+    height: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s;
+}
+
+.tip-close:hover {
+    background: #dc3545;
+    color: white;
+}
+
+.tip-content {
+    margin-bottom: 15px;
+}
+
+.tip-text {
+    font-size: 0.9rem;
+    line-height: 1.4;
+    margin-bottom: 10px;
+    color: #495057;
+}
+
+.whimsical-fact {
+    background: linear-gradient(45deg, {% if tip is defined and tip %}{{ tip.color_scheme }}10{% else %}#6c757d10{% endif %}, {% if tip is defined and tip %}{{ tip.color_scheme }}05{% else %}#6c757d05{% endif %});
+    padding: 8px 12px;
+    border-radius: 8px;
+    border-left: 3px solid {% if tip is defined and tip %}{{ tip.color_scheme }}{% else %}#6c757d{% endif %};
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.whimsical-fact i {
+    color: {% if tip is defined and tip %}{{ tip.color_scheme }}{% else %}#6c757d{% endif %};
+    margin-right: 5px;
+}
+
+.tip-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: space-between;
+}
+
+.tip-actions .btn {
+    flex: 1;
+    font-size: 0.8rem;
+    padding: 5px 10px;
+    border-radius: 20px;
+    transition: all 0.3s;
+}
+
+.tip-actions .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .research-tip-widget {
+        width: calc(100vw - 40px);
+        right: 20px;
+        left: 20px;
+    }
+}
+
+/* Hide widget initially */
+.research-tip-widget.hidden {
+    transform: translateY(100px);
+    opacity: 0;
+    pointer-events: none;
+}
+</style>
+
+<script>
+let tipWidgetVisible = true;
+
+function closeTipWidget() {
+    const widget = document.getElementById('tipWidget');
+    widget.classList.add('hidden');
+    tipWidgetVisible = false;
+    
+    // Store preference
+    localStorage.setItem('tipWidgetClosed', 'true');
+}
+
+function getNewTip() {
+    const context = getCurrentContext();
+    fetch(`/tips/contextual?context=${context}&level=beginner`)
+        .then(response => response.json())
+        .then(data => {
+            updateTipWidget(data);
+        })
+        .catch(error => {
+            console.log('Tip generation temporarily unavailable');
+        });
+}
+
+function saveTip() {
+    // Save tip to user's favorites (would integrate with your user system)
+    showNotification('Tip saved to your research notes!', 'success');
+}
+
+function getCurrentContext() {
+    const path = window.location.pathname;
+    if (path.includes('sample')) return 'sample_collection';
+    if (path.includes('analysis')) return 'analysis';
+    if (path.includes('ai')) return 'ai_research';
+    if (path.includes('cultivation')) return 'cultivation';
+    return 'identification';
+}
+
+function updateTipWidget(tipData) {
+    // Update widget content with new tip
+    document.querySelector('.tip-text').textContent = tipData.tip_text;
+    document.querySelector('.whimsical-fact em').textContent = tipData.whimsical_fact;
+    document.querySelector('.tip-title h5').textContent = tipData.fungi_name;
+    document.querySelector('.tip-category').textContent = tipData.category.replace('_', ' ').toUpperCase();
+    
+    // Update fungi image
+    const fungiImg = document.querySelector('.fungi-image');
+    fungiImg.src = `/static/images/${tipData.fungi_illustration}`;
+    fungiImg.alt = tipData.fungi_name;
+    
+    // Add bounce animation
+    document.getElementById('tipWidget').style.animation = 'bounce 0.6s ease';
+    setTimeout(() => {
+        document.getElementById('tipWidget').style.animation = '';
+    }, 600);
+}
+
+function showNotification(message, type) {
+    // Simple notification system
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type} position-fixed`;
+    notification.style.top = '20px';
+    notification.style.right = '20px';
+    notification.style.zIndex = '1051';
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
+
+// Auto-show tip widget on page load if not closed
+document.addEventListener('DOMContentLoaded', function() {
+    if (localStorage.getItem('tipWidgetClosed') !== 'true') {
+        setTimeout(() => {
+            const widget = document.getElementById('tipWidget');
+            if (widget) {
+                widget.style.animation = 'slideIn 0.8s ease-out forwards';
+            }
+        }, 2000); // Show after 2 seconds
+    } else {
+        document.getElementById('tipWidget').classList.add('hidden');
+    }
+});
+
+
+</script>

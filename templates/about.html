@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}About - Mycology Research Pipeline{% endblock %}
+
+{% block content %}
+<div class="hero-section hero-molecular mb-4">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <h1>About the Platform</h1>
+                <p>Learn about the Mycology Research Pipeline and how it helps researchers analyze medicinal compound bioactivity patterns in mycology.</p>
+            </div>
+            <div class="col-lg-4 d-flex align-items-center justify-content-lg-end">
+                <a href="{{ url_for('web.documentation') }}" class="btn btn-light">
+                    <i class="fas fa-book me-1"></i> Documentation
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h4>Mycology Research Pipeline</h4>
+            </div>
+            <div class="card-body">
+                <div class="mb-4">
+                    <h5>Platform Overview</h5>
+                    <p>The Mycology Research Pipeline is a comprehensive platform for analyzing medicinal compound bioactivity patterns in mycology research. Our platform provides researchers with advanced tools to discover, analyze, and visualize compounds with potential medicinal applications.</p>
+                    
+                    <p>With capabilities for both individual sample analysis and batch processing, researchers can efficiently process large datasets while maintaining precision and accuracy in their research.</p>
+                </div>
+                
+                <div class="mb-4">
+                    <h5>Key Features</h5>
+                    <ul>
+                        <li><strong>Sample Management:</strong> Organize and track your mycological samples, including species information, collection data, and compound details.</li>
+                        <li><strong>Advanced Analysis:</strong> Apply machine learning algorithms to analyze bioactivity patterns and predict medicinal properties.</li>
+                        <li><strong>Batch Processing:</strong> Process large datasets efficiently with parallel processing capabilities.</li>
+                        <li><strong>Visualization Tools:</strong> Visualize complex data relationships with interactive charts, heatmaps, and 3D molecular structures.</li>
+                        <li><strong>API Access:</strong> Integrate the pipeline into your existing workflows with comprehensive API endpoints.</li>
+                        <li><strong>Research Logs:</strong> Document your research process and findings with integrated research logging.</li>
+                    </ul>
+                </div>
+                
+                <div class="mb-4">
+                    <h5>Our Mission</h5>
+                    <p>Our mission is to accelerate mycological research by providing cutting-edge tools for analyzing the bioactivity of medicinal compounds found in fungi. By combining advanced data analysis with user-friendly interfaces, we aim to empower researchers in their quest to discover and develop new medicinal applications from fungal sources.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header">
+                <h4>Current Version</h4>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-3">
+                    <img src="{{ url_for('static', filename='images/logo/mycology-logo-dark.png') }}" alt="Mycology Research Pipeline" class="img-fluid" style="max-width: 200px;">
+                </div>
+                <div class="mb-3">
+                    <h5 class="text-center">Pipeline v{{ current_version.version }}</h5>
+                    <p class="text-muted text-center">{{ current_version.description }}</p>
+                </div>
+                <div class="mb-3">
+                    <h6>Release Date</h6>
+                    <p>{{ current_version.release_date.strftime('%B %d, %Y') }}</p>
+                </div>
+                <div class="mb-3">
+                    <h6>Changelog</h6>
+                    <p class="small">{{ current_version.changelog }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h4>Contact</h4>
+            </div>
+            <div class="card-body">
+                <p>For questions, support, or feedback regarding the Mycology Research Pipeline, please reach out to us:</p>
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-envelope me-2"></i> support@mycopipeline.com</li>
+                    <li><i class="fas fa-globe me-2"></i> www.joinmycopipeline.com</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h4>Development Team</h4>
+            </div>
+            <div class="card-body">
+                <p>The Mycology Research Pipeline was developed by Michael Crowe, an expert in mycology, bioinformatics, and software development. Michael is dedicated to continuously improving the platform to meet the needs of researchers in the field of mycological research.</p>
+                
+                <div class="text-center mt-4">
+                    <p class="text-muted">Grow with precision.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

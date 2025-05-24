@@ -1,0 +1,282 @@
+{% extends "base.html" %}
+
+{% block title %}Membership - Mycology Research Pipeline{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="card shadow mb-4">
+                <div class="card-header bg-primary bg-opacity-10">
+                    <h5 class="mb-0">Account Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <div class="avatar-placeholder mb-3">
+                            <i class="fas fa-user-circle fa-5x text-secondary"></i>
+                        </div>
+                        <h5>{{ current_user.full_name }}</h5>
+                        <p class="text-muted mb-0">{{ current_user.email }}</p>
+                        {% if current_user.organization %}
+                            <p class="text-muted mb-0">{{ current_user.organization }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('auth.profile') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-user-edit me-2"></i> Edit Profile
+                        </a>
+                        <a href="{{ url_for('auth.change_password') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-key me-2"></i> Change Password
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card shadow">
+                <div class="card-header bg-primary bg-opacity-10">
+                    <h5 class="mb-0">Account Management</h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="{{ url_for('auth.api_keys') }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="fas fa-key me-2 text-primary"></i> API Keys
+                        </div>
+                        <span class="badge bg-primary rounded-pill">
+                            {% if current_user.api_tokens %}
+                                {{ current_user.api_tokens|selectattr('is_valid')|list|length }}
+                            {% else %}
+                                0
+                            {% endif %}
+                        </span>
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <i class="fas fa-history me-2 text-primary"></i> Activity Log
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <i class="fas fa-bell me-2 text-primary"></i> Notification Settings
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <i class="fas fa-shield-alt me-2 text-primary"></i> Privacy Settings
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-header bg-primary bg-opacity-10 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Current Membership</h5>
+                    <a href="{{ url_for('auth.upgrade_membership') }}" class="btn btn-primary btn-sm">
+                        <i class="fas fa-arrow-circle-up me-2"></i> Upgrade
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if membership %}
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <div>
+                                <h3 class="mb-1">{{ membership.plan|capitalize }} Plan</h3>
+                                <div class="text-muted">
+                                    {% if membership.is_valid %}
+                                        <span class="badge bg-success">Active</span>
+                                    {% else %}
+                                        <span class="badge bg-warning">Expired</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="membership-icon">
+                                {% if membership.plan == 'free' %}
+                                    <i class="fas fa-user fa-3x text-primary"></i>
+                                {% elif membership.plan == 'basic' %}
+                                    <i class="fas fa-user-graduate fa-3x text-primary"></i>
+                                {% elif membership.plan == 'pro' %}
+                                    <i class="fas fa-user-tie fa-3x text-primary"></i>
+                                {% elif membership.plan == 'enterprise' %}
+                                    <i class="fas fa-building fa-3x text-primary"></i>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h6>Membership Details</h6>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="border rounded p-3">
+                                        <div class="small text-muted">Start Date</div>
+                                        <div>{{ membership.start_date.strftime('%B %d, %Y') }}</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="border rounded p-3">
+                                        <div class="small text-muted">Expiration Date</div>
+                                        <div>
+                                            {% if membership.end_date %}
+                                                {{ membership.end_date.strftime('%B %d, %Y') }}
+                                                <small class="text-muted d-block">
+                                                    ({{ membership.days_remaining }} days remaining)
+                                                </small>
+                                            {% else %}
+                                                Never expires
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h6>Features Access</h6>
+                            <div class="table-responsive">
+                                <table class="table table-borderless">
+                                    <tbody>
+                                        <tr>
+                                            <td>Basic Search</td>
+                                            <td class="text-end">
+                                                {% if membership.features_access.basic_search %}
+                                                    <span class="badge bg-success"><i class="fas fa-check"></i></span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary"><i class="fas fa-times"></i></span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Literature Export</td>
+                                            <td class="text-end">
+                                                {% if membership.features_access.literature_export %}
+                                                    <span class="badge bg-success"><i class="fas fa-check"></i></span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary"><i class="fas fa-times"></i></span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Visualization</td>
+                                            <td class="text-end">
+                                                {% if membership.features_access.visualization %}
+                                                    <span class="badge bg-success"><i class="fas fa-check"></i></span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary"><i class="fas fa-times"></i></span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>API Access</td>
+                                            <td class="text-end">
+                                                {% if membership.features_access.api_access %}
+                                                    <span class="badge bg-success"><i class="fas fa-check"></i></span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary"><i class="fas fa-times"></i></span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Advanced Analytics</td>
+                                            <td class="text-end">
+                                                {% if membership.features_access.advanced_analytics %}
+                                                    <span class="badge bg-success"><i class="fas fa-check"></i></span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary"><i class="fas fa-times"></i></span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Batch Processing</td>
+                                            <td class="text-end">
+                                                {% if membership.features_access.batch_processing %}
+                                                    <span class="badge bg-success"><i class="fas fa-check"></i></span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary"><i class="fas fa-times"></i></span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Want to upgrade to access more features? <a href="{{ url_for('auth.upgrade_membership') }}">Click here</a> to explore our membership plans.
+                        </div>
+                    {% else %}
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            You don't have an active membership. Please <a href="{{ url_for('auth.upgrade_membership') }}">upgrade</a> to access features.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="card shadow">
+                <div class="card-header bg-primary bg-opacity-10">
+                    <h5 class="mb-0">Membership Benefits</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card mb-3 border-0">
+                                <div class="card-body">
+                                    <div class="d-flex">
+                                        <div class="flex-shrink-0">
+                                            <i class="fas fa-flask fa-2x text-primary"></i>
+                                        </div>
+                                        <div class="ms-3">
+                                            <h5>Research Tools</h5>
+                                            <p class="mb-0">Advanced analytics, visualization, and data export capabilities for your research projects.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card mb-3 border-0">
+                                <div class="card-body">
+                                    <div class="d-flex">
+                                        <div class="flex-shrink-0">
+                                            <i class="fas fa-database fa-2x text-primary"></i>
+                                        </div>
+                                        <div class="ms-3">
+                                            <h5>Data Access</h5>
+                                            <p class="mb-0">Access to comprehensive databases of mycological research and analysis results.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card mb-3 border-0">
+                                <div class="card-body">
+                                    <div class="d-flex">
+                                        <div class="flex-shrink-0">
+                                            <i class="fas fa-code fa-2x text-primary"></i>
+                                        </div>
+                                        <div class="ms-3">
+                                            <h5>API Integration</h5>
+                                            <p class="mb-0">Integrate our research tools into your own systems with our powerful API.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card mb-3 border-0">
+                                <div class="card-body">
+                                    <div class="d-flex">
+                                        <div class="flex-shrink-0">
+                                            <i class="fas fa-chart-line fa-2x text-primary"></i>
+                                        </div>
+                                        <div class="ms-3">
+                                            <h5>Advanced Analytics</h5>
+                                            <p class="mb-0">Powerful analytics tools for in-depth analysis of research data.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
