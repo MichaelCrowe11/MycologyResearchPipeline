@@ -77,12 +77,14 @@ def create_app(config_object=active_config):
     from auth_routes import auth_bp
     from ai_routes import ai_bp
     from payment_routes import payment_bp
+    from tip_routes import tip_bp
     
     app.register_blueprint(api_bp, url_prefix='/api')
     app.register_blueprint(web_bp)
     app.register_blueprint(auth_bp, url_prefix='/auth')
     app.register_blueprint(ai_bp, url_prefix='/ai')
     app.register_blueprint(payment_bp, url_prefix='/payment')
+    app.register_blueprint(tip_bp, url_prefix='/tips')
     
     # Setup database tables
     with app.app_context():

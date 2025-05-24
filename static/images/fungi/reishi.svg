@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <radialGradient id="reishiGradient" cx="50%" cy="30%" r="70%">
+      <stop offset="0%" style="stop-color:#DC143C;stop-opacity:1" />
+      <stop offset="70%" style="stop-color:#B22222;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8B0000;stop-opacity:1" />
+    </radialGradient>
+    <filter id="glowEffect" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="0" stdDeviation="3" flood-color="#FF6347" flood-opacity="0.4"/>
+    </filter>
+  </defs>
+  
+  <!-- Magical base -->
+  <ellipse cx="100" cy="180" rx="35" ry="10" fill="#8B0000" opacity="0.3"/>
+  
+  <!-- Stem -->
+  <rect x="95" y="140" width="10" height="40" fill="url(#reishiGradient)" rx="5"/>
+  
+  <!-- Main cap (kidney-shaped) -->
+  <path d="M 60 140 Q 50 120 55 100 Q 70 80 100 85 Q 130 80 145 100 Q 150 120 140 140 Q 120 150 100 145 Q 80 150 60 140 Z" 
+        fill="url(#reishiGradient)" filter="url(#glowEffect)"/>
+  
+  <!-- Shiny lacquered surface -->
+  <ellipse cx="85" cy="110" rx="15" ry="8" fill="#FF6347" opacity="0.6"/>
+  <ellipse cx="120" cy="120" rx="10" ry="5" fill="#FF6347" opacity="0.4"/>
+  
+  <!-- Mystical spores -->
+  <circle cx="70" cy="90" r="1" fill="#FFD700" opacity="0.8">
+    <animate attributeName="cy" values="90;70;90" dur="4s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.8;0.2;0.8" dur="4s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="130" cy="95" r="1.5" fill="#FFD700" opacity="0.9">
+    <animate attributeName="cy" values="95;75;95" dur="5s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.9;0.3;0.9" dur="5s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="100" cy="85" r="1" fill="#FFD700" opacity="0.7">
+    <animate attributeName="cy" values="85;65;85" dur="3.5s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.7;0.2;0.7" dur="3.5s" repeatCount="indefinite"/>
+  </circle>
+  
+  <!-- Immortality aura -->
+  <circle cx="100" cy="115" r="60" fill="none" stroke="#FF6347" stroke-width="1" opacity="0.2">
+    <animate attributeName="r" values="60;70;60" dur="6s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.2;0.05;0.2" dur="6s" repeatCount="indefinite"/>
+  </circle>
+</svg>
