@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
         <a class="navbar-brand" href="{{ url_for('web.index') }}">
             <img src="{{ url_for('static', filename='images/official-logo.png') }}" alt="Mycology Research Pipeline" height="35" class="me-2">
@@ -51,15 +51,15 @@
             
             <div class="d-flex align-items-center">
                 <!-- Theme toggle button -->
-                <button class="btn btn-link text-dark me-3 p-0" id="theme-toggle">
-                    <i class="fas fa-sun"></i>
+                <button class="btn btn-link text-light me-3 p-0" id="theme-toggle">
+                    <i class="fas fa-moon"></i>
                 </button>
                 
                 <!-- Search form -->
                 <form class="d-flex me-3" action="{{ url_for('web.index') }}" method="get">
                     <div class="input-group">
                         <input class="form-control form-control-sm" type="search" name="q" placeholder="Search" aria-label="Search">
-                        <button class="btn btn-sm btn-outline-dark" type="submit">
+                        <button class="btn btn-sm btn-outline-light" type="submit">
                             <i class="fas fa-search"></i>
                         </button>
                     </div>
