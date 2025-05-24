@@ -48,7 +48,7 @@
     transform: translateY(100px);
     opacity: 0;
     transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    border: 2px solid {{ tip.color_scheme }};
+    border: 2px solid {% if tip is defined and tip %}{{ tip.color_scheme }}{% else %}#6c757d{% endif %};
     animation: slideIn 0.8s ease-out forwards;
 }
 
@@ -73,7 +73,7 @@
     width: 50px;
     height: 50px;
     margin-right: 12px;
-    background: radial-gradient(circle, {{ tip.color_scheme }}20, transparent);
+    background: radial-gradient(circle, {% if tip is defined and tip %}{{ tip.color_scheme }}20{% else %}#6c757d20{% endif %}, transparent);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -82,8 +82,8 @@
 }
 
 @keyframes glow {
-    from { box-shadow: 0 0 10px {{ tip.color_scheme }}40; }
-    to { box-shadow: 0 0 20px {{ tip.color_scheme }}60, 0 0 30px {{ tip.color_scheme }}40; }
+    from { box-shadow: 0 0 10px {% if tip is defined and tip %}{{ tip.color_scheme }}40{% else %}#6c757d40{% endif %}; }
+    to { box-shadow: 0 0 20px {% if tip is defined and tip %}{{ tip.color_scheme }}60{% else %}#6c757d60{% endif %}, 0 0 30px {% if tip is defined and tip %}{{ tip.color_scheme }}40{% else %}#6c757d40{% endif %}; }
 }
 
 .fungi-image {
@@ -104,7 +104,7 @@
 }
 
 .tip-category {
-    background: {{ tip.color_scheme }};
+    background: {% if tip is defined and tip %}{{ tip.color_scheme }}{% else %}#6c757d{% endif %};
     color: white;
     font-size: 0.7rem;
     padding: 2px 8px;
@@ -144,16 +144,16 @@
 }
 
 .whimsical-fact {
-    background: linear-gradient(45deg, {{ tip.color_scheme }}10, {{ tip.color_scheme }}05);
+    background: linear-gradient(45deg, {% if tip is defined and tip %}{{ tip.color_scheme }}10{% else %}#6c757d10{% endif %}, {% if tip is defined and tip %}{{ tip.color_scheme }}05{% else %}#6c757d05{% endif %});
     padding: 8px 12px;
     border-radius: 8px;
-    border-left: 3px solid {{ tip.color_scheme }};
+    border-left: 3px solid {% if tip is defined and tip %}{{ tip.color_scheme }}{% else %}#6c757d{% endif %};
     font-size: 0.8rem;
     color: #6c757d;
 }
 
 .whimsical-fact i {
-    color: {{ tip.color_scheme }};
+    color: {% if tip is defined and tip %}{{ tip.color_scheme }}{% else %}#6c757d{% endif %};
     margin-right: 5px;
 }
 
