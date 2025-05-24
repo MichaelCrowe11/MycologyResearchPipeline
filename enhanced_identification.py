@@ -9,7 +9,7 @@ import json
 import logging
 from typing import Dict, List, Any, Optional
 from scientific_databases import ScientificDataIntegrator
-from computer_vision import MushroomAnalyzer
+from computer_vision import SpeciesIdentifier, MorphologicalAnalyzer, ColorAnalyzer, GrowthStageAnalyzer
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +18,10 @@ class EnhancedSpeciesIdentifier:
     """Enhanced species identification using multiple scientific databases."""
     
     def __init__(self):
-        self.analyzer = MushroomAnalyzer()
+        self.species_identifier = SpeciesIdentifier()
+        self.morphology_analyzer = MorphologicalAnalyzer()
+        self.color_analyzer = ColorAnalyzer()
+        self.growth_analyzer = GrowthStageAnalyzer()
         self.scientific_integrator = ScientificDataIntegrator()
         
         # Morphological features important for dried specimens
@@ -44,7 +47,10 @@ class EnhancedSpeciesIdentifier:
         logger.info(f"Starting enhanced identification for: {image_path}")
         
         # Step 1: Computer vision analysis
-        cv_results = self.analyzer.identify_species(image_path)
+        if not self.species_identifier.load_image(image_path):
+            return {'error': 'Failed to load image for analysis'}
+        
+        cv_results = self.species_identifier.identify_species()
         if not cv_results or 'error' in cv_results:
             return {'error': 'Computer vision analysis failed', 'details': cv_results}
         
@@ -201,7 +207,11 @@ class EnhancedSpeciesIdentifier:
         """Specialized morphological analysis for dried specimens."""
         try:
             # Use existing morphological analysis but focus on dried specimen features
-            morphology_results = self.analyzer.analyze_morphology(image_path)
+            if self.morphology_analyzer.load_image(image_path):
+                self.morphology_analyzer.segment_mushroom()
+                morphology_results = self.morphology_analyzer.measure_features()
+            else:
+                morphology_results = {'error': 'Failed to load image for morphology analysis'}
             
             if 'error' in morphology_results:
                 return morphology_results
