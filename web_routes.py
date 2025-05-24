@@ -95,6 +95,41 @@ def view_sample(sample_id):
     return render_template('sample_details.html', sample=sample)
 
 
+@web_bp.route('/samples/new', methods=['GET', 'POST'])
+def new_sample():
+    """Create a new sample."""
+    if request.method == 'POST':
+        name = request.form.get('name')
+        species = request.form.get('species')
+        location = request.form.get('location')
+        description = request.form.get('description')
+        
+        if not name:
+            flash('Sample name is required', 'error')
+            return render_template('sample_form.html')
+        
+        try:
+            sample = Sample(
+                name=name,
+                species=species,
+                location=location,
+                description=description,
+                created_at=datetime.now()
+            )
+            db.session.add(sample)
+            db.session.commit()
+            
+            flash('Sample created successfully', 'success')
+            return redirect(url_for('web.view_sample', sample_id=sample.id))
+            
+        except Exception as e:
+            db.session.rollback()
+            logger.error(f"Error creating sample: {str(e)}")
+            flash(f'Error creating sample: {str(e)}', 'error')
+    
+    return render_template('sample_form.html')
+
+
 @web_bp.route('/analysis/new', methods=['GET', 'POST'])
 def new_analysis():
     """Create a new analysis."""

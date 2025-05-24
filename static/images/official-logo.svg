@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 400" width="500" height="400">
+  <!-- Logo Circle -->
+  <circle cx="250" cy="130" r="80" fill="none" stroke="#000" stroke-width="6"/>
+  
+  <!-- Mushroom Cap -->
+  <ellipse cx="250" cy="110" rx="35" ry="20" fill="#000"/>
+  <path d="M 215 110 Q 250 125 285 110" fill="none" stroke="#fff" stroke-width="2"/>
+  
+  <!-- Mushroom Stem -->
+  <rect x="245" y="130" width="10" height="25" fill="#000"/>
+  
+  <!-- Root System -->
+  <g transform="translate(250,155)">
+    <path d="M 0 0 L -15 15 M 0 0 L 15 15 M 0 0 L -25 10 M 0 0 L 25 10 M 0 0 L -10 20 M 0 0 L 10 20" 
+          stroke="#000" stroke-width="2" fill="none"/>
+  </g>
+  
+  <!-- Molecular Structure -->
+  <g transform="translate(290,100)">
+    <circle cx="0" cy="0" r="3" fill="#000"/>
+    <circle cx="15" cy="8" r="3" fill="#000"/>
+    <circle cx="8" cy="-12" r="3" fill="#000"/>
+    <line x1="0" y1="0" x2="15" y2="8" stroke="#000" stroke-width="2"/>
+    <line x1="0" y1="0" x2="8" y2="-12" stroke="#000" stroke-width="2"/>
+  </g>
+  
+  <!-- Main Text -->
+  <text x="250" y="260" text-anchor="middle" font-family="serif" font-size="42" font-weight="bold" fill="#000">
+    MYCOLOGY
+  </text>
+  
+  <!-- Subtitle -->
+  <text x="250" y="290" text-anchor="middle" font-family="sans-serif" font-size="18" font-weight="normal" fill="#000" letter-spacing="2px">
+    RESEARCH PIPELINE
+  </text>
+</svg>

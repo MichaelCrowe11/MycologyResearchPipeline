@@ -120,8 +120,13 @@
                                         {% set avg_low = avg_low + ci[0] %}
                                         {% set avg_high = avg_high + ci[1] %}
                                     {% endfor %}
-                                    {% set avg_low = (avg_low / analysis.results.confidence_intervals|length)|round(3) %}
-                                    {% set avg_high = (avg_high / analysis.results.confidence_intervals|length)|round(3) %}
+                                    {% if analysis.results.confidence_intervals|length > 0 %}
+                                        {% set avg_low = (avg_low / analysis.results.confidence_intervals|length)|round(3) %}
+                                        {% set avg_high = (avg_high / analysis.results.confidence_intervals|length)|round(3) %}
+                                    {% else %}
+                                        {% set avg_low = 0 %}
+                                        {% set avg_high = 0 %}
+                                    {% endif %}
                                     {{ avg_low }} - {{ avg_high }}
                                 </div>
                                 <small class="text-muted">95% confidence interval</small>
