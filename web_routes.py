@@ -856,6 +856,7 @@ def process_image():
     import os
     import uuid
     import json
+    import numpy as np
     from werkzeug.utils import secure_filename
     
     # Check if file was uploaded
