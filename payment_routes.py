@@ -25,7 +25,7 @@ YOUR_DOMAIN = os.environ.get('REPLIT_DEV_DOMAIN') if os.environ.get('REPLIT_DEPL
 MEMBERSHIP_TIERS = {
     'basic': {
         'name': 'Basic Researcher',
-        'price_id': 'price_basic_monthly',  # Replace with actual Stripe price ID
+        'price_id': os.environ.get('STRIPE_PRICE_BASIC', 'price_1OXyZ2ABC123DEF456GHI7J'),  # Set in Stripe dashboard
         'price': 29.99,
         'features': [
             'Access to basic analysis tools',
@@ -36,7 +36,7 @@ MEMBERSHIP_TIERS = {
     },
     'pro': {
         'name': 'Professional Researcher',
-        'price_id': 'price_pro_monthly',  # Replace with actual Stripe price ID
+        'price_id': os.environ.get('STRIPE_PRICE_PRO', 'price_1OXyZABC123DEF456GHI7JK'),  # Set in Stripe dashboard
         'price': 79.99,
         'features': [
             'All Basic features',
@@ -51,7 +51,7 @@ MEMBERSHIP_TIERS = {
     },
     'enterprise': {
         'name': 'Enterprise Institution',
-        'price_id': 'price_enterprise_monthly',  # Replace with actual Stripe price ID
+        'price_id': os.environ.get('STRIPE_PRICE_ENTERPRISE', 'price_1OXyZMABC123DEF456GHI7J'),  # Set in Stripe dashboard
         'price': 199.99,
         'features': [
             'All Professional features',

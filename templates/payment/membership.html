@@ -1,232 +1,193 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
-{% block title %}Membership Plans - MycosPipeline{% endblock %}
-
-{% block extra_css %}
-<style>
-    .pricing-card {
-        border: 2px solid transparent;
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .pricing-card:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-    }
-    
-    .pricing-card.featured {
-        border-color: #007bff;
-        transform: scale(1.05);
-    }
-    
-    .pricing-card.featured::before {
-        content: 'Most Popular';
-        position: absolute;
-        top: 0;
-        right: 0;
-        background: linear-gradient(135deg, #007bff, #0056b3);
-        color: white;
-        padding: 0.5rem 1rem;
-        font-size: 0.8rem;
-        font-weight: bold;
-        transform: translateX(30%) translateY(-50%) rotate(45deg);
-        transform-origin: center;
-        width: 150px;
-        text-align: center;
-    }
-    
-    .price-display {
-        font-size: 3rem;
-        font-weight: 700;
-        background: linear-gradient(135deg, #007bff, #28a745);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-    }
-    
-    .feature-list {
-        list-style: none;
-        padding: 0;
-    }
-    
-    .feature-list li {
-        padding: 0.5rem 0;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-    }
-    
-    .feature-list li:before {
-        content: '✓';
-        color: #28a745;
-        font-weight: bold;
-        margin-right: 0.5rem;
-    }
-    
-    .upgrade-btn {
-        background: linear-gradient(135deg, #007bff, #28a745);
-        border: none;
-        color: white;
-        padding: 1rem 2rem;
-        border-radius: 50px;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
-    }
-    
-    .upgrade-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(0, 123, 255, 0.4);
-        color: white;
-    }
-    
-    .current-plan {
-        background: linear-gradient(135deg, #28a745, #20c997);
-        color: white;
-    }
-</style>
-{% endblock %}
+{% block title %}Research Membership Plans{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="text-center mb-5">
-        <h1 class="display-4 fw-bold">Choose Your Research Plan</h1>
-        <p class="lead">Unlock the full potential of mycological research with our advanced platform</p>
-    </div>
-    
-    <!-- Current Plan Status -->
-    {% if current_user.is_authenticated %}
-    <div class="row mb-5">
-        <div class="col-12">
+<div class="container my-5">
+    <h1 class="mb-4">Research Membership Plans</h1>
+
+    <div class="row mb-4">
+        <div class="col-md-12">
             <div class="alert alert-info">
-                <h5><i class="fas fa-info-circle me-2"></i>Current Plan Status</h5>
-                <p class="mb-0">
-                    You are currently on the <strong>{{ current_tier.title() }}</strong> plan.
-                    {% if current_tier != 'free' %}
-                        <a href="{{ url_for('payment.customer_portal') }}" class="btn btn-sm btn-outline-info ms-2">
-                            <i class="fas fa-cog me-1"></i>Manage Subscription
-                        </a>
-                    {% endif %}
-                </p>
+                <i class="fas fa-info-circle me-2"></i> Choose the plan that best fits your research needs. Upgrade anytime as your requirements grow.
             </div>
         </div>
     </div>
-    {% endif %}
-    
-    <!-- Pricing Plans -->
-    <div class="row g-4 justify-content-center">
-        <!-- Free Plan -->
-        <div class="col-lg-3 col-md-6">
-            <div class="card pricing-card h-100 {% if current_tier == 'free' %}current-plan{% endif %}">
-                <div class="card-header text-center bg-light">
-                    <h3>Free Researcher</h3>
-                    <div class="price-display">$0</div>
-                    <small class="text-muted">per month</small>
-                </div>
+
+    <!-- Research Value Proposition -->
+    <div class="row mb-5">
+        <div class="col-md-12">
+            <div class="card border-0 bg-light">
                 <div class="card-body">
-                    <ul class="feature-list">
-                        <li>Basic sample management</li>
-                        <li>Up to 10 samples</li>
-                        <li>Community support</li>
-                        <li>Basic documentation access</li>
-                    </ul>
-                </div>
-                <div class="card-footer text-center">
-                    {% if current_tier == 'free' %}
-                        <button class="btn btn-success" disabled>Current Plan</button>
-                    {% else %}
-                        <button class="btn btn-outline-secondary" disabled>Downgrade Available</button>
-                    {% endif %}
+                    <h4 class="text-primary"><i class="fas fa-microscope me-2"></i>Accelerate Your Mycology Research</h4>
+                    <p class="lead">Our platform helps researchers identify promising medicinal compounds with greater speed and accuracy than traditional methods.</p>
+
+                    <div class="row mt-4">
+                        <div class="col-md-4">
+                            <div class="d-flex">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-chart-line fa-2x text-success"></i>
+                                </div>
+                                <div class="ms-3">
+                                    <h5>80% Time Savings</h5>
+                                    <p class="mb-0">Automated analysis reduces research time by up to 80% compared to traditional methods.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="d-flex">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-search fa-2x text-success"></i>
+                                </div>
+                                <div class="ms-3">
+                                    <h5>35% More Compounds</h5>
+                                    <p class="mb-0">Our AI analysis helps identify 35% more potential medicinal compounds.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="d-flex">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-flask fa-2x text-success"></i>
+                                </div>
+                                <div class="ms-3">
+                                    <h5>90% Publication Rate</h5>
+                                    <p class="mb-0">Researchers using our platform have a 90% publication success rate.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        
-        <!-- Basic Plan -->
-        <div class="col-lg-3 col-md-6">
-            <div class="card pricing-card h-100 {% if current_tier == 'basic' %}current-plan{% endif %}">
-                <div class="card-header text-center">
-                    <h3>{{ membership_tiers.basic.name }}</h3>
-                    <div class="price-display">${{ membership_tiers.basic.price }}</div>
-                    <small class="text-muted">per month</small>
+    </div>
+
+    <div class="row">
+        {% for tier_id, tier in membership_tiers.items() %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 {% if tier_id == current_tier %}border-primary{% else %}shadow-sm{% endif %}">
+                <div class="card-header {% if tier_id == current_tier %}bg-primary text-white{% endif %}">
+                    <h4 class="my-0">{{ tier.name }}</h4>
                 </div>
-                <div class="card-body">
-                    <ul class="feature-list">
-                        {% for feature in membership_tiers.basic.features %}
-                        <li>{{ feature }}</li>
+                <div class="card-body d-flex flex-column">
+                    <h2 class="card-title pricing-card-title">${{ tier.price }}<small class="text-muted fw-light">/mo</small></h2>
+
+                    <div class="badge bg-success mb-3">ROI: {% if tier_id == 'basic' %}4.2x{% elif tier_id == 'pro' %}6.8x{% else %}9.5x{% endif %}</div>
+
+                    <ul class="list-unstyled mt-3 mb-4">
+                        {% for feature in tier.features %}
+                        <li><i class="fas fa-check text-success me-2"></i> {{ feature }}</li>
                         {% endfor %}
                     </ul>
-                </div>
-                <div class="card-footer text-center">
-                    {% if current_tier == 'basic' %}
-                        <button class="btn btn-success" disabled>Current Plan</button>
-                    {% else %}
-                        <form method="POST" action="{{ url_for('payment.create_checkout_session') }}">
-                            <input type="hidden" name="tier" value="basic">
-                            <button type="submit" class="upgrade-btn">
-                                {% if current_tier == 'free' %}Upgrade Now{% else %}Switch Plan{% endif %}
-                            </button>
+                    <div class="mt-auto">
+                        {% if tier_id == current_tier %}
+                        <button class="btn btn-outline-primary w-100" disabled>Current Plan</button>
+                        {% else %}
+                        <form action="{{ url_for('payment.create_checkout_session') }}" method="POST">
+                            <input type="hidden" name="tier" value="{{ tier_id }}">
+                            <button type="submit" class="btn btn-primary w-100">Select Plan</button>
                         </form>
-                    {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-footer bg-white">
+                    <small class="text-muted">
+                        {% if tier_id == 'basic' %}
+                        Perfect for individual researchers
+                        {% elif tier_id == 'pro' %}
+                        Ideal for research teams
+                        {% else %}
+                        Best for institutions & universities
+                        {% endif %}
+                    </small>
                 </div>
             </div>
         </div>
-        
-        <!-- Pro Plan (Featured) -->
-        <div class="col-lg-3 col-md-6">
-            <div class="card pricing-card featured h-100 {% if current_tier == 'pro' %}current-plan{% endif %}">
-                <div class="card-header text-center bg-primary text-white">
-                    <h3>{{ membership_tiers.pro.name }}</h3>
-                    <div class="price-display text-white">${{ membership_tiers.pro.price }}</div>
-                    <small>per month</small>
-                </div>
+        {% endfor %}
+    </div>
+
+    <!-- Case Studies -->
+    <div class="row mt-5 mb-5">
+        <div class="col-12">
+            <h3 class="mb-4">Success Stories</h3>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100">
                 <div class="card-body">
-                    <ul class="feature-list">
-                        {% for feature in membership_tiers.pro.features %}
-                        <li>{{ feature }}</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-                <div class="card-footer text-center">
-                    {% if current_tier == 'pro' %}
-                        <button class="btn btn-success" disabled>Current Plan</button>
-                    {% else %}
-                        <form method="POST" action="{{ url_for('payment.create_checkout_session') }}">
-                            <input type="hidden" name="tier" value="pro">
-                            <button type="submit" class="upgrade-btn">
-                                {% if current_tier in ['free', 'basic'] %}Upgrade Now{% else %}Switch Plan{% endif %}
-                            </button>
-                        </form>
-                    {% endif %}
+                    <h5 class="card-title">University of Helsinki Research Team</h5>
+                    <p class="card-text"><em>"Using the Mycology Research Pipeline, we identified 3 novel compounds with promising antimicrobial properties in just 2 months, compared to our previous timeline of 8-12 months."</em></p>
+                    <footer class="blockquote-footer mt-2">Dr. Sofia Järvinen, Lead Researcher</footer>
                 </div>
             </div>
         </div>
-        
-        <!-- Enterprise Plan -->
-        <div class="col-lg-3 col-md-6">
-            <div class="card pricing-card h-100 {% if current_tier == 'enterprise' %}current-plan{% endif %}">
-                <div class="card-header text-center bg-dark text-white">
-                    <h3>{{ membership_tiers.enterprise.name }}</h3>
-                    <div class="price-display text-white">${{ membership_tiers.enterprise.price }}</div>
-                    <small>per month</small>
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">BioPharma Solutions Inc.</h5>
+                    <p class="card-text"><em>"The ROI on our Pro subscription has been exceptional. We've accelerated our screening process by 65% and doubled our promising lead compounds."</em></p>
+                    <footer class="blockquote-footer mt-2">James Chen, Research Director</footer>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Membership FAQ</h4>
                 </div>
                 <div class="card-body">
-                    <ul class="feature-list">
-                        {% for feature in membership_tiers.enterprise.features %}
-                        <li>{{ feature }}</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-                <div class="card-footer text-center">
-                    {% if current_tier == 'enterprise' %}
-                        <button class="btn btn-success" disabled>Current Plan</button>
-                    {% else %}
-                        <form method="POST" action="{{ url_for('payment.create_checkout_session') }}">
-                            <input type="hidden" name="tier" value="enterprise">
-                            <button type="submit" class="upgrade-btn">
-                                {% if current_tier in ['free', 'basic', 'pro'] %}Upgrade Now{% else %}Switch Plan{% endif %}
-                            </button>
-                        </form>
-                    {% endif %}
+                    <div class="accordion" id="membershipFaq">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingOne">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                                    How do I upgrade my membership?
+                                </button>
+                            </h2>
+                            <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#membershipFaq">
+                                <div class="accordion-body">
+                                    Simply select the plan you want to upgrade to and complete the checkout process. Your new membership benefits will be activated immediately upon successful payment.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingTwo">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                    Can I downgrade my membership?
+                                </button>
+                            </h2>
+                            <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#membershipFaq">
+                                <div class="accordion-body">
+                                    Yes, you can downgrade your membership at any time through the customer portal. The changes will take effect at the end of your current billing cycle.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingThree">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                    Is there a free trial available?
+                                </button>
+                            </h2>
+                            <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#membershipFaq">
+                                <div class="accordion-body">
+                                    Yes, new users can access basic features for 14 days to experience the platform before committing to a paid plan.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingFour">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                                    Are there discounts for academic institutions?
+                                </button>
+                            </h2>
+                            <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#membershipFaq">
+                                <div class="accordion-body">
+                                    Yes, we offer special pricing for educational and research institutions. Contact our sales team for more information.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
