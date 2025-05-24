@@ -14,9 +14,22 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     
+    <style>
+        body, html {
+            background-color: #ffffff !important;
+        }
+        .container, .container-fluid {
+            background-color: #ffffff !important;
+        }
+        .card {
+            background-color: #ffffff !important;
+            border: 1px solid #e9ecef;
+        }
+    </style>
+    
     {% block extra_css %}{% endblock %}
 </head>
-<body>
+<body class="bg-white">
     <!-- Navigation Bar -->
     {% include 'includes/navbar.html' %}
     
@@ -43,7 +56,7 @@
     {% include 'components/tip_widget.html' %}
     
     <!-- Footer -->
-    <footer class="footer mt-auto py-3 bg-light text-dark border-top">
+    <footer class="footer mt-auto py-3 bg-white text-dark border-top">
         <div class="container">
             <div class="row">
                 <div class="col-md-4">
