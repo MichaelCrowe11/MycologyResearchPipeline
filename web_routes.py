@@ -954,7 +954,9 @@ def process_image():
                                                         analysis_id=analysis_id, 
                                                         filename=os.path.basename(results['morphology_output_image']))
         
-        return jsonify(results)
+        # Convert results for JSON response (apply same conversion)
+        results_for_response = convert_numpy_types(results)
+        return jsonify(results_for_response)
     
     except Exception as e:
         current_app.logger.error(f"Error processing image: {str(e)}")
