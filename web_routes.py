@@ -919,10 +919,28 @@ def process_image():
         results['description'] = request.form.get('sample_description', '')
         results['analysis_id'] = analysis_id
         
+        # Convert numpy types to Python types for JSON serialization
+        def convert_numpy_types(obj):
+            """Convert numpy types to Python types for JSON serialization."""
+            if isinstance(obj, np.floating):
+                return float(obj)
+            elif isinstance(obj, np.integer):
+                return int(obj)
+            elif isinstance(obj, np.ndarray):
+                return obj.tolist()
+            elif isinstance(obj, dict):
+                return {key: convert_numpy_types(value) for key, value in obj.items()}
+            elif isinstance(obj, list):
+                return [convert_numpy_types(item) for item in obj]
+            return obj
+        
+        # Convert results before saving
+        results_clean = convert_numpy_types(results)
+        
         # Save results to a JSON file
         result_file = os.path.join(analysis_dir, 'analysis_results.json')
         with open(result_file, 'w') as f:
-            json.dump(results, f, indent=2)
+            json.dump(results_clean, f, indent=2)
         
         # Convert image paths to URLs
         if 'species_output_image' in results:
