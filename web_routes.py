@@ -234,8 +234,11 @@ def new_batch_job():
             parameters = request.form.get('parameters', '{}')
             
             try:
-                # Convert parameters from JSON string
-                parameters_dict = json.loads(parameters)
+                # Convert parameters from JSON string, handle empty case
+                if parameters and parameters.strip():
+                    parameters_dict = json.loads(parameters)
+                else:
+                    parameters_dict = {}
                 
                 # Create a new batch job
                 batch_job = BatchJob(
