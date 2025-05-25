@@ -1,0 +1,102 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: mycology-web
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=${FLASK_ENV:-production}
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/mycology
+      - REDIS_URL=redis://redis:6379/0
+    env_file:
+      - .env
+    volumes:
+      - ./uploads:/app/uploads
+      - ./results:/app/results
+      - ./logs:/app/logs
+    depends_on:
+      - db
+      - redis
+    restart: unless-stopped
+    networks:
+      - mycology-network
+
+  db:
+    image: postgres:15-alpine
+    container_name: mycology-db
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=mycology
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    networks:
+      - mycology-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: mycology-redis
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    networks:
+      - mycology-network
+
+  nginx:
+    image: nginx:alpine
+    container_name: mycology-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - ./static:/usr/share/nginx/html/static:ro
+    depends_on:
+      - web
+    restart: unless-stopped
+    networks:
+      - mycology-network
+
+  # Development services
+  mailhog:
+    image: mailhog/mailhog
+    container_name: mycology-mailhog
+    ports:
+      - "1025:1025"  # SMTP server
+      - "8025:8025"  # Web UI
+    profiles:
+      - dev
+    networks:
+      - mycology-network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: mycology-pgadmin
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@mycology.local
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    ports:
+      - "5050:80"
+    profiles:
+      - dev
+    depends_on:
+      - db
+    networks:
+      - mycology-network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  mycology-network:
+    driver: bridge 

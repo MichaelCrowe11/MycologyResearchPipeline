@@ -4,6 +4,11 @@
 
 {% block extra_css %}
 <style>
+    .pricing-section {
+        min-height: 80vh;
+        padding: 3rem 0;
+    }
+    
     .pricing-card {
         background: var(--surface-dark);
         border-radius: 16px;
@@ -11,6 +16,24 @@
         transition: transform 0.3s ease, box-shadow 0.3s ease;
         height: 100%;
         border: 1px solid rgba(255, 255, 255, 0.1);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .pricing-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    .pricing-card:hover::before {
+        opacity: 1;
     }
     
     .pricing-card:hover {
@@ -20,7 +43,6 @@
     
     .pricing-card.popular {
         border: 2px solid var(--primary-color);
-        position: relative;
     }
     
     .popular-badge {
@@ -33,6 +55,15 @@
         border-radius: 20px;
         font-size: 0.8rem;
         font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .plan-name {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: var(--text-primary);
     }
     
     .price {
@@ -40,152 +71,249 @@
         font-weight: 700;
         color: var(--primary-color);
         margin: 1rem 0;
+        display: flex;
+        align-items: baseline;
+        gap: 0.5rem;
+    }
+    
+    .price-currency {
+        font-size: 1.5rem;
+        font-weight: 500;
     }
     
     .price-period {
         font-size: 1rem;
         color: var(--text-secondary);
+        font-weight: 400;
     }
     
     .feature-list {
         list-style: none;
         padding: 0;
-        margin: 1.5rem 0;
+        margin: 1.5rem 0 2rem;
     }
     
     .feature-list li {
-        padding: 0.5rem 0;
+        padding: 0.75rem 0;
         color: var(--text-secondary);
         display: flex;
-        align-items: center;
+        align-items: flex-start;
+        gap: 0.75rem;
+        font-size: 0.95rem;
+        line-height: 1.5;
     }
     
     .feature-list li i {
         color: var(--primary-color);
-        margin-right: 0.75rem;
         font-size: 0.875rem;
+        margin-top: 0.25rem;
+        flex-shrink: 0;
     }
     
-    .current-plan {
+    .current-plan-badge {
         background: rgba(76, 175, 80, 0.1);
+        border: 1px solid rgba(76, 175, 80, 0.3);
         border-radius: 8px;
         padding: 0.5rem 1rem;
         color: var(--primary-color);
         font-weight: 500;
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
         margin-bottom: 1rem;
+    }
+    
+    .btn-select-plan {
+        width: 100%;
+        padding: 0.75rem 1.5rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-select-plan:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+    
+    .faq-section {
+        background: var(--surface-dark);
+        border-radius: 16px;
+        padding: 2rem;
+        margin-top: 3rem;
+    }
+    
+    .accordion-button {
+        background: transparent;
+        color: var(--text-primary);
+        font-weight: 500;
+        padding: 1rem 1.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px !important;
+    }
+    
+    .accordion-button:not(.collapsed) {
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--primary-color);
+    }
+    
+    .accordion-button:focus {
+        box-shadow: 0 0 0 0.25rem rgba(76, 175, 80, 0.25);
+    }
+    
+    .contact-section {
+        background: linear-gradient(135deg, rgba(76, 175, 80, 0.1), rgba(33, 150, 243, 0.1));
+        border-radius: 16px;
+        padding: 3rem;
+        text-align: center;
+        margin-top: 3rem;
+    }
+    
+    @media (max-width: 768px) {
+        .pricing-card {
+            margin-bottom: 2rem;
+        }
+        
+        .price {
+            font-size: 2rem;
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="text-center mb-5">
-        <h1 class="display-4 mb-3">Choose Your Research Plan</h1>
-        <p class="lead text-secondary">Select the perfect plan for your mycological research needs</p>
-    </div>
-    
-    {% if current_user.membership_tier %}
-    <div class="text-center mb-4">
-        <span class="current-plan">
-            <i class="fas fa-check-circle me-2"></i>Current Plan: {{ membership_tiers[current_user.membership_tier]['name'] }}
-        </span>
-    </div>
-    {% endif %}
-    
-    <div class="row g-4">
-        {% for tier_id, tier in membership_tiers.items() %}
-        <div class="col-md-4">
-            <div class="pricing-card {% if tier_id == 'pro' %}popular{% endif %}">
-                {% if tier_id == 'pro' %}
-                <span class="popular-badge">Most Popular</span>
-                {% endif %}
-                
-                <h3 class="h4 mb-3">{{ tier.name }}</h3>
-                <div class="price">
-                    ${{ tier.price }}<span class="price-period">/month</span>
-                </div>
-                
-                <ul class="feature-list">
-                    {% for feature in tier.features %}
-                    <li>
-                        <i class="fas fa-check"></i>
-                        {{ feature }}
-                    </li>
-                    {% endfor %}
-                </ul>
-                
-                <form action="{{ url_for('payment.create_checkout_session') }}" method="POST" class="mt-4">
-                    <input type="hidden" name="tier" value="{{ tier_id }}">
-                    <button type="submit" class="btn btn-primary w-100 py-2">
-                        {% if current_user.membership_tier == tier_id %}
-                        Current Plan
-                        {% else %}
-                        Select Plan
-                        {% endif %}
-                    </button>
-                </form>
+<div class="pricing-section">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h1 class="display-4 mb-3">Choose Your Research Plan</h1>
+            <p class="lead text-secondary">Select the perfect plan for your mycological research needs</p>
+        </div>
+        
+        {% if current_user.is_authenticated and current_user.membership_tier %}
+        <div class="text-center mb-4">
+            <div class="current-plan-badge">
+                <i class="fas fa-check-circle"></i>
+                <span>Current Plan: {{ membership_tiers[current_user.membership_tier]['name'] }}</span>
             </div>
         </div>
-        {% endfor %}
-    </div>
-    
-    <div class="row mt-5">
-        <div class="col-lg-8 mx-auto">
-            <div class="card bg-transparent border-0">
-                <div class="card-body text-center">
-                    <h3 class="h4 mb-3">Need a Custom Solution?</h3>
-                    <p class="text-secondary mb-4">Contact us for enterprise-level solutions and custom integrations tailored to your research needs.</p>
-                    <a href="#" class="btn btn-outline-primary">Contact Sales</a>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="row mt-5">
-        <div class="col-lg-8 mx-auto">
-            <div class="card bg-transparent border-0">
-                <div class="card-body">
-                    <h3 class="h4 mb-4">Frequently Asked Questions</h3>
+        {% endif %}
+        
+        <div class="row g-4 justify-content-center">
+            {% for tier_id, tier in membership_tiers.items() %}
+            <div class="col-lg-4 col-md-6">
+                <div class="pricing-card {% if tier_id == 'pro' %}popular{% endif %}" role="article" aria-label="{{ tier.name }} plan">
+                    {% if tier_id == 'pro' %}
+                    <span class="popular-badge" aria-label="Most popular plan">Most Popular</span>
+                    {% endif %}
                     
-                    <div class="accordion" id="pricingFAQ">
-                        <div class="accordion-item bg-transparent border-0 mb-3">
-                            <h2 class="accordion-header">
-                                <button class="accordion-button collapsed bg-transparent" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
-                                    Can I upgrade or downgrade my plan?
-                                </button>
-                            </h2>
-                            <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#pricingFAQ">
-                                <div class="accordion-body text-secondary">
-                                    Yes, you can change your plan at any time. When upgrading, you'll be prorated for the remainder of your billing cycle. When downgrading, the new rate will apply at the start of your next billing cycle.
-                                </div>
-                            </div>
-                        </div>
+                    <h3 class="plan-name">{{ tier.name }}</h3>
+                    <div class="price" aria-label="Price: {{ tier.price }} dollars per month">
+                        <span class="price-currency">$</span>
+                        <span>{{ "%.2f"|format(tier.price) }}</span>
+                        <span class="price-period">/month</span>
+                    </div>
+                    
+                    <ul class="feature-list" role="list" aria-label="Features included in {{ tier.name }} plan">
+                        {% for feature in tier.features %}
+                        <li role="listitem">
+                            <i class="fas fa-check" aria-hidden="true"></i>
+                            <span>{{ feature }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    
+                    <form action="{{ url_for('payment.create_checkout_session') }}" method="POST" class="mt-auto">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="tier" value="{{ tier_id }}">
                         
-                        <div class="accordion-item bg-transparent border-0 mb-3">
-                            <h2 class="accordion-header">
-                                <button class="accordion-button collapsed bg-transparent" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
-                                    What payment methods do you accept?
-                                </button>
-                            </h2>
-                            <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#pricingFAQ">
-                                <div class="accordion-body text-secondary">
-                                    We accept all major credit cards (Visa, MasterCard, American Express) and PayPal. For enterprise customers, we also offer invoice-based billing.
-                                </div>
-                            </div>
+                        {% if current_user.is_authenticated %}
+                            {% if current_user.membership_tier == tier_id %}
+                            <button type="button" class="btn btn-secondary btn-select-plan" disabled>
+                                <i class="fas fa-check me-2"></i>Current Plan
+                            </button>
+                            {% else %}
+                            <button type="submit" class="btn btn-primary btn-select-plan">
+                                {% if current_user.membership_tier and membership_tiers[current_user.membership_tier].price < tier.price %}
+                                    Upgrade to {{ tier.name }}
+                                {% elif current_user.membership_tier %}
+                                    Switch to {{ tier.name }}
+                                {% else %}
+                                    Get Started
+                                {% endif %}
+                            </button>
+                            {% endif %}
+                        {% else %}
+                        <a href="{{ url_for('auth.login', next=url_for('payment.membership')) }}" class="btn btn-primary btn-select-plan">
+                            Get Started
+                        </a>
+                        {% endif %}
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="contact-section">
+            <h3 class="h3 mb-3">Need a Custom Solution?</h3>
+            <p class="text-secondary mb-4">Contact us for enterprise-level solutions and custom integrations tailored to your research institution's needs.</p>
+            <a href="{{ url_for('web.contact') }}" class="btn btn-outline-primary btn-lg">
+                <i class="fas fa-envelope me-2"></i>Contact Sales Team
+            </a>
+        </div>
+        
+        <div class="faq-section">
+            <h3 class="h3 mb-4 text-center">Frequently Asked Questions</h3>
+            
+            <div class="accordion" id="pricingFAQ">
+                <div class="accordion-item bg-transparent border-0 mb-3">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq1" aria-expanded="false" aria-controls="faq1">
+                            Can I upgrade or downgrade my plan?
+                        </button>
+                    </h2>
+                    <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#pricingFAQ">
+                        <div class="accordion-body text-secondary">
+                            Yes, you can change your plan at any time. When upgrading, you'll be prorated for the remainder of your billing cycle. When downgrading, the new rate will apply at the start of your next billing cycle.
                         </div>
-                        
-                        <div class="accordion-item bg-transparent border-0">
-                            <h2 class="accordion-header">
-                                <button class="accordion-button collapsed bg-transparent" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
-                                    Is there a free trial available?
-                                </button>
-                            </h2>
-                            <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#pricingFAQ">
-                                <div class="accordion-body text-secondary">
-                                    Yes, we offer a 14-day free trial for all paid plans. No credit card required to start your trial.
-                                </div>
-                            </div>
+                    </div>
+                </div>
+                
+                <div class="accordion-item bg-transparent border-0 mb-3">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2" aria-expanded="false" aria-controls="faq2">
+                            What payment methods do you accept?
+                        </button>
+                    </h2>
+                    <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#pricingFAQ">
+                        <div class="accordion-body text-secondary">
+                            We accept all major credit cards (Visa, MasterCard, American Express, Discover) through our secure payment processor, Stripe. For enterprise customers, we also offer invoice-based billing and purchase orders.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accordion-item bg-transparent border-0 mb-3">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3" aria-expanded="false" aria-controls="faq3">
+                            Is there a free trial available?
+                        </button>
+                    </h2>
+                    <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#pricingFAQ">
+                        <div class="accordion-body text-secondary">
+                            Yes, we offer a 14-day free trial for all paid plans. No credit card required to start your trial. You'll have full access to all features during the trial period.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accordion-item bg-transparent border-0">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4" aria-expanded="false" aria-controls="faq4">
+                            What happens to my data if I cancel?
+                        </button>
+                    </h2>
+                    <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#pricingFAQ">
+                        <div class="accordion-body text-secondary">
+                            Your data remains accessible for 30 days after cancellation, allowing you to export your research data. After this period, data is securely deleted according to our data retention policy. You can reactivate your account at any time within the 30-day period.
                         </div>
                     </div>
                 </div>
@@ -193,5 +321,4 @@
         </div>
     </div>
 </div>
-{% endblock %}
 {% endblock %}
