@@ -30,6 +30,13 @@ FEATURE_EXTRACTION_MODEL = os.path.join(MODEL_PATH, 'feature_extractor.pkl')
 SPECIES_CLASSIFIER_MODEL = os.path.join(MODEL_PATH, 'species_classifier.pkl')
 COLOR_REFERENCE_FILE = os.path.join(MODEL_PATH, 'color_references.json')
 
+# Check if cv2 is imported correctly
+try:
+    cv2_version = cv2.__version__
+    logger.info(f"cv2 imported successfully, version: {cv2_version}")
+except ImportError as e:
+    logger.error(f"Failed to import cv2: {str(e)}")
+    raise
 
 class ImageProcessor:
     """Base class for image processing operations."""
