@@ -9,6 +9,7 @@ import argparse
 import logging
 import json
 from datetime import datetime
+import cv2
 
 from app import create_app
 from model import load_model
@@ -296,4 +297,10 @@ def main():
 
 
 if __name__ == '__main__':
+    try:
+        cv2_version = cv2.__version__
+        logger.info(f"cv2 imported successfully, version: {cv2_version}")
+    except ImportError as e:
+        logger.error(f"Failed to import cv2: {str(e)}")
+        sys.exit(1)
     main()
