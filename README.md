@@ -1,258 +1,73 @@
 # Mycology Research Pipeline
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python Version](https://img.shields.io/badge/python-3.12%2B-blue)](https://www.python.org/downloads/)
-[![Flask](https://img.shields.io/badge/flask-3.0.0-green)](https://flask.palletsprojects.com/)
+Flask web app for recording mushroom samples and analyses, with demo image identification, a scikit-learn bioactivity model, and lookups against PubMed, GBIF, and iNaturalist.
 
-A comprehensive platform for mycological research and analysis, providing advanced tools for mushroom identification, bioactivity prediction, literature analysis, and data visualization.
+## Status
 
-## 🍄 Features
+experimental
 
-### Core Functionality
-- **🔬 Advanced Image Analysis**: Computer vision-powered mushroom identification using state-of-the-art ML models
-- **📊 Bioactivity Prediction**: Machine learning predictions based on 30,000+ authentic bioactivity records
-- **📚 Literature Search**: Automated literature review with integration to scientific databases
-- **🔄 Batch Processing**: Process multiple samples efficiently with priority queue support
-- **🌐 Multi-Database Integration**: Cross-validation with iNaturalist, GBIF, and MycoBank
-- **🤖 AI Research Assistant**: AI-powered research assistance for mycological queries
+Development stopped on 2025-11-09 (last commit on `main`, from `git log`; that commit added Fly.io launch files, and the last code change was 2025-05-28). On 2026-09-10 the app installed from the lockfile and served pages with no configuration. The parts that do not work are listed under Limits: species identification returns demo values, the bioactivity model has no trained weights, nine of fifteen tests error, and the Fly.io app is down.
 
-### Premium Features
-- **💎 Professional Analysis**: Comprehensive dried specimen analysis with expert validation
-- **📈 Advanced Reporting**: Detailed PDF reports with scientific citations
-- **🔗 API Access**: RESTful API for programmatic access
-- **👥 Multi-user Support**: Enterprise-grade user management and permissions
+## Install and first run
 
-## 🚀 Quick Start
-
-### Prerequisites
-
-- Python 3.12 or higher
-- pip (Python package manager)
-- Git
-- Redis (optional, for caching and rate limiting)
-- PostgreSQL or MySQL (optional, SQLite used by default)
-
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/yourusername/MycologyResearchPipeline.git
-   cd MycologyResearchPipeline
-   ```
-
-2. **Create and activate a virtual environment**
-   ```bash
-   python -m venv .venv
-   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-   ```
-
-3. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. **Set up environment variables**
-   ```bash
-   cp .env.example .env
-   # Edit .env with your configuration
-   ```
-
-5. **Initialize the database**
-   ```bash
-   flask db init
-   flask db migrate -m "Initial migration"
-   flask db upgrade
-   ```
-
-6. **Run the application**
-   ```bash
-   flask run
-   ```
-
-The application will be available at `http://localhost:5000`
-
-## 📋 Configuration
-
-### Environment Variables
-
-Create a `.env` file based on `.env.example`. Key configurations include:
-
-```env
-# Essential Configuration
-SECRET_KEY=your-secret-key-here
-DATABASE_URL=sqlite:///mycology.db
-
-# Stripe Payment (for premium features)
-STRIPE_PUBLIC_KEY=pk_test_your_key
-STRIPE_SECRET_KEY=sk_test_your_key
-
-# External APIs
-OPENAI_API_KEY=your-openai-key
-INATURALIST_API_KEY=your-inaturalist-key
-GBIF_API_KEY=your-gbif-key
-```
-
-See `.env.example` for complete configuration options.
-
-## 🏗️ Project Structure
+Run on 2026-09-10 with uv 0.11.23 and Python 3.13.14, from a fresh clone:
 
 ```
-MycologyResearchPipeline/
-├── app.py                    # Application entry point
-├── config.py                 # Configuration settings
-├── models.py                 # Database models
-├── requirements.txt          # Python dependencies
-├── .env.example             # Environment variables template
-│
-├── routes/                   # Route handlers
-│   ├── auth_routes.py       # Authentication endpoints
-│   ├── payment_routes.py    # Payment processing
-│   ├── api_routes.py        # REST API endpoints
-│   └── web_routes.py        # Web interface routes
-│
-├── services/                 # Business logic
-│   ├── computer_vision.py   # Image analysis
-│   ├── ml_bioactivity.py    # Bioactivity predictions
-│   ├── literature.py        # Literature search
-│   └── ai_assistant.py      # AI integration
-│
-├── templates/               # HTML templates
-│   ├── base.html           # Base template
-│   ├── index.html          # Landing page
-│   └── payment/            # Payment pages
-│
-├── static/                  # Static assets
-│   ├── css/                # Stylesheets
-│   ├── js/                 # JavaScript
-│   └── images/             # Images
-│
-└── tests/                   # Test suite
-    ├── test_api.py         # API tests
-    ├── test_models.py      # Model tests
-    └── test_services.py    # Service tests
+uv sync --frozen
+# Installed 3.3 s into .venv from uv.lock
+
+uv pip install -p .venv/bin/python -r requirements-dev.txt
+# pytest is not in pyproject.toml; this file adds it
+
+.venv/bin/python -m pytest -q tests
+# 6 passed, 9 errors in 2.57s
+# every tests/test_api.py case errors: ImportStringError ... No module named 'testing'
+
+.venv/bin/gunicorn --bind 127.0.0.1:5077 --workers 1 main:app
+# worker booted in about 12 s (cv2 4.11.0 import, Prometheus metrics init)
+# wrote instance/mycology_research.db (SQLite) with no env vars set
+
+curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:5077/         # 200
+curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:5077/docs     # 200 (Swagger UI, 7 API paths)
+curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:5077/api/health   # 200
+curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:5077/api/samples  # 200 (empty list)
+curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:5077/auth/login   # 200
+curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:5077/metrics      # 200
+curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:5077/health       # 404
 ```
 
-## 🧪 Testing
+Not run: the Docker build, `docker-compose.yml`, a Fly.io deploy, user registration, image upload, batch jobs, Stripe checkout, OpenAI calls, literature fetches, and `import_research_kit.py`.
 
-Run the test suite:
+Optional environment variables are listed in `.env.example`. `DATABASE_URL` switches from SQLite to Postgres. `OPENAI_API_KEY` enables the assistant pages in `ai_routes.py`. `STRIPE_*` keys and price IDs enable `/payment`.
 
-```bash
-# Run all tests
-pytest
+## What runs today
 
-# Run with coverage
-pytest --cov=.
+- `app.py` builds the Flask app, registers six blueprints, and creates the tables in `models.py` (samples, compounds, analyses, batch_jobs, versions, research_logs, literature_references, users, memberships, subscriptions, payments, oauth_tokens, ai_assistant_queries).
+- `api_routes.py`: `/api/health`, `/api/samples`, `/api/samples/<id>`, `/api/analyses/<id>`, `/api/process`, `/api/batch`, `/api/batch/<id>`. Documented by flasgger at `/docs`.
+- `web_routes.py`: pages for samples, analyses, batch jobs, research logs, literature search, a parameter generator, image analysis, and a prediction dashboard (39 templates).
+- `auth_routes.py`: login, register, profile, API keys, membership pages (Flask-Login).
+- `computer_vision.py`: OpenCV image loading, Otsu segmentation, and contour measurements (area, perimeter, bounding box, circularity).
+- `model.py`: a scikit-learn RandomForest wrapper with fit, predict, save, and load.
+- `scientific_databases.py`, `literature.py`, `fetch_mycology_literature.py`: request code for PubMed, GBIF, iNaturalist, MycoBank, and Index Fungorum. Not exercised in this run.
+- `monitoring.py`: Prometheus metrics at `/metrics`.
+- `tests/test_models.py`: 6 passing tests.
 
-# Run specific test file
-pytest tests/test_api.py
+## Limits
 
-# Run with verbose output
-pytest -v
-```
+- Species identification is a demo. `identify_species` in `computer_vision.py` (lines 215 to 247) picks a name from a fixed list by the image's average color and reports a confidence drawn from `np.random`. The code comments say "For demonstration purposes, we'll return mock results." Do not use its output to identify a mushroom or to decide whether one is safe to eat.
+- Bioactivity prediction has no trained model. `ml_bioactivity.py` fills missing inputs with fixed placeholder numbers ("For demonstration, we'll create synthetic features", line 72). `MODEL_PATH=models/` in `.env.example` points at a directory that does not exist in the repository.
+- The old README claimed "30,000+ authentic bioactivity records". The repository holds three CSV files in `research_kit/` of 178, 113, and 211 bytes.
+- `ai_assistant.py` calls the OpenAI API with model `gpt-3.5-turbo` and needs `OPENAI_API_KEY`. Without it the module logs a warning and requests fail.
+- `payment_routes.py` falls back to placeholder Stripe price IDs such as `price_1OXyZ2ABC123DEF456GHI7J` when the `STRIPE_PRICE_*` variables are unset. Checkout cannot work with those values. Two handlers carry `TODO: Implement notification system`.
+- `tests/test_api.py` calls `create_app('testing')`, but `create_app` expects a config object, so all nine API tests error.
+- `Dockerfile` probes `/health`, which returns 404. The health route is `/api/health`. The Dockerfile also installs from `requirements.txt` (Flask 3.0.0 pinned) while `uv.lock` resolves `pyproject.toml` (Flask 3.1.1 or newer), so the Docker image and the uv environment differ.
+- `fly.toml` names the app `mycologyresearchpipeline`. On 2026-09-10 the hostname resolved to Fly's edge but connections on ports 80 and 443 were reset. Nothing is served there.
+- The old README linked docs.mycologyresearch.com, support and security addresses at mycologyresearch.com, and a Discord. docs.mycologyresearch.com does not resolve, and mycologyresearch.com is a third-party site not connected to this repository.
+- `GET /api/samples` answered without authentication in this run; the old README's statement that all API endpoints require a JWT is not what the code does.
+- The `.devcontainer` and `.replit` files describe the Replit workspace this was written in.
 
-## 📚 API Documentation
+## License and contact
 
-### Authentication
+MIT License (see `LICENSE`, copyright 2025 Mycology Research Pipeline Contributors).
 
-All API endpoints require authentication via JWT tokens:
-
-```bash
-# Get access token
-curl -X POST http://localhost:5000/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email": "user@example.com", "password": "password"}'
-
-# Use token in requests
-curl -X GET http://localhost:5000/api/samples \
-  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
-```
-
-### Key Endpoints
-
-- `POST /api/analyze` - Analyze mushroom image
-- `GET /api/samples` - List user samples
-- `POST /api/batch` - Submit batch processing job
-- `GET /api/literature/search` - Search scientific literature
-
-See full API documentation at `/api/docs` when running the application.
-
-## 🚢 Deployment
-
-### Docker Deployment
-
-```bash
-# Build Docker image
-docker build -t mycology-pipeline .
-
-# Run container
-docker run -p 5000:5000 --env-file .env mycology-pipeline
-```
-
-### Production Deployment
-
-1. **Set environment to production**
-   ```bash
-   export FLASK_ENV=production
-   export DEBUG=False
-   ```
-
-2. **Use a production WSGI server**
-   ```bash
-   gunicorn -w 4 -b 0.0.0.0:5000 app:app
-   ```
-
-3. **Set up reverse proxy** (Nginx example)
-   ```nginx
-   server {
-       listen 80;
-       server_name yourdomain.com;
-       
-       location / {
-           proxy_pass http://localhost:5000;
-           proxy_set_header Host $host;
-           proxy_set_header X-Real-IP $remote_addr;
-       }
-   }
-   ```
-
-## 🤝 Contributing
-
-We welcome contributions! Please follow these steps:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-### Development Guidelines
-
-- Follow PEP 8 style guide
-- Add tests for new features
-- Update documentation as needed
-- Use meaningful commit messages
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- Scientific data provided by iNaturalist, GBIF, and MycoBank
-- ML models trained on authentic mycological datasets
-- Community contributors and beta testers
-
-## 📞 Support
-
-- **Documentation**: [docs.mycologyresearch.com](https://docs.mycologyresearch.com)
-- **Issues**: [GitHub Issues](https://github.com/yourusername/MycologyResearchPipeline/issues)
-- **Email**: support@mycologyresearch.com
-- **Discord**: [Join our community](https://discord.gg/mycology)
-
-## 🔒 Security
-
-For security concerns, please email security@mycologyresearch.com instead of using public issue trackers.
-
----
-
-Made with 🍄 by the Mycology Research Team 
+Contact: michael@crowelogic.com
